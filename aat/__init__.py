@@ -21,6 +21,5 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://c22011528:Twente0508$@c
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
-
 from aat import routes
 
