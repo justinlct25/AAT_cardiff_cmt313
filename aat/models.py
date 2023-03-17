@@ -10,7 +10,8 @@ class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.Text, nullable=True, default="")
     hashed_password=db.Column(db.String(128))
-    name = db.Column(db.String(15), unique=True, nullable=False)
+    firstname = db.Column(db.String(50), unique=True, nullable=False)
+    lastname = db.Column(db.String(50), unique=True, nullable=False)
     icon = db.Column(db.Text, nullable=True, default="user_default_1.png")
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 
@@ -34,13 +35,13 @@ class Teacher(db.Model):
   id = db.Column(db.Integer, primary_key=True)
   user = db.relationship('User', secondary=user_teacher_association_table, backref='teacher', uselist=False) # one-to-one
   modules = db.relationship('Module', secondary=teacher_modules_association_table, backref='teacher')
-  teacher_num = db.Column(db.Integer, default=0)
+  teacher_num = db.Column(db.String(10), nullable=False)
 
 class Student(db.Model):
   id = db.Column(db.Integer, primary_key=True)
   user = db.relationship('User', secondary=user_student_association_table, backref='student', uselist=False) # one-to-one
   modules = db.relationship('Module', secondary=student_modules_association_table, backref='student') # many-to-many
-  student_num = db.Column(db.Integer, default=0)
+  student_num = db.Column(db.String(10), nullable=False)
 
 class Module(db.Model):
   id = db.Column(db.Integer, primary_key=True)
@@ -52,7 +53,7 @@ class Module(db.Model):
 class Assessment(db.Model):
   id = db.Column(db.Integer, primary_key=True)
   module_id = db.Column(db.Integer, db.ForeignKey('module.id'), nullable=False)
-  template = db.relationship('Module', secondary=assessment_template_association_table, backref='assessment') 
+  template = db.relationship('AssessmentTemplate', secondary=assessment_template_association_table, backref='assessment') 
   is_formative = db.Column(db.Boolean, default=False)
   start_at = db.Column(db.DateTime, nullable=False)
   end_at = db.Column(db.DateTime, nullable=False)
@@ -129,11 +130,12 @@ class FbStudentAns(db.Model):
   id = db.Column(db.Integer, primary_key=True)
   status_id = db.Column(db.Integer, db.ForeignKey('student_assessment_status.id'))
   question_id = db.Column(db.Integer, db.ForeignKey('fb_question.id'))
-  blank_answers = db.relationship('BlankStudentAns', backref='fb_student_ans', lazy=True)
+  blank_answers = db.relationship('BlankAns', backref='fb_student_ans', lazy=True)
   marks = db.Column(db.Integer, default=0)
 
-class BlankStudentAns(db.Model):
+class BlankAns(db.Model):
   id = db.Column(db.Integer, primary_key=True)
+  ans_id = db.Column(db.Integer, db.ForeignKey('fb_student_ans.id'))
   blank_id = db.Column(db.Integer, db.ForeignKey('blank.id'))
   student_ans = db.Column(db.String(50))
 
