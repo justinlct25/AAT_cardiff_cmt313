@@ -6,7 +6,7 @@ from flask_login import login_user, logout_user, current_user, login_required
 
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/home', methods=['GET', 'POST'])
-def index():
+def home():
     if current_user:
        user = User.query.get(current_user.id)
     return render_template("index.html", user=user)
@@ -19,7 +19,7 @@ def login():
       if user is not None and user.verify_password(form.password.data):
         login_user(user)
         flash('You\'ve successfully logged in,'+' '+ current_user.email +'!')
-        return redirect(url_for('index'))
+        return redirect(url_for('home'))
       flash('Invalid email or password.')
     return render_template('login.html',title='Login', form=form)
 
@@ -48,6 +48,17 @@ def profile(user_id):
         is_owner = False   
     user = User.query.get_or_404(user_id)
     return render_template('profile.html', is_owner=is_owner, user=user)
+
+@app.route("/modules", methods=['GET'])
+def modules():
+   user = User.query.get(current_user.id)
+   if user.student: modules = user.student.modules if user.student.modules else []
+   else: modules = user.teacher.modules if user.teacher.modules else []
+   return render_template('modules.html', modules=modules)
+
+@app.route("/assessments", methods=['GET'])
+def assessments():
+   return render_template('assessments.html')
 
 @app.errorhandler(404)
 def page_not_found(e):

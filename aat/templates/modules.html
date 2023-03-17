@@ -1,0 +1,11 @@
+{% set active_page = "modules" %}
+{% extends "base.html" %}
+{% block content %}
+    {% if modules == [] %}
+        <div>no module yet</div>
+    {% else %}
+        {% for module in modules %}
+            module.name
+        {% endfor %}
+    {% endif%}
+{% endblock content %}

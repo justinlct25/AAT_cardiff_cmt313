@@ -33,13 +33,13 @@ def load_user(user_id):
 
 class Teacher(db.Model):
   id = db.Column(db.Integer, primary_key=True)
-  user = db.relationship('User', secondary=user_teacher_association_table, backref='teacher', uselist=False) # one-to-one
+  user = db.relationship('User', secondary=user_teacher_association_table, backref=db.backref('teacher', uselist=False), uselist=False) # one-to-one
   modules = db.relationship('Module', secondary=teacher_modules_association_table, backref='teacher')
   teacher_num = db.Column(db.String(10), nullable=False)
 
 class Student(db.Model):
   id = db.Column(db.Integer, primary_key=True)
-  user = db.relationship('User', secondary=user_student_association_table, backref='student', uselist=False) # one-to-one
+  user = db.relationship('User', secondary=user_student_association_table, backref=db.backref('student', uselist=False), uselist=False) # one-to-one
   modules = db.relationship('Module', secondary=student_modules_association_table, backref='student') # many-to-many
   student_num = db.Column(db.String(10), nullable=False)
 
