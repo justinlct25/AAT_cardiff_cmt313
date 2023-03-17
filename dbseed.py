@@ -13,7 +13,7 @@ ACCOUNTS = [
 
 
 def addAccount(email, password, firstname, lastname, id_num, teacher=False):
-    user = User(email=email, password=generate_password_hash(password), firstname=firstname, lastname=lastname)
+    user = User(email=email, password=password, firstname=firstname, lastname=lastname)
     db.session.add(user)
     db.session.flush()
     if teacher:

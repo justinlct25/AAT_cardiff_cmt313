@@ -1,0 +1,19 @@
+{% set active_page = 'login'%}
+{% extends "base.html" %}
+{% block content %}
+<div class="outer-container login">
+    <form method="POST" action="">
+        {{ form.csrf_token }}
+        <p>
+            <div>{{ form.email.label }} </div>
+            <div>{{ form.email }}</div>
+        </p>
+        <p>
+            <div>{{ form.password.label }} </div>
+            <div>{{ form.password }}</div>
+        </p>
+        <p><input class="btn btn-info" type="submit" value="Login"></p>
+        <a href="{{ url_for('register') }}" class="header">Register</a>
+    </form>
+</div>
+{% endblock content %}

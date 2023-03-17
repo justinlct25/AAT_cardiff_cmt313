@@ -1,5 +1,5 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <a class="navbar-brand" href="#">Navbar</a>
+    <a class="navbar-brand" href="#">AAT</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
@@ -27,9 +27,30 @@
           <a class="nav-link disabled" href="#">Disabled</a>
         </li>
       </ul>
-      <form class="form-inline my-2 my-lg-0">
+      <div class="form-inline my-2 my-lg-0">
+        <ul class="navbar-nav mr-auto">
+        {% if user %}
+            <li class="nav-item">
+                <div class="flex" style="margin-top:0.5rem;">
+                    <a href="{{ url_for('profile', user_id=user.id) }}">{{user.lastname}}</a>
+                    {# <div class="layout-user-icon portfolio-user-icon"><img src="../static/images/duck.jpg" alt="..." width="130" class="rounded mb-2 img-thumbnail"></div> #}
+                </div>
+            </li>
+        {% endif %}
+        {% if not active_page == 'login' %}
+            <li class="nav-item">
+                {% if user %}
+                    <a class="nav-link {{ 'active' if active_page == 'logout' else '' }}" href="{{ url_for('logout') }}">Logout</a>
+                {% else %}
+                    <a class="nav-link {{ 'active' if active_page == 'login' else '' }}" href="{{ url_for('login') }}">Login</a>
+                {% endif %}
+            </li>
+        {% endif %}
+        </ul>
+      </div>
+      {# <form class="form-inline my-2 my-lg-0">
         <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
         <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-      </form>
+      </form> #}
     </div>
   </nav>
