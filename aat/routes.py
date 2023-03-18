@@ -1,7 +1,9 @@
 from flask import render_template, flash, request, redirect, url_for
 from aat import app, db
+from aat.models import *
 from aat.forms import *
 from flask_login import login_user, logout_user, current_user, login_required
+import random
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -33,12 +35,12 @@ def logout():
 def register():
   form = RegistrationForm()
   if form.validate_on_submit():
-    user = User(username=form.username.data, password=form.password.data, icon=f'default_{random.randint(0,9)}.png')
-    db.session.add(user)
-    db.session.commit()
+    # user = User(username=form.username.data, password=form.password.data, icon=f'default_{random.randint(0,9)}.png')
+    # db.session.add(user)
+    # db.session.commit()
     flash('Registration successful!')
     return redirect(url_for('registered'))
-  return render_template('register.html',title='Register',form=form)
+  return render_template('register.html',title='Register', form=form)
 
 @app.route("/profile/<int:user_id>", methods=["GET"])
 def profile(user_id):
@@ -49,12 +51,21 @@ def profile(user_id):
     user = User.query.get_or_404(user_id)
     return render_template('profile.html', is_owner=is_owner, user=user)
 
-@app.route("/modules", methods=['GET'])
-def modules():
+@app.route("/courses", methods=['GET', 'POST'])
+def courses():
    user = User.query.get(current_user.id)
-   if user.student: modules = user.student.modules if user.student.modules else []
-   else: modules = user.teacher.modules if user.teacher.modules else []
-   return render_template('modules.html', modules=modules)
+   if user.student: courses = user.student.courses if user.student.courses else []
+   else: courses = user.teacher.courses if user.teacher.courses else []
+   form = CourseForm()
+   if form.validate_on_submit() and current_user.teacher:
+      course = Course(name=form.name.data, description=form.description.data)
+      db.session.add(course)
+      db.session.flush()
+      user.teacher.courses.append(course)
+      db.session.commit()
+      flash('Course created successfully!')
+      return redirect(url_for('courses'))
+   return render_template('courses.html', courses=courses, form=form)
 
 @app.route("/assessments", methods=['GET'])
 def assessments():

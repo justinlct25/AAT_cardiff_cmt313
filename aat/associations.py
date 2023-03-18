@@ -12,16 +12,16 @@ user_student_association_table = db.Table('user_student',
                                           db.PrimaryKeyConstraint('user_id', 'student_id')
                                           )
 
-teacher_modules_association_table = db.Table('teacher_modules',
+teacher_courses_association_table = db.Table('teacher_courses',
                                             db.Column('teacher_id', db.Integer, db.ForeignKey('teacher.id')),
-                                            db.Column('module_id', db.Integer, db.ForeignKey('module.id')),
-                                            db.PrimaryKeyConstraint('teacher_id', 'module_id')
+                                            db.Column('course_id', db.Integer, db.ForeignKey('course.id')),
+                                            db.PrimaryKeyConstraint('teacher_id', 'course_id')
                                             )
 
-student_modules_association_table = db.Table('student_modules',
+student_courses_association_table = db.Table('student_courses',
                                             db.Column('student_id', db.Integer, db.ForeignKey('student.id')),
-                                            db.Column('module_id', db.Integer, db.ForeignKey('module.id')),
-                                            db.PrimaryKeyConstraint('student_id', 'module_id')
+                                            db.Column('course_id', db.Integer, db.ForeignKey('course.id')),
+                                            db.PrimaryKeyConstraint('student_id', 'course_id')
                                             )
 
 assessment_template_association_table = db.Table('assessment_assessment_template',

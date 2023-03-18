@@ -1,11 +1,28 @@
-{% set active_page = "modules" %}
+{% set active_page = "courses" %}
 {% extends "base.html" %}
 {% block content %}
-    {% if modules == [] %}
-        <div>no module yet</div>
-    {% else %}
-        {% for module in modules %}
-            module.name
-        {% endfor %}
-    {% endif%}
+    <div class="courses-container">
+        {% if courses == [] %}
+            <div>no course yet</div>
+        {% else %}
+            {% for course in courses %}
+                {{course.name}}
+            {% endfor %}
+        {% endif%}
+    </div>
+    <div class="new-course">
+        Add Course
+        <form method="POST" action="">
+            {{form.csrf_token}}
+            <p>
+                <div>{{ form.name.label }} </div>
+                <div>{{ form.name }}</div>
+            </p>
+            <p>
+                <div>{{ form.description.label }} </div>
+                <div>{{ form.description }}</div>
+            </p>
+            <p><input class="btn btn-info" type="submit" value="Add"></p>
+        </form>
+    </div>
 {% endblock content %}

@@ -34,25 +34,44 @@ def load_user(user_id):
 class Teacher(db.Model):
   id = db.Column(db.Integer, primary_key=True)
   user = db.relationship('User', secondary=user_teacher_association_table, backref=db.backref('teacher', uselist=False), uselist=False) # one-to-one
-  modules = db.relationship('Module', secondary=teacher_modules_association_table, backref='teacher')
+  courses = db.relationship('Course', secondary=teacher_courses_association_table, backref='teacher')
   teacher_num = db.Column(db.String(10), nullable=False)
+  created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 class Student(db.Model):
   id = db.Column(db.Integer, primary_key=True)
+  programme_id = db.Column(db.Integer, db.ForeignKey('programme.id'))
   user = db.relationship('User', secondary=user_student_association_table, backref=db.backref('student', uselist=False), uselist=False) # one-to-one
-  modules = db.relationship('Module', secondary=student_modules_association_table, backref='student') # many-to-many
+  courses = db.relationship('Course', secondary=student_courses_association_table, backref='student') # many-to-many
   student_num = db.Column(db.String(10), nullable=False)
+  start_yr = db.Column(db.DateTime)
+  created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-class Module(db.Model):
+class Department(db.Model):
   id = db.Column(db.Integer, primary_key=True)
-  name = db.Column(db.String(50), unique=True, nullable=False)
-  description = db.Column(db.String(500), default="")
+  name = db.Column(db.String(60), nullable=False)
+  abbreviation = db.Column(db.String(10))
+  programmes = db.relationship('Programme', backref='department', lazy=True) # one-to-many
+
+class Programme(db.Model):
+  id = db.Column(db.Integer, primary_key=True)
+  name = db.Column(db.String(60), nullable=False)
+  department_id = db.Column(db.Integer, db.ForeignKey('department.id'), nullable=False)
+  students = db.relationship('Student', backref='programme', lazy=True) # one-to-many
+  courses = db.relationship('Course', backref='programme', lazy=True) # one-to-many
+
+class Course(db.Model):
+  id = db.Column(db.Integer, primary_key=True)
+  programme_id = db.Column(db.Integer, db.ForeignKey('programme.id'), nullable=False)
+  number = db.Column(db.String(10), nullable=False)
+  name = db.Column(db.String(100), unique=True, nullable=False)
+  description = db.Column(db.String(1000), default="")
   created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-  assessments = db.relationship('Assessment', backref='module', lazy=True) # one-to-many
+  assessments = db.relationship('Assessment', backref='course', lazy=True) # one-to-many
 
 class Assessment(db.Model):
   id = db.Column(db.Integer, primary_key=True)
-  module_id = db.Column(db.Integer, db.ForeignKey('module.id'), nullable=False)
+  course_id = db.Column(db.Integer, db.ForeignKey('course.id'), nullable=False)
   template = db.relationship('AssessmentTemplate', secondary=assessment_template_association_table, backref='assessment') 
   is_formative = db.Column(db.Boolean, default=False)
   start_at = db.Column(db.DateTime, nullable=False)
