@@ -1,11 +1,8 @@
-{% set active_page = "assessments" %}
-{% extends "base.html" %}
-{% block content %}
+{% set active_page = "assessments" %} {% extends "base.html" %} {% block content %}
 <div class="new-template">
     New Assessment
     <div class="template-container">
-        {{ template.name }}
-        {{ template.description }}
+        {{ template.name }} {{ template.description }}
     </div>
     <form method="POST" action="">
         {{form.csrf_token}}
@@ -23,5 +20,6 @@
         </p>
         <p>{{form.submit}}</p>
     </form>
+
 </div>
 {% endblock content %}
