@@ -106,6 +106,8 @@ def template_edit(template_id, course_id):
     course = Course.query.get(course_id)
     # form = AssessmentTemplateForm(template=template)
     templateForm = AssessmentTemplateForm()
+    templateForm1 = AssessmentTemplateForm()
+    templateForm2 = AssessmentTemplateForm()
     templateForm.description.data = template.description
     templateForm.can_retake.data = template.can_retake
     if request.method == 'POST' and templateForm.validate():
