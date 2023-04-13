@@ -1,0 +1,19 @@
+{% set active_page = "assessments" %} {% extends "base.html" %} {% block content %}
+<div class="templates-container">
+    Select an Assessment Template {% if templates == [] %}
+    <div>No Template yet</div>
+    {% else %}
+    <div>Templates:</div>
+    {% for template in templates %}
+    <div class="template-container">
+        {{ template.id}} {{ template.name }}
+        <a href="{{url_for('assessment_new', template_id=template.id, course_id=course.id)}}">Select</a>
+        <a href="{{url_for('template_edit', template_id=template.id, course_id=course.id)}}">Edit</a>
+    </div>
+    {% endfor %} {% endif %}
+</div>
+<div class="new-template">
+    <a href="{{url_for('template_new', course_id=course.id)}}">New Template</a>
+</div>
+
+{% endblock content %}

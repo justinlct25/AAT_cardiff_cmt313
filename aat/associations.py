@@ -54,6 +54,18 @@ template_fbquestions_association_table = db.Table('template_fbquestions',
                                             db.PrimaryKeyConstraint('template_id', 'fbquestion_id')
                                             )
 
+template_stquestions_association_table = db.Table('template_stquestions',
+                                            db.Column('template_id', db.Integer, db.ForeignKey('assessment_template.id')),
+                                            db.Column('stquestion_id', db.Integer, db.ForeignKey('st_question.id')),
+                                            db.PrimaryKeyConstraint('template_id', 'stquestion_id')
+                                            )
+
+template_courses_association_table = db.Table('template_courses',
+                                                db.Column('template_id', db.Integer, db.ForeignKey('assessment_template.id')),
+                                                db.Column('course_id', db.Integer, db.ForeignKey('course.id')),
+                                                db.PrimaryKeyConstraint('template_id', 'course_id')
+                                                )
+
 mcquestion_difficulty_association_table = db.Table('mcquestion_difficulty',
                                             db.Column('mcquestion_id', db.Integer, db.ForeignKey('mc_question.id')),
                                             db.Column('difficulty_id', db.Integer, db.ForeignKey('difficulty.id')),
@@ -66,7 +78,7 @@ mcquestion_tags_association_table = db.Table('mcquestion_tags',
                                             db.PrimaryKeyConstraint('mcquestion_id', 'tag_id')
                                             )
 
-fbquestion_difficulty_association_table = db.Table('fbcquestion_difficulty',
+fbquestion_difficulty_association_table = db.Table('fbquestion_difficulty',
                                             db.Column('fbquestion_id', db.Integer, db.ForeignKey('fb_question.id')),
                                             db.Column('difficulty_id', db.Integer, db.ForeignKey('difficulty.id')),
                                             db.PrimaryKeyConstraint('fbquestion_id', 'difficulty_id')
@@ -78,9 +90,21 @@ fbquestion_tags_association_table = db.Table('fbquestion_tags',
                                             db.PrimaryKeyConstraint('fbquestion_id', 'tag_id')
                                             )
 
+stquestion_difficulty_association_table = db.Table('stquestion_difficulty',
+                                            db.Column('stquestion_id', db.Integer, db.ForeignKey('st_question.id')),
+                                            db.Column('difficulty_id', db.Integer, db.ForeignKey('difficulty.id')),
+                                            db.PrimaryKeyConstraint('stquestion_id', 'difficulty_id')
+                                            )
+
+stquestion_tags_association_table = db.Table('stquestion_tags',
+                                            db.Column('stquestion_id', db.Integer, db.ForeignKey('st_question.id')),
+                                            db.Column('tag_id', db.Integer, db.ForeignKey('tag.id')),
+                                            db.PrimaryKeyConstraint('stquestion_id', 'tag_id')
+                                            )
+
 assessment_status_association_table = db.Table('assessment_status',
                                             db.Column('assessment_id', db.Integer, db.ForeignKey('assessment.id')),
-                                            db.Column('status_id', db.Integer, db.ForeignKey('student_assessment_status.id')),
+                                            db.Column('status_id', db.Integer, db.ForeignKey('student_attempt_status.id')),
                                             db.PrimaryKeyConstraint('assessment_id', 'status_id')
                                             )
 

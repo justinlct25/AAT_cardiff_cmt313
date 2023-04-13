@@ -1,8 +1,11 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, BooleanField, TextAreaField, IntegerField, SelectField, DateField
 from wtforms.validators import DataRequired, EqualTo, ValidationError, Regexp
-from aat.models import User
+from aat.models import *
+from aat import app
 from flask import flash
+from sqlalchemy import inspect
+
 
 
 class RegistrationForm(FlaskForm):
@@ -25,5 +28,56 @@ class LoginForm(FlaskForm):
   submit = SubmitField('Login')
 
 class CourseForm(FlaskForm):
+  number = StringField('Number', validators=[DataRequired()])
   name = StringField('Name', validators=[DataRequired()])
   description = StringField('Description')
+  submit = SubmitField('Submit')
+  with app.app_context():
+    inspector = inspect(db.engine)
+    if not inspector.has_table("programme"):
+      programme_choices = []
+    else:
+      programme_choices = [(programme.id, programme.name) for programme in Programme.query.all()]
+  programme_id = SelectField('Programme', choices=programme_choices)
+
+class AssessmentTemplateForm(FlaskForm):
+  name = StringField('Name', validators=[DataRequired()])
+  description = StringField('Description')
+  can_retake = BooleanField("Retake")
+  limit_time = BooleanField("Time")
+  duration = IntegerField("Duration", default=60)
+  submit = SubmitField('Add')
+  with app.app_context():
+    inspector = inspect(db.engine)
+    if not inspector.has_table("difficulty") or not inspector.has_table("tag"):
+      difficulty_choices, tag_choices = [], []
+    else:
+      difficulty_choices = [(difficulty.id, difficulty.level) for difficulty in Difficulty.query.all()]
+      tag_choices = [(tag.id, tag.tag) for tag in Tag.query.all()]
+  difficulty_id = SelectField('Difficulty', choices=difficulty_choices)
+  tag_id = SelectField('Tag', choices=tag_choices)
+
+  # def __init__(self, template=None, **kwargs):
+  #   super().__init__(**kwargs)
+  #   if template:
+  #     self.name.default = template.name
+  #     self.description.default = template.description
+  #     self.can_retake.default = template.can_retake
+  #     self.limit_time.default = template.limit_time
+  #     self.duration.default = template.duration
+  #     self.difficulty_id.default = template.difficulty.id
+  #     self.tag_id.default = template.tags[0].id
+  #     self.process(obj=template)
+
+class AssessmentForm(FlaskForm):
+  is_formative = BooleanField("Formative", default=False)
+  start_at = DateField("StartDate")
+  end_at = DateField("EndDate")
+  submit = SubmitField('Add Assessment')
+
+class StQuestionForm(FlaskForm):
+  question = StringField("Question", validators=[DataRequired()])
+  correct_ans = StringField("Answer", validators=[DataRequired()])
+  feedback_correct = StringField("Feedback for Correct Answer")
+  feedback_wrong = StringField("Feedback for Wrong Answer")
+

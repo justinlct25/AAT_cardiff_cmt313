@@ -72,7 +72,7 @@ class Course(db.Model):
 class Assessment(db.Model):
   id = db.Column(db.Integer, primary_key=True)
   course_id = db.Column(db.Integer, db.ForeignKey('course.id'), nullable=False)
-  template = db.relationship('AssessmentTemplate', secondary=assessment_template_association_table, backref='assessment') 
+  template = db.relationship('AssessmentTemplate', secondary=assessment_template_association_table, backref='assessment', uselist=True) 
   is_formative = db.Column(db.Boolean, default=False)
   start_at = db.Column(db.DateTime, nullable=False)
   end_at = db.Column(db.DateTime, nullable=False)
@@ -81,24 +81,27 @@ class Assessment(db.Model):
 class AssessmentTemplate(db.Model):
   id = db.Column(db.Integer, primary_key=True)
   creator_id = db.Column(db.Integer, db.ForeignKey('teacher.id'))
-  name = db.Column(db.String(15), unique=True, nullable=False)
+  name = db.Column(db.String(100), nullable=False)
   description = db.Column(db.String(200), default="")
-  retake = db.Column(db.Boolean, default=False)
-  duration = db.Column(db.Integer)
+  can_retake = db.Column(db.Boolean, default=False)
+  limit_time = db.Column(db.Boolean, default=False)
+  duration = db.Column(db.Integer, default=60)
   difficulty = db.relationship('Difficulty', secondary=template_difficulty_association_table, backref='template', uselist=False) 
   tags = db.relationship('Tag', secondary=template_tags_association_table, backref='template')
   mc_questions = db.relationship('McQuestion', secondary=template_mcquestions_association_table, backref='template')
   fb_questions = db.relationship('FbQuestion', secondary=template_fbquestions_association_table, backref='template')
+  st_questions = db.relationship('StQuestion', secondary=template_stquestions_association_table, backref='template')
+  used_in_courses = db.relationship('Course', secondary=template_courses_association_table, backref='template')
   created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 
 class Tag(db.Model):
   id = db.Column(db.Integer, primary_key=True)
-  tag = db.Column(db.String(10), unique=True, nullable=False)
+  tag = db.Column(db.String(50), unique=True, nullable=False)
   official = db.Column(db.Boolean, default=False)
 
 class Difficulty(db.Model):
   id = db.Column(db.Integer, primary_key=True)
-  difficulty = db.Column(db.Integer, nullable=False, default=1)
+  level = db.Column(db.Integer, nullable=False, default=1)
 
 class McQuestion(db.Model):
   id = db.Column(db.Integer, primary_key=True)
@@ -130,7 +133,7 @@ class Blank(db.Model):
   correct_ans = db.Column(db.String(50), nullable=False)
   marks = db.Column(db.Integer, default=1)
 
-class StudentAssessmentStatus(db.Model):
+class StudentAttemptStatus(db.Model):
   id = db.Column(db.Integer, primary_key=True)
   student_id = db.Column(db.Integer, db.ForeignKey('student.id'))
   assessment = db.relationship('Assessment', secondary=assessment_status_association_table, backref='assessment_status', uselist=False) 
@@ -140,14 +143,14 @@ class StudentAssessmentStatus(db.Model):
 
 class McStudentAns(db.Model):
   id = db.Column(db.Integer, primary_key=True)
-  status_id = db.Column(db.Integer, db.ForeignKey('student_assessment_status.id'))
+  attempt_id = db.Column(db.Integer, db.ForeignKey('student_attempt_status.id'))
   question_id = db.Column(db.Integer, db.ForeignKey('mc_question.id'))
   selected_choices = db.relationship('Choice', secondary=mcans_choices_association_table, backref='mc_ans')
   marks = db.Column(db.Integer, default=0)
 
 class FbStudentAns(db.Model):
   id = db.Column(db.Integer, primary_key=True)
-  status_id = db.Column(db.Integer, db.ForeignKey('student_assessment_status.id'))
+  attempt_id = db.Column(db.Integer, db.ForeignKey('student_attempt_status.id'))
   question_id = db.Column(db.Integer, db.ForeignKey('fb_question.id'))
   blank_answers = db.relationship('BlankAns', backref='fb_student_ans', lazy=True)
   marks = db.Column(db.Integer, default=0)
@@ -157,4 +160,19 @@ class BlankAns(db.Model):
   ans_id = db.Column(db.Integer, db.ForeignKey('fb_student_ans.id'))
   blank_id = db.Column(db.Integer, db.ForeignKey('blank.id'))
   student_ans = db.Column(db.String(50))
+
+class StQuestion(db.Model):
+  id = db.Column(db.Integer, primary_key=True)
+  question = db.Column(db.String(500), nullable=False)
+  correct_ans = db.Column(db.String(100), nullable=False)
+  feedback_correct = db.Column(db.String(200), default="")
+  feedback_wrong = db.Column(db.String(200), default="")
+  difficulty = db.relationship('Difficulty', secondary=stquestion_difficulty_association_table, backref='st_question', uselist=False) 
+  tags = db.relationship('Tag', secondary=stquestion_tags_association_table, backref='st_question')
+
+class SqStudentAns(db.Model):
+  id = db.Column(db.Integer, primary_key=True)
+  attempt_id = db.Column(db.Integer, db.ForeignKey('student_attempt_status.id'))
+  question_id = db.Column(db.Integer, db.ForeignKey('st_question.id'))
+  answer = db.Column(db.String(100), nullable=False)
 

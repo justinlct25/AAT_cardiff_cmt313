@@ -1,0 +1,30 @@
+{% set active_page = "assessments" %}
+{% extends "base.html" %}
+{% block content %}
+<div class="course-container">
+    <div>{{ template.id }}</div>
+    <div>{{ template.name }}</div>
+    <div>{{ template.description }}</div>
+    <div>{{ template.can_retake }}</div>
+    <div>{{ template.limit_time }}</div>
+    <div>{{ template.duration }}</div>
+    <div>{{ template.difficulty }}</div>
+    <div>{{ template.tags }}</div>
+    {% if template.mc_questions == [] %}
+        <div>no Multiple Choice Question yet</div>
+    {% else %}
+        {% for question in course.mc_questions %}
+            <div>{{ question.question }} </div>
+        {% endfor %}
+    {% endif %}
+    {% if template.st_questions == [] %}
+        <div>no Short Question yet</div>
+    {% else %}
+        {% for question in course.st_questions %}
+            <div>{{ question.question }} </div>
+        {% endfor %}
+    {% endif %}
+    <a href="{{url_for('templateselect', course_id=course.id}}">Add Assessment</a>
+</div>
+
+{% endblock content %}

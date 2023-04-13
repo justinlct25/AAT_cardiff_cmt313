@@ -53,19 +53,110 @@ def profile(user_id):
 
 @app.route("/courses", methods=['GET', 'POST'])
 def courses():
-   user = User.query.get(current_user.id)
-   if user.student: courses = user.student.courses if user.student.courses else []
-   else: courses = user.teacher.courses if user.teacher.courses else []
-   form = CourseForm()
-   if form.validate_on_submit() and current_user.teacher:
-      course = Course(name=form.name.data, description=form.description.data)
-      db.session.add(course)
-      db.session.flush()
-      user.teacher.courses.append(course)
-      db.session.commit()
-      flash('Course created successfully!')
-      return redirect(url_for('courses'))
-   return render_template('courses.html', courses=courses, form=form)
+	user = User.query.get(current_user.id)
+	if user.student: courses = user.student.courses if user.student.courses else []
+	else: courses = user.teacher.courses if user.teacher.courses else []
+	form = CourseForm()
+	if form.validate_on_submit() and current_user.teacher:
+		course = Course(number=form.number.data, name=form.name.data, description=form.description.data, programme_id=form.programme_id.data)
+		db.session.add(course)
+		db.session.flush()
+		user.teacher.courses.append(course)
+		db.session.commit()
+		flash('Course created successfully!')
+		return redirect(url_for('courses'))
+	return render_template('courses.html', courses=courses, form=form)
+
+@app.route("/course/<int:course_id>", methods=['GET'])
+def course(course_id):
+    user = User.query.get(current_user.id)
+    course = Course.query.get(course_id)
+    # print(user.teacher)
+    # is_student = any(student.id == current_user.id for student in course.programme.students)
+    return render_template('course.html', course=course)
+
+@app.route("/template/select/<int:course_id>", methods=['GET'])
+def template_select(course_id):
+    course = Course.query.get(course_id)
+    templates = AssessmentTemplate.query.all()
+    return render_template('template_select.html', course=course, templates=templates)
+
+@app.route("/template/new/<int:course_id>", methods=['GET', 'POST'])
+def template_new(course_id):
+    course = Course.query.get(course_id)
+    form = AssessmentTemplateForm()
+    if form.validate_on_submit() and current_user.teacher:
+        template = AssessmentTemplate(creator_id=current_user.id, name=form.name.data, description=form.description.data, can_retake=form.can_retake.data, limit_time=form.limit_time.data, duration=form.duration.data)
+        template.difficulty = Difficulty.query.get(form.difficulty_id.data)
+        tag = Tag.query.get(form.tag_id.data)
+        template.tags.append(tag)
+        if course: 
+          template.used_in_courses.append(course)
+        db.session.add(template)
+        db.session.commit()
+        flash("New assessment is added")
+        # if not course_id == 0: # been here from templates
+        return redirect(url_for('assessment_new', template_id=template.id, course_id=course_id))
+        # else:
+    return render_template("template_new.html", course=course, form=form)
+
+@app.route("/template/edit/<int:template_id>/<int:course_id>", methods=['GET', 'POST'])
+def template_edit(template_id, course_id):
+    template = AssessmentTemplate.query.get(template_id)
+    course = Course.query.get(course_id)
+    # form = AssessmentTemplateForm(template=template)
+    templateForm = AssessmentTemplateForm()
+    templateForm.description.data = template.description
+    templateForm.can_retake.data = template.can_retake
+    if request.method == 'POST' and templateForm.validate():
+        template.name = templateForm.name.data
+        template.description = templateForm.description.data
+        template.can_retake = templateForm.can_retake.data
+        template.limit_time = templateForm.limit_time.data
+        template.duration = templateForm.duration.data
+        template.difficulty = Difficulty.query.get(templateForm.difficulty_id.data)
+        tag = Tag.query.get(templateForm.tag_id.data)
+        template.tags = []
+        template.tags.append(tag)
+        db.session.commit()
+        return redirect(url_for("template_edit", template_id=template_id, course_id=course_id))
+    creator = User.query.get(template.creator_id)
+    creator_name = creator.firstname + " " + creator.lastname
+    return render_template("template_edit.html", course=course, template=template, template_creator=creator_name, templateForm=templateForm)
+
+@app.route("/template/edit/question/st/new/<int:template_id>/<int:course_id>", methods=['GET', 'POST'])
+def template_edit_short_question_new(template_id, course_id):
+    template = AssessmentTemplate.query.get(template_id)
+    form = StQuestionForm()
+    if form.validate_on_submit():
+        question = StQuestion(question=form.question.data, correct_ans=form.correct_ans.data, feedback_correct=form.feedback_correct.data, feedback_wrong=form.feedback_wrong.data)
+        db.session.add(question)
+        template.st_questions.append(question)
+        db.session.commit()
+        return redirect(url_for("template_edit", template_id=template_id, course_id=course_id))
+    creator = User.query.get(template.creator_id)
+    creator_name = creator.firstname + " " + creator.lastname
+    return render_template("question_st_new.html", template=template, template_creator=creator_name, form=form)
+
+@app.route("/assessment/new/<int:template_id>/<int:course_id>", methods=['GET', 'POST'])
+def assessment_new(template_id, course_id):
+    course = Course.query.get(course_id)
+    template = AssessmentTemplate.query.get(template_id)
+    form = AssessmentForm()
+    if form.validate_on_submit() and current_user.teacher:
+        assessment = Assessment(course_id=course_id, is_formative=form.is_formative.data, start_at=form.start_at.data, end_at=form.end_at.data)
+        assessment.template = template
+        db.session.add(assessment)
+        db.flush()
+        course.assessments.append(assessment)
+        db.session.commit()
+        return redirect(url_for("assessment", assessment_id=assessment.id))
+    return render_template("assessment_new.html", course=course, template=template, form=form)
+
+@app.route("/assessment/<int:assessment_id>", methods=['GET'])
+def assessment(assessment_id):
+    assessment = Assessment.query.get(assessment_id)
+    return render_template("assessment.html", assessment=assessment)
 
 @app.route("/assessments", methods=['GET'])
 def assessments():

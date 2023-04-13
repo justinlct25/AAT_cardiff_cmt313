@@ -1,28 +1,42 @@
 {% set active_page = "courses" %}
 {% extends "base.html" %}
 {% block content %}
-    <div class="courses-container">
-        {% if courses == [] %}
-            <div>no course yet</div>
-        {% else %}
-            {% for course in courses %}
-                {{course.name}}
-            {% endfor %}
-        {% endif%}
-    </div>
-    <div class="new-course">
-        Add Course
-        <form method="POST" action="">
-            {{form.csrf_token}}
-            <p>
-                <div>{{ form.name.label }} </div>
-                <div>{{ form.name }}</div>
-            </p>
-            <p>
-                <div>{{ form.description.label }} </div>
-                <div>{{ form.description }}</div>
-            </p>
-            <p><input class="btn btn-info" type="submit" value="Add"></p>
-        </form>
-    </div>
+<div class="courses-container">
+    {% if courses == [] %}
+        <div>no course yet</div>
+    {% else %}
+        {% for course in courses %}
+            <div class="card card-body" style="width: 18rem; margin: 0.5rem">
+                <div class="card-title">{{course.number}} {{course.name}}</div>
+                <div class="card-text">{{course.description}}</div>
+                <a href="{{url_for('course', course_id=course.id)}}" class="btn btn-primary">View</a>
+            </div>
+        {% endfor %}
+    {% endif%}
+</div>
+<div class="new-course">
+    Add Course
+    <form method="POST" action="">
+        {{form.csrf_token}}
+        <p>
+            <div>{{ form.number.label }}</div>
+            <div>{{ form.number }}</div>
+        </p>
+        <p>
+            <div>{{ form.name.label }} </div>
+            <div>{{ form.name }}</div>
+        </p>
+        <p>
+            <div>{{ form.description.label }} </div>
+            <div>{{ form.description }}</div>
+        </p>
+        <p>
+            <div>{{ form.programme_id.label }} </div>
+            <div>{{ form.programme_id }}</div>
+        </p>
+
+        <!-- <p><input class="btn btn-info" type="submit" value="Add"></p> -->
+        <p>{{form.submit}}</p>
+    </form>
+</div>
 {% endblock content %}

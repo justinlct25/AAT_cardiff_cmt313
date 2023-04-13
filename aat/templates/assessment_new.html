@@ -1,0 +1,27 @@
+{% set active_page = "assessments" %}
+{% extends "base.html" %}
+{% block content %}
+<div class="new-template">
+    New Assessment
+    <div class="template-container">
+        {{ template.name }}
+        {{ template.description }}
+    </div>
+    <form method="POST" action="">
+        {{form.csrf_token}}
+        <p>
+            <div>{{ form.is_formative.label }}</div>
+            <div>{{ form.is_formative }}</div>
+        </p>
+        <p>
+            <div>{{ form.start_at.label }} </div>
+            <div>{{ form.start_at }}</div>
+        </p>
+        <p>
+            <div>{{ form.end_at.label }} </div>
+            <div>{{ form.end_at }}</div>
+        </p>
+        <p>{{form.submit}}</p>
+    </form>
+</div>
+{% endblock content %}

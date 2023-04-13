@@ -1,0 +1,40 @@
+{% set active_page = "assessments" %}
+{% extends "base.html" %}
+{% block content %}
+<div class="new-template">
+    New Template of Assessment
+    <form method="POST" action="">
+        {{form.csrf_token}}
+        <p>
+            <div>{{ form.name.label }}</div>
+            <div>{{ form.name }}</div>
+        </p>
+        <p>
+            <div>{{ form.description.label }} </div>
+            <div>{{ form.description }}</div>
+        </p>
+        <p>
+            <div>{{ form.can_retake.label }} </div>
+            <div>{{ form.can_retake }}</div>
+        </p>
+        <p>
+            <div>{{ form.limit_time.label }} </div>
+            <div>{{ form.limit_time }}</div>
+        </p>
+        <p>
+            <div>{{ form.duration.label }} </div>
+            <div>{{ form.duration }}</div>
+        </p>
+         <p>
+            <div>{{ form.difficulty_id.label }} </div>
+            <div>{{ form.difficulty_id }}</div>
+        </p>
+         <p>
+            <div>{{ form.tag_id.label }} </div>
+            <div>{{ form.tag_id }}</div>
+        </p>
+        {# <p>{{form.submit}}</p> #}
+        <p><input class="btn btn-info" type="submit" value="Add Assessment Template"></p>
+    </form>
+</div>
+{% endblock content %}

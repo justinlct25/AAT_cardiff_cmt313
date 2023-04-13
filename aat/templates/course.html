@@ -1,0 +1,20 @@
+{% set active_page = "courses" %}
+{% extends "base.html" %}
+{% block content %}
+<div class="outer-container">
+    <div class="main-title">{{ course.number }} {{course.name}}</div>
+    <div>{{ course.description }}</div>
+    <div class="">
+        <div class="secondary-title">Assessments</div>
+        {% if course.assessments == [] %}
+            <div>no assessment yet</div>
+        {% else %}
+            {% for assessment in course.assessments %}
+                <div>{{ assessment.template.name }} </div>
+            {% endfor %}
+        {% endif %}
+        <a href="{{url_for('template_select', course_id=course.id)}}">Add Assessment</a>
+    </div>
+</div>
+
+{% endblock content %}
