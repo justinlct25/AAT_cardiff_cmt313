@@ -1,0 +1,33 @@
+{% set active_page = "assessments" %} {% extends "base.html" %} {% block content %}
+<div>
+    <div>Assessment Template</div>
+    <div>Name: {{template.name}}</div>
+    <div>Creator: {{template_creator}}</div>
+    <div>Created at: {{template.created_at}}</div>
+</div>
+<div class="new-question">
+    Add Multiple Choice Question
+    <form method="POST" action="">
+        {# {{form.csrf_token}} #}
+        {{ form.hidden_tag() }}
+        <p>
+            <div>{{ form.question.label }}</div>
+            <div>{{ form.question }}</div>
+        </p>
+        <p>
+            {% for choice in form.choices %}
+                {{ choice.choice }}
+                {# <button type="button" class="btn btn-danger remove-option">Remove</button> #}
+            {% endfor %}
+            <div>{{ form.choices.label }} </div>
+            <div>{{ form.choices }}</div>
+        </p>
+        <p>
+            <div>{{ form.correct_answer.label }} </div>
+            <div>{{ form.correct_answer }}</div>
+        </p>
+        {# <p>{{form.submit}}</p> #}
+        <p><input class="btn btn-info" type="submit" value="Save Assessment Template Info"></p>
+    </form>
+</div>
+{% endblock content %}

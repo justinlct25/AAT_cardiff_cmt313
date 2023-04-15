@@ -1,25 +1,41 @@
-{% set active_page = "assessments" %} {% extends "base.html" %} {% block content %}
-<div class="new-template">
-    New Assessment
-    <div class="template-container">
-        {{ template.name }} {{ template.description }}
+{% set active_page = "assessments" %}
+{% extends "base.html" %}
+{% block content %}
+<div class="btn ">
+    <a href="{{url_for('template_select', template_id=template.id, course_id=course.id )}}">< Template Selection</a>
+</div>
+<div class="outer-container">
+    <div class="secondary-title">New Assessment for {{course.number}} - {{course.name}}</div>
+    <div class="inner-container">
+        <div class="third-title">Selected Assessment Template:</div>
+        <div>Name: {{template.name}} </div>
+        <div>Creator: {{ template.creator.user.firstname }} {{template.creator.user.lastname}} </div>
+        <div>Created: {{ template.created_at }}</div>
+        <div>Description: {{ template.description }} </div>
+        <div>Can Retake: {{ template.can_retake }} </div>
+        <div>Limit Time: {{ template.limit_time }} </div>
+        <div>Difficulty: {{ template.difficulty.level }} </div>
+        <div>Tag: {{ template.tags[0].tag }} </div>
     </div>
-    <form method="POST" action="">
-        {{form.csrf_token}}
-        <p>
-            <div>{{ form.is_formative.label }}</div>
-            <div>{{ form.is_formative }}</div>
-        </p>
-        <p>
-            <div>{{ form.start_at.label }} </div>
-            <div>{{ form.start_at }}</div>
-        </p>
-        <p>
-            <div>{{ form.end_at.label }} </div>
-            <div>{{ form.end_at }}</div>
-        </p>
-        <p>{{form.submit}}</p>
-    </form>
+    
+    <div class="inner-container">
+        <div class="third-title">Assessment Setting</div>
+        <form method="POST" action="">
+            {{form.csrf_token}}
+            <p>
+                <div>{{ form.is_formative.label }}{{ form.is_formative }}</div>
+            </p>
+            <p>
+                <div>{{ form.start_at.label }} </div>
+                <div>{{ form.start_at }}</div>
+            </p>
+            <p>
+                <div>{{ form.end_at.label }} </div>
+                <div>{{ form.end_at }}</div>
+            </p>
+            <p>{{form.submit}}</p>
+        </form>
+    </div>
 
 </div>
 {% endblock content %}

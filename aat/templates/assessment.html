@@ -1,0 +1,64 @@
+{% set active_page = "assessments" %}
+{% extends "base.html" %}
+{% block content %}
+<div class="outer-container">
+    <div class="secondary-title">Assessment Details</div>
+    <div class="third-title">{{assessment.template.name}}</div>
+    <div class="inner-container">
+        <div>Course: {{assessment.course.number}} - {{ assessment.course.name}} </div>
+        <div>Description: {{ assessment.template.description }}</div>
+        <div>Formative: {{assessment.is_formative }}</div>
+        <div>Start: {{assessment.start_at }}</div>
+        <div>End: {{assessment.end_at }}</div>
+    </div>
+    <div class="third-title">Quesions</div>
+    <div class="inner-container">
+        {% if assessment.template.mc_questions == [] %}
+            <div>no Multiple Choice Question yet</div>
+        {% else %}
+            {% for question in assessment.template.mc_questions %}
+                <div>Multiple Choice Q{{ loop.index }}</div>
+                <div class="tab">
+                    <div>{{ question.question }}</div>
+                    <div>Correct Choice: {{ mc_id_char[question.correct_choice_id] }}</div>
+                    <ol type="A">
+                        <li>
+                            <div>{{ question.choice_1 }}</div>
+                            <div>Feedback: {{ question.choice_feedback_1 }}</div>
+                        </li>
+                        <li>
+                            <div>{{ question.choice_2 }}</div>
+                            <div>Feedback: {{ question.choice_feedback_2 }}</div>
+                        </li>
+                        <li>
+                            <div>{{ question.choice_3 }}</div>
+                            <div>Feedback: {{ question.choice_feedback_3 }}</div>
+                        </li>
+                        <li>
+                            <div>{{ question.choice_4 }}</div>
+                            <div>Feedback: {{ question.choice_feedback_4 }}</div>
+                        </li>
+                    </ol>
+                </div>
+            {% endfor %}
+        {% endif %}
+    <div class="short-questions">
+        {% if assessment.template.st_questions == [] %}
+            <div>no Short Question yet</div>
+        {% else %}
+            {% for question in assessment.template.st_questions %}
+                <div>Short Q{{ loop.index }}</div>
+                <div class="tab">
+                    <div class="question-container">
+                        <div>{{ question.question }} </div>
+                        <div>Correct Answer: {{ question.correct_ans }} </div>
+                        <div>Feedback(Correct): {{ question.feedback_correct }}</div>
+                        <div>Feedback(Wrong): {{ question.feedback_wrong }} </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+</div>
+
+{% endblock content %}

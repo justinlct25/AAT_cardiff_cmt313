@@ -65,7 +65,6 @@ def addDifficulty(level):
 def addTag(tag_name):
     tag = Tag.query.filter_by(tag=tag_name, official=True).first()
     if not tag:
-        print("adding" + tag_name)
         tag = Tag(tag=tag_name, official=True)
         db.session.add(tag)
         db.session.commit()

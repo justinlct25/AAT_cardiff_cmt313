@@ -1,19 +1,28 @@
 {% set active_page = "assessments" %} {% extends "base.html" %} {% block content %}
-<div class="templates-container">
-    Select an Assessment Template {% if templates == [] %}
-    <div>No Template yet</div>
-    {% else %}
-    <div>Templates:</div>
-    {% for template in templates %}
-    <div class="template-container">
-        {{ template.id}} {{ template.name }}
-        <a href="{{url_for('assessment_new', template_id=template.id, course_id=course.id)}}">Select</a>
-        <a href="{{url_for('template_edit', template_id=template.id, course_id=course.id)}}">Edit</a>
+<div class="outer-container">
+    <div class="btn ">
+        <a href="{{url_for('course', course_id=course.id )}}">< {{course.number}} - {{ course.name }}</a>
     </div>
-    {% endfor %} {% endif %}
-</div>
-<div class="new-template">
-    <a href="{{url_for('template_new', course_id=course.id)}}">New Template</a>
+    <div class="secondary-title">Select an Assessment Template</div>
+    <div class="inner-container">
+        {% if templates == [] %}
+            <div>No Template yet</div>
+            {% else %}
+            <div class="third-title">Assessment Templates:</div>
+            {% for template in templates %}
+            <div class="tab row">
+                <div>{{ template.name }}</div>
+                <div>{{template.created_at.date()}}</div>
+                <div>{{ template.creator.user.firstname}} {{template.creator.user.lastname}}</div>
+                <div><a href="{{url_for('assessment_new', template_id=template.id, course_id=course.id)}}">Select</a></div>
+                <div><a href="{{url_for('template', template_id=template.id, course_id=course.id)}}">View</a></div>
+            </div>
+            {% endfor %}
+        {% endif %}
+        <div class="new-template btn btn-info">
+            <a href="{{url_for('template_new', course_id=course.id)}}">New Template</a>
+        </div>
+    </div>
 </div>
 
 {% endblock content %}

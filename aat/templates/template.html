@@ -1,30 +1,78 @@
 {% set active_page = "assessments" %}
 {% extends "base.html" %}
 {% block content %}
-<div class="course-container">
-    <div>{{ template.id }}</div>
-    <div>{{ template.name }}</div>
-    <div>{{ template.description }}</div>
-    <div>{{ template.can_retake }}</div>
-    <div>{{ template.limit_time }}</div>
-    <div>{{ template.duration }}</div>
-    <div>{{ template.difficulty }}</div>
-    <div>{{ template.tags }}</div>
+
+<div class="btn ">
+    <a href="{{url_for('template_select', template_id=template.id, course_id=course.id )}}">< Template Selection for New Assessment of {{course.number}} - {{ course.name }}</a>
+</div>
+<div class="template-container">
+    <div class="secondary-title">Assessment Template: {{ template.name }}</div>
+    <div>Creator: {{ template.creator.user.firstname }} {{template.creator.user.lastname}} </div>
+    <div>Created: {{ template.created_at }}</div>
+    <div>Description: {{ template.description }} </div>
+    <div>Can Retake: {{ template.can_retake }} </div>
+    <div>Limit Time: {{ template.limit_time }} </div>
+    <div>Difficulty: {{ template.difficulty.level }} </div>
+    <div>Tag: {{ template.tags[0].tag }} </div>
+    <div class="btn btn-info">
+        <a href="{{url_for('template_edit', template_id=template.id, course_id=course.id )}}">Edit</a>
+    </div>
+    <div class="btn btn-info">
+        <a href="{{url_for('assessment_new', template_id=template.id, course_id=course.id )}}">Select</a>
+    </div>
+</div>
+<div class="questions-container">
+    <div class="secondary-title">
+        Questions:
+    </div>
+    <div>No. of questions: {{ template.mc_questions|length + template.st_questions|length }} ({{template.mc_questions|length}}MCQ + {{template.st_questions|length}}SQ) </div>
+    <div class="btn btn-info">
+        <a href="{{url_for('template_edit_multiple_choice_question_new', template_id=template.id, course_id=course.id)}}">Add MC Question</a>
+    </div>
+     <div class="btn btn-info">
+        <a href="{{url_for('template_edit_short_question_new', template_id=template.id, course_id=course.id)}}">Add Short Question</a>
+    </div>
     {% if template.mc_questions == [] %}
         <div>no Multiple Choice Question yet</div>
     {% else %}
-        {% for question in course.mc_questions %}
-            <div>{{ question.question }} </div>
+        {% for question in template.mc_questions %}
+            <div>Multiple Choice Q{{ loop.index }}</div>
+            <div>{{ question.question }}</div>
+            <div>Correct Choice: {{ mc_id_char[question.correct_choice_id] }}</div>
+            <ol type="A">
+                <li>
+                    <div>{{ question.choice_1 }}</div>
+                    <div>Feedback: {{ question.choice_feedback_1 }}</div>
+                </li>
+                <li>
+                    <div>{{ question.choice_2 }}</div>
+                    <div>Feedback: {{ question.choice_feedback_2 }}</div>
+                </li>
+                <li>
+                    <div>{{ question.choice_3 }}</div>
+                    <div>Feedback: {{ question.choice_feedback_3 }}</div>
+                </li>
+                <li>
+                    <div>{{ question.choice_4 }}</div>
+                    <div>Feedback: {{ question.choice_feedback_4 }}</div>
+                </li>
+            </ol>
         {% endfor %}
     {% endif %}
-    {% if template.st_questions == [] %}
-        <div>no Short Question yet</div>
-    {% else %}
-        {% for question in course.st_questions %}
-            <div>{{ question.question }} </div>
-        {% endfor %}
-    {% endif %}
-    <a href="{{url_for('templateselect', course_id=course.id}}">Add Assessment</a>
+    <div class="short-questions">
+        {% if template.st_questions == [] %}
+            <div>no Short Question yet</div>
+        {% else %}
+            {% for question in template.st_questions %}
+                <div>Short Q{{ loop.index }}</div>
+                <div class="question-container">
+                    <div>{{ question.question }} </div>
+                    <div>Correct Answer: {{ question.correct_ans }} </div>
+                    <div>Feedback(Correct): {{ question.feedback_correct }}</div>
+                    <div>Feedback(Wrong): {{ question.feedback_wrong }} </div>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
 </div>
-
 {% endblock content %}

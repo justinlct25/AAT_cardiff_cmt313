@@ -1,19 +1,46 @@
-{% set active_page = "courses" %}
-{% extends "base.html" %}
-{% block content %}
+{% set active_page = "courses" %} {% extends "base.html" %} {% block content %}
 <div class="outer-container">
+    <div class="btn ">
+        <a href="{{url_for('courses')}}">< All Courses</a>
+    </div>
     <div class="main-title">{{ course.number }} {{course.name}}</div>
-    <div>{{ course.description }}</div>
+    <div>Department: {{course.programme.department.name}}</div>
+    <div>Programme: {{course.programme.name}}</div>
+    <div>Description:</div>
+    <div class="tab">{{ course.description }}</div>
     <div class="">
-        <div class="secondary-title">Assessments</div>
-        {% if course.assessments == [] %}
-            <div>no assessment yet</div>
-        {% else %}
-            {% for assessment in course.assessments %}
-                <div>{{ assessment.template.name }} </div>
-            {% endfor %}
-        {% endif %}
-        <a href="{{url_for('template_select', course_id=course.id)}}">Add Assessment</a>
+        <div class="inner-container">
+            <div class="secondary-title">Assessments</div>
+            {% if course.assessments == [] %}
+                <div>no assessment yet</div>
+            {% else %}
+                {% for assessment in course.assessments %}
+                    <div class="tab row">
+                        <div>{{ assessment.template.name }} </div>
+                        {% if assessment.is_formative %}
+                            <div>Formative</div>
+                        {% else %}
+                            <div>Summative</div>
+                        {% endif %}
+                        {% if assessment.start_at.date() > datetime.now().date() %}
+                            <div>Upcoming</div>
+                        {% elif assessment.end_at.date() < datetime.now().date() %}
+                            <div>Ended</div>
+                        {% else %}
+                            <div>Ongoing</div>
+                        {% endif %}
+                        <div>{{assessment.start_at.date()}}</div>
+                        <div>{{assessment.end_at.date()}}</div>
+                        <div>
+                            <a href="{{url_for('assessment', assessment_id=assessment.id)}}">View</a>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% endif %}
+            <div class="btn btn-info">
+                <a href="{{url_for('template_select', course_id=course.id)}}">Add Assessment</a>
+            </div>
+        </div>
     </div>
 </div>
 

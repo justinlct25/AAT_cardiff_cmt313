@@ -18,6 +18,24 @@ teacher_courses_association_table = db.Table('teacher_courses',
                                             db.PrimaryKeyConstraint('teacher_id', 'course_id')
                                             )
 
+teacher_templates_association_table = db.Table('teacher_templates',
+                                            db.Column('teacher_id', db.Integer, db.ForeignKey('teacher.id')),
+                                            db.Column('template_id', db.Integer, db.ForeignKey('assessment_template.id')),
+                                            db.PrimaryKeyConstraint('teacher_id', 'template_id')
+                                            )
+
+teacher_st_questions_association_table = db.Table('teacher_st_questions',
+                                            db.Column('teacher_id', db.Integer, db.ForeignKey('teacher.id')),
+                                            db.Column('st_question_id', db.Integer, db.ForeignKey('st_question.id')),
+                                            db.PrimaryKeyConstraint('teacher_id', 'st_question_id')
+                                            )
+
+teacher_mc_questions_association_table = db.Table('teacher_mc_questions',
+                                            db.Column('teacher_id', db.Integer, db.ForeignKey('teacher.id')),
+                                            db.Column('mc_question_id', db.Integer, db.ForeignKey('mc_question.id')),
+                                            db.PrimaryKeyConstraint('teacher_id', 'mc_question_id')
+                                            )
+
 student_courses_association_table = db.Table('student_courses',
                                             db.Column('student_id', db.Integer, db.ForeignKey('student.id')),
                                             db.Column('course_id', db.Integer, db.ForeignKey('course.id')),
