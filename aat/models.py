@@ -13,6 +13,7 @@ class User(UserMixin, db.Model):
     firstname = db.Column(db.String(50), unique=True, nullable=False)
     lastname = db.Column(db.String(50), unique=True, nullable=False)
     icon = db.Column(db.Text, nullable=True, default="user_default_1.png")
+    about = db.Column(db.String(256))
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 
     @property
@@ -35,6 +36,9 @@ class Teacher(db.Model):
   id = db.Column(db.Integer, primary_key=True)
   user = db.relationship('User', secondary=user_teacher_association_table, backref=db.backref('teacher', uselist=False), uselist=False) # one-to-one
   courses = db.relationship('Course', secondary=teacher_courses_association_table, backref='teacher')
+  created_templates = db.relationship('AssessmentTemplate', secondary=teacher_templates_association_table, backref=db.backref('creator', uselist=False))
+  created_st_questions = db.relationship('StQuestion', secondary=teacher_st_questions_association_table, backref=db.backref('creator', uselist=False))
+  created_mc_questions = db.relationship('McQuestion', secondary=teacher_mc_questions_association_table, backref=db.backref('creator', uselist=False))
   teacher_num = db.Column(db.String(10), nullable=False)
   created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
@@ -72,7 +76,7 @@ class Course(db.Model):
 class Assessment(db.Model):
   id = db.Column(db.Integer, primary_key=True)
   course_id = db.Column(db.Integer, db.ForeignKey('course.id'), nullable=False)
-  template = db.relationship('AssessmentTemplate', secondary=assessment_template_association_table, backref='assessment', uselist=True) 
+  template = db.relationship('AssessmentTemplate', secondary=assessment_template_association_table, backref='assessment', uselist=False) 
   is_formative = db.Column(db.Boolean, default=False)
   start_at = db.Column(db.DateTime, nullable=False)
   end_at = db.Column(db.DateTime, nullable=False)
@@ -111,6 +115,16 @@ class McQuestion(db.Model):
   difficulty = db.relationship('Difficulty', secondary=mcquestion_difficulty_association_table, backref='mc_question', uselist=False) 
   tags = db.relationship('Tag', secondary=mcquestion_tags_association_table, backref='mc_question')
   choices = db.relationship('Choice', backref='mc_question', lazy=True) # one-to-many
+  creator_id = db.Column(db.Integer, db.ForeignKey('teacher.id'))
+  choice_1 = db.Column(db.String(200)) # easy version of multiple choice without using choice table
+  choice_2 = db.Column(db.String(200)) # easy version of multiple choice without using choice table
+  choice_3 = db.Column(db.String(200)) # easy version of multiple choice without using choice table
+  choice_4 = db.Column(db.String(200)) # easy version of multiple choice without using choice table
+  correct_choice_id = db.Column(db.Integer, nullable=False) # easy version of multiple choice without using choice table
+  choice_feedback_1 = db.Column(db.String(200)) # easy version of multiple choice without using choice table
+  choice_feedback_2 = db.Column(db.String(200)) # easy version of multiple choice without using choice table
+  choice_feedback_3 = db.Column(db.String(200)) # easy version of multiple choice without using choice table
+  choice_feedback_4 = db.Column(db.String(200)) # easy version of multiple choice without using choice table
 
 class Choice(db.Model):
   id = db.Column(db.Integer, primary_key=True)
@@ -147,6 +161,7 @@ class McStudentAns(db.Model):
   question_id = db.Column(db.Integer, db.ForeignKey('mc_question.id'))
   selected_choices = db.relationship('Choice', secondary=mcans_choices_association_table, backref='mc_ans')
   marks = db.Column(db.Integer, default=0)
+  creator_id = db.Column(db.Integer, db.ForeignKey('teacher.id'))
 
 class FbStudentAns(db.Model):
   id = db.Column(db.Integer, primary_key=True)
@@ -169,6 +184,7 @@ class StQuestion(db.Model):
   feedback_wrong = db.Column(db.String(200), default="")
   difficulty = db.relationship('Difficulty', secondary=stquestion_difficulty_association_table, backref='st_question', uselist=False) 
   tags = db.relationship('Tag', secondary=stquestion_tags_association_table, backref='st_question')
+  creator_id = db.Column(db.Integer, db.ForeignKey('teacher.id'))
 
 class SqStudentAns(db.Model):
   id = db.Column(db.Integer, primary_key=True)

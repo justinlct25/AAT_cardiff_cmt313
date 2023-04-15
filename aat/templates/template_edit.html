@@ -2,74 +2,42 @@
 {% extends "base.html" %}
 {% block content %}
 <div class="new-template">
-    Edit Template of Assessment
-    <div>Creator: {{ template_creator }}</div>
-    <div>Created at: {{template.created_at}}</div>
+    <div class="secondary-title">Edit Assessment Template</div>
+    <div>Creator: {{ template.creator.user.firstname }} {{ template.creator.user.lastname }}</div>
+    <div>Created: {{template.created_at}}</div>
     <form method="POST" action="">
-        {{templateForm.csrf_token}}
+        {{form.csrf_token}}
         <p>
-            <div>{{ templateForm.name.label }}</div>
-            <div>{{ templateForm.name(value=template.name) }}</div>
+            <div>{{ form.name.label }}</div>
+            <div>{{ form.name(value=template.name) }}</div>
 
         </p>
         <p>
-            <div>{{ templateForm.description.label }} </div>
-            <div>{{ templateForm.description(value=template.description) }}</div>
+            <div>{{ form.description.label }} </div>
+            <div>{{ form.description(value=template.description) }}</div>
         </p>
         <p>
-            <div>{{ templateForm.can_retake.label }} </div>
-            <div>{{ templateForm.can_retake(checked=template.can_retake) }}</div>
+            <div>{{ form.can_retake.label }} </div>
+            <div>{{ form.can_retake(checked=template.can_retake) }}</div>
         </p>
         <p>
-            <div>{{ templateForm.limit_time.label }} </div>
-            <div>{{ templateForm.limit_time(checked=template.limit_time) }}</div>
+            <div>{{ form.limit_time.label }} </div>
+            <div>{{ form.limit_time(checked=template.limit_time) }}</div>
         </p>
         <p>
-            <div>{{ templateForm.duration.label }} </div>
-            <div>{{ templateForm.duration(value=template.duration) }}</div>
+            <div>{{ form.duration.label }} </div>
+            <div>{{ form.duration(value=template.duration) }}</div>
         </p>
          <p>
-            <div>{{ templateForm.difficulty_id.label }} </div>
-            <div>{{ templateForm.difficulty_id(value=template.difficulty.id) }}</div>
+            <div>{{ form.difficulty_id.label }} </div>
+            <div>{{ form.difficulty_id(value=template.difficulty.id) }}</div>
         </p>
          <p>
-            <div>{{ templateForm.tag_id.label }} </div>
-            <div>{{ templateForm.tag_id(value=template.tags[0].id) }}</div>
+            <div>{{ form.tag_id.label }} </div>
+            <div>{{ form.tag_id(value=template.tags[0].id) }}</div>
         </p>
         {# <p>{{form.submit}}</p> #}
-        <p><input class="btn btn-info" type="submit" value="Save Assessment Template Info"></p>
+        <p><input class="btn btn-info" type="submit" value="Save"></p>
     </form>
-</div>
-<div class="questions-container">
-    <div class="section-title">
-        Questions:
-    </div>
-    {% if template.mc_questions == [] %}
-        <div>no Multiple Choice Question yet</div>
-    {% else %}
-        {% for question in course.mc_questions %}
-            <div>{{ question.question }} </div>
-        {% endfor %}
-    {% endif %}
-        <div class="btn btn-info">
-            <a href="{{url_for('assessment_new', template_id=template.id, course_id=course.id)}}">Add MC Question</a>
-        </div>
-    <div class="short-questions">
-        {% if template.st_questions == [] %}
-            <div>no Short Question yet</div>
-        {% else %}
-            {% for question in template.st_questions %}
-                <div class="question-container">
-                    <div>Question: {{ question.question }} </div>
-                    <div>Answer: {{ question.correct_ans }} </div>
-                    <div>Correct Answer Feedback: {{ question.feedback_correct }}</div>
-                    <div>Wrong Answer Feedback: {{ question.feedback_wrong }} </div>
-                </div>
-            {% endfor %}
-        {% endif %}
-        <div class="btn btn-info">
-            <a href="{{url_for('template_edit_short_question_new', template_id=template.id, course_id=course.id)}}">Add Short Question</a>
-        </div>
-    </div>
 </div>
 {% endblock content %}

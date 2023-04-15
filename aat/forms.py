@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, BooleanField, TextAreaField, IntegerField, SelectField, DateField
+from wtforms import StringField, PasswordField, SubmitField, BooleanField, TextAreaField, IntegerField, SelectField, DateField, FieldList, FormField, RadioField
 from wtforms.validators import DataRequired, EqualTo, ValidationError, Regexp
 from aat.models import *
 from aat import app
@@ -80,4 +80,46 @@ class StQuestionForm(FlaskForm):
   correct_ans = StringField("Answer", validators=[DataRequired()])
   feedback_correct = StringField("Feedback for Correct Answer")
   feedback_wrong = StringField("Feedback for Wrong Answer")
+  marks = IntegerField("Marks", default=1)
+
+# class McChoicesNumberForm(FlaskForm):
+#   num_choices = IntegerField('Number of Choices')
+#   submit = SubmitField('New Multiple Choices Question')
+
+# class McChoiceForm(FlaskForm):
+#   choice = StringField('Choice')
+#   correct = BooleanField('Is Correct Answer')
+
+# class McQuestionForm(FlaskForm):
+#   question = StringField('Question')
+#   options = FieldList(FormField(McChoiceForm), min_entries=0, max_entries=10)
+#   correct_answer = RadioField('Correct Answer', choices=[], coerce=int)
+
+MC_ID_CHAR = {
+  1: "A",
+  2: "B", 
+  3: "C", 
+  4: "D"
+} 
+
+MC_CHAR_ID = {
+  "A": 1,
+  "B": 2,
+  "C": 3,
+  "D": 4
+}
+
+class McQuestionForm(FlaskForm):
+  question = StringField("Question", validators=[DataRequired()])
+  feedback = StringField("Feedback")
+  choice_1 = StringField("Choice 1")
+  choice_2 = StringField("Choice 2")
+  choice_3 = StringField("Choice 3")
+  choice_4 = StringField("Choice 4")
+  choice_feedback_1 = StringField("Feedback for Choice 1")
+  choice_feedback_2 = StringField("Feedback for Choice 2")
+  choice_feedback_3 = StringField("Feedback for Choice 3")
+  choice_feedback_4 = StringField("Feedback for Choice 4")
+  correct_choice = SelectField("Correct Choice Id", choices=["A", "B", "C", "D"])
+  marks = IntegerField("Marks", default=1)
 

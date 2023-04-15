@@ -1,0 +1,12 @@
+{% set active_page = "assessments" %}
+{% extends "base.html" %}
+{% block content %}
+<div class="outer-container">
+    <div class="assessment-container">
+        {{ assessment.template.name }}
+        {{ assessment.template.description }}
+        {{ assessment.course.name}}
+    </div>
+</div>
+
+{% endblock content %}
