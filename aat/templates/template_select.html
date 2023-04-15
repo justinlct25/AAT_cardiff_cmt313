@@ -8,7 +8,7 @@
     <div class="template-container">
         {{ template.id}} {{ template.name }}
         <a href="{{url_for('assessment_new', template_id=template.id, course_id=course.id)}}">Select</a>
-        <a href="{{url_for('template_view', template_id=template.id, course_id=course.id)}}">View</a>
+        <a href="{{url_for('template', template_id=template.id, course_id=course.id)}}">View</a>
     </div>
     {% endfor %} {% endif %}
 </div>

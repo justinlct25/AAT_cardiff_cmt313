@@ -2,10 +2,32 @@
     margin: 1rem;
 }
 
+.inner-container {
+    margin: 1rem;
+}
+
 .main-title {
     font-size: 2.5rem;
 }
 
 .secondary-title {
-    font-size: 1.5rem;
+    font-size: 1.75rem;
+}
+
+.third-title {
+    font-size: 1.25rem;
+}
+
+.tab {
+    margin-left: 1rem
+}
+
+.row {
+    display: flex;
+    flex-direction: row;
+    width: 80%;
+}
+
+.row div {
+    margin-right: 2rem
 }

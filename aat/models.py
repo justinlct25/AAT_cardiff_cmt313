@@ -55,7 +55,7 @@ class Department(db.Model):
   id = db.Column(db.Integer, primary_key=True)
   name = db.Column(db.String(60), nullable=False)
   abbreviation = db.Column(db.String(10))
-  programmes = db.relationship('Programme', backref='department', lazy=True) # one-to-many
+  programmes = db.relationship('Programme', backref=db.backref('department', uselist=False), lazy=True) # one-to-many
 
 class Programme(db.Model):
   id = db.Column(db.Integer, primary_key=True)
