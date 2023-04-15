@@ -9,9 +9,11 @@ import random
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/home', methods=['GET', 'POST'])
 def home():
-    if current_user:
-       user = User.query.get(current_user.id)
-    return render_template("index.html", user=user)
+    # if current_user:
+    #     user = User.query.get(current_user.id)
+    # else:
+    #     user = None
+    return render_template("index.html")
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -21,7 +23,7 @@ def login():
       if user is not None and user.verify_password(form.password.data):
         login_user(user)
         flash('You\'ve successfully logged in,'+' '+ current_user.email +'!')
-        return redirect(url_for('home'))
+        return redirect(url_for('dashboard'))
       flash('Invalid email or password.')
     return render_template('login.html',title='Login', form=form)
 
@@ -41,6 +43,11 @@ def register():
     flash('Registration successful!')
     return redirect(url_for('registered'))
   return render_template('register.html',title='Register', form=form)
+
+
+@app.route("/dashboard", methods=["GET"])
+def dashboard():
+    return render_template('dashboard.html')
 
 @app.route("/profile/<int:user_id>", methods=["GET"])
 def profile(user_id):

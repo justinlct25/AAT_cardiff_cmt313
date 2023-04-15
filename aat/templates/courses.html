@@ -1,21 +1,26 @@
 {% set active_page = "courses" %}
 {% extends "base.html" %}
 {% block content %}
-<div class="courses-container">
     {% if courses == [] %}
         <div>no course yet</div>
     {% else %}
+        <div class="row flex-row flex-nowrap">
         {% for course in courses %}
-            <div class="card card-body" style="width: 18rem; margin: 0.5rem">
-                <div class="card-title">{{course.number}} {{course.name}}</div>
-                <div class="card-text">{{course.description}}</div>
-                <a href="{{url_for('course', course_id=course.id)}}" class="btn btn-primary">View</a>
-            </div>
+                <div class="col-4">
+                    <div class="card h-100">
+                        <div class="card card-body">
+                            <div class="card-title">{{course.number}} {{course.name}}</div>
+                            <div class="card-text">{{course.description}}</div>
+                            <br>
+                            <a href="{{url_for('course', course_id=course.id)}}" class="btn btn-primary">View</a>
+                        </div>
+                    </div>
+                </div>   
         {% endfor %}
+        </div>
     {% endif%}
-</div>
 <div class="new-course">
-    Add Course
+    <div class="card-title">Add Course</div>
     <form method="POST" action="">
         {{form.csrf_token}}
         <p>
