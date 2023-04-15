@@ -1,6 +1,10 @@
 {% set active_page = "assessments" %}
 {% extends "base.html" %}
 {% block content %}
+
+<div class="btn ">
+    <a href="{{url_for('template', template_id=template.id, course_id=course.id )}}">< Template: {{template.name}}</a>
+</div>
 <div class="new-template">
     <div class="secondary-title">Edit Assessment Template</div>
     <div>Creator: {{ template.creator.user.firstname }} {{ template.creator.user.lastname }}</div>

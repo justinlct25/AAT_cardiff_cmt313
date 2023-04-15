@@ -1,5 +1,8 @@
 {% set active_page = "courses" %} {% extends "base.html" %} {% block content %}
 <div class="outer-container">
+    <div class="btn ">
+        <a href="{{url_for('courses')}}">< All Courses</a>
+    </div>
     <div class="main-title">{{ course.number }} {{course.name}}</div>
     <div>Department: {{course.programme.department.name}}</div>
     <div>Programme: {{course.programme.name}}</div>

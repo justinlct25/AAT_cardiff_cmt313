@@ -2,10 +2,8 @@
 {% extends "base.html" %}
 {% block content %}
 
-<div class="course-container">
-    <div class="btn ">
-        <a href="{{url_for('template_select', template_id=template.id, course_id=course.id )}}">< Template Selection for New Assessment of {{course.number}} - {{ course.name }}</a>
-    </div>
+<div class="btn ">
+    <a href="{{url_for('template_select', template_id=template.id, course_id=course.id )}}">< Template Selection for New Assessment of {{course.number}} - {{ course.name }}</a>
 </div>
 <div class="template-container">
     <div class="secondary-title">Assessment Template: {{ template.name }}</div>
