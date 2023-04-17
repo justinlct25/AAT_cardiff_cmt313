@@ -21,7 +21,7 @@ def login():
       if user is not None and user.verify_password(form.password.data):
         login_user(user)
         flash('You\'ve successfully logged in,'+' '+ current_user.email +'!')
-        return redirect(url_for('home'))
+        return redirect(url_for('dashboard'))
       flash('Invalid email or password.')
     return render_template('login.html',title='Login', form=form)
 
@@ -41,6 +41,10 @@ def register():
     flash('Registration successful!')
     return redirect(url_for('registered'))
   return render_template('register.html',title='Register', form=form)
+
+@app.route("/dashboard", methods=["GET"])
+def dashboard():
+    return render_template('dashboard.html')
 
 @app.route("/profile/<int:user_id>", methods=["GET"])
 def profile(user_id):
@@ -311,11 +315,6 @@ def assessment_result(attempt_id):
         st_answer = db.session.query(StStudentAns).filter_by(attempt_id=attempt_id, question_id=question.id).first()
         st_answers.append(st_answer)
     return render_template("assessment_result", attempt=attempt, assessment_total_marks=assessment_total_marks, mc_answers=mc_answers, st_answers=st_answers)
-
-@app.route("/assessment/result", methods=['GET'])
-def assessment_result(attempt_id):
-    attempt = StudentAttemptStatus.query.get(attempt_id)
-    return render_template("assessment_result", attempt=attempt)
 
 @app.route("/statistic/<int:assessment_id>", methods=['GET'])    
 def statistic(assessment_id):
