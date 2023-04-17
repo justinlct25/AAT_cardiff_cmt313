@@ -131,3 +131,21 @@ mcans_choices_association_table = db.Table('mcans_choices',
                                             db.Column('choice_id', db.Integer, db.ForeignKey('choice.id')),
                                             db.PrimaryKeyConstraint('mcans_id', 'choice_id')
                                             )
+
+attempt_mc_questions_association_table = db.Table('attempt_mcquestions',
+                                            db.Column('mcans_id', db.Integer, db.ForeignKey('mc_student_ans.id')),
+                                            db.Column('choice_id', db.Integer, db.ForeignKey('choice.id')),
+                                            db.PrimaryKeyConstraint('mcans_id', 'choice_id')
+                                            )
+
+attempt_mc_answers_association_table = db.Table('attempt_mcanswers',
+                                            db.Column('attempt_id', db.Integer, db.ForeignKey('student_attempt_status.id')),
+                                            db.Column('mc_answer_id', db.Integer, db.ForeignKey('mc_student_ans.id')),
+                                            db.PrimaryKeyConstraint('attempt_id', 'mc_answer_id')
+                                            )
+
+attempt_st_answers_association_table = db.Table('attempt_stanswers',
+                                            db.Column('attempt_id', db.Integer, db.ForeignKey('student_attempt_status.id')),
+                                            db.Column('st_answer_id', db.Integer, db.ForeignKey('st_student_ans.id')),
+                                            db.PrimaryKeyConstraint('attempt_id', 'st_answer_id')
+                                            )

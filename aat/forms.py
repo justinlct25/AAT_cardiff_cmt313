@@ -6,7 +6,19 @@ from aat import app
 from flask import flash
 from sqlalchemy import inspect
 
+MC_ID_CHAR = {
+  1: "A",
+  2: "B", 
+  3: "C", 
+  4: "D"
+} 
 
+MC_CHAR_ID = {
+  "A": 1,
+  "B": 2,
+  "C": 3,
+  "D": 4
+}
 
 class RegistrationForm(FlaskForm):
   username = StringField('Username',validators=[DataRequired(),Regexp('^[a-z0-9]{6,14}$',message='Your username should be between 6 and 12 characters long, and can only contain lowercase letters.')])
@@ -95,20 +107,6 @@ class StQuestionForm(FlaskForm):
 #   options = FieldList(FormField(McChoiceForm), min_entries=0, max_entries=10)
 #   correct_answer = RadioField('Correct Answer', choices=[], coerce=int)
 
-MC_ID_CHAR = {
-  1: "A",
-  2: "B", 
-  3: "C", 
-  4: "D"
-} 
-
-MC_CHAR_ID = {
-  "A": 1,
-  "B": 2,
-  "C": 3,
-  "D": 4
-}
-
 class McQuestionForm(FlaskForm):
   question = StringField("Question", validators=[DataRequired()])
   feedback = StringField("Feedback")
@@ -123,3 +121,10 @@ class McQuestionForm(FlaskForm):
   correct_choice = SelectField("Correct Choice Id", choices=["A", "B", "C", "D"])
   marks = IntegerField("Marks", default=1)
 
+class StAnswerForm(FlaskForm):
+  answer = StringField("Answer")
+  submit = SubmitField('Save')
+
+class McAnswerForm(FlaskForm):
+  answer = SelectField("Answer", choices=["A", "B", "C", "D"])
+  submit = SubmitField('Save')

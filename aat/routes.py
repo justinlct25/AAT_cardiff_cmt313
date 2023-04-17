@@ -54,7 +54,7 @@ def profile(user_id):
 @app.route("/courses", methods=['GET', 'POST'])
 def courses():
 	user = User.query.get(current_user.id)
-	if user.student: courses = user.student.courses if user.student.courses else []
+	if user.student: courses = user.student.programme.courses if user.student.programme.courses else []
 	else: courses = user.teacher.courses if user.teacher.courses else []
 	form = CourseForm()
 	if form.validate_on_submit() and current_user.teacher:
@@ -65,15 +65,22 @@ def courses():
 		db.session.commit()
 		flash('Course created successfully!')
 		return redirect(url_for('courses'))
-	return render_template('courses.html', courses=courses, form=form)
+	return render_template('courses.html', courses=courses, form=form, user=user)
 
 @app.route("/course/<int:course_id>", methods=['GET'])
 def course(course_id):
     user = User.query.get(current_user.id)
     course = Course.query.get(course_id)
-    # print(user.teacher)
-    # is_student = any(student.id == current_user.id for student in course.programme.students)
-    return render_template('course.html', course=course, datetime=datetime)
+    assessment_attempt_ids = []
+    if user.student:
+        for assessment in course.assessments:
+            attempts = StudentAttemptStatus.query.filter_by(assessment=assessment)
+            latest_attempt = attempts.order_by(StudentAttemptStatus.id.desc()).first()
+            attempt_id = 0
+            if latest_attempt:
+              attempt_id = latest_attempt.id
+            assessment_attempt_ids.append(attempt_id)
+    return render_template('course.html', course=course, user=user, datetime=datetime, assessment_attempt_ids=assessment_attempt_ids)
 
 @app.route("/template/select/<int:course_id>", methods=['GET'])
 def template_select(course_id):
@@ -136,7 +143,7 @@ def template_edit_short_question_new(template_id, course_id):
     template = AssessmentTemplate.query.get(template_id)
     form = StQuestionForm()
     if form.validate_on_submit():
-        question = StQuestion(creator_id=current_user.id, question=form.question.data, correct_ans=form.correct_ans.data, feedback_correct=form.feedback_correct.data, feedback_wrong=form.feedback_wrong.data)
+        question = StQuestion(creator_id=current_user.id, question=form.question.data, correct_ans=form.correct_ans.data, feedback_correct=form.feedback_correct.data, feedback_wrong=form.feedback_wrong.data, marks=form.marks.data)
         db.session.add(question)
         template.st_questions.append(question)
         teacher.created_st_questions.append(question)
@@ -151,7 +158,7 @@ def template_edit_multiple_choice_question_new(template_id, course_id):
     template = AssessmentTemplate.query.get(template_id)
     form = McQuestionForm()
     if form.validate_on_submit():
-        question = McQuestion(creator_id=current_user.id, question=form.question.data, feedback=form.feedback.data, choice_1=form.choice_1.data, choice_2=form.choice_2.data, choice_3=form.choice_3.data, choice_4=form.choice_4.data, choice_feedback_1=form.choice_feedback_1.data, choice_feedback_2=form.choice_feedback_2.data, choice_feedback_3=form.choice_feedback_3.data, choice_feedback_4=form.choice_feedback_4.data, correct_choice_id=MC_CHAR_ID[form.correct_choice.data])
+        question = McQuestion(creator_id=current_user.id, question=form.question.data, feedback=form.feedback.data, choice_1=form.choice_1.data, choice_2=form.choice_2.data, choice_3=form.choice_3.data, choice_4=form.choice_4.data, choice_feedback_1=form.choice_feedback_1.data, choice_feedback_2=form.choice_feedback_2.data, choice_feedback_3=form.choice_feedback_3.data, choice_feedback_4=form.choice_feedback_4.data, correct_choice_id=MC_CHAR_ID[form.correct_choice.data], marks=form.marks.data)
         db.session.add(question)
         template.mc_questions.append(question)
         teacher.created_mc_questions.append(question)
@@ -177,6 +184,7 @@ def template_edit_multiple_choice_question_new(template_id, course_id):
 
 @app.route("/assessment/new/<int:template_id>/<int:course_id>", methods=['GET', 'POST'])
 def assessment_new(template_id, course_id):
+    user = User.query.get(current_user.id)
     course = Course.query.get(course_id)
     template = AssessmentTemplate.query.get(template_id)
     form = AssessmentForm()
@@ -187,13 +195,133 @@ def assessment_new(template_id, course_id):
         db.session.flush()
         course.assessments.append(assessment)
         db.session.commit()
-        return redirect(url_for("assessment", assessment_id=assessment.id))
-    return render_template("assessment_new.html", course=course, template=template, form=form)
+        return redirect(url_for("assessment_view", assessment_id=assessment.id))
+    return render_template("assessment_new.html", user = user, course=course, template=template, form=form)
 
-@app.route("/assessment/<int:assessment_id>", methods=['GET'])
-def assessment(assessment_id):
+@app.route("/assessment/view/<int:assessment_id>", methods=['GET'])
+def assessment_view(assessment_id):
+    user = User.query.get(current_user.id)
     assessment = Assessment.query.get(assessment_id)
-    return render_template("assessment.html", assessment=assessment, mc_id_char=MC_ID_CHAR)
+    return render_template("assessment_view.html", user=user, assessment=assessment, mc_id_char=MC_ID_CHAR)
+
+@app.route("/assessment/attempt/<int:assessment_id>/<int:attempt_id>", methods=['GET', 'POST'])
+def assessment_attempt(assessment_id, attempt_id=0):
+    user = User.query.get(current_user.id)
+    assessment = Assessment.query.get(assessment_id)
+    mc_forms = [McAnswerForm(obj=question) for question in assessment.template.mc_questions]
+    st_forms = [StAnswerForm(obj=question) for question in assessment.template.st_questions]
+    mc_answers, st_answers = [], []
+    if attempt_id == 0: # student first attempt the assessment
+      student_attempt_status = StudentAttemptStatus(student_id=user.student.id)
+      student_attempt_status.assessment = assessment
+      db.session.add(student_attempt_status)
+      db.session.commit()
+      attempt_id = student_attempt_status.id
+    else: # student continues his/her assessment attempt
+      student_attempt_status = StudentAttemptStatus.query.get(attempt_id)
+      for question in assessment.template.mc_questions:
+          mc_answer = db.session.query(McStudentAns).filter_by(attempt_id=student_attempt_status.id, question_id=question.id).first()
+          mc_answers.append(mc_answer)
+      for question in assessment.template.st_questions:
+          st_answer = db.session.query(StStudentAns).filter_by(attempt_id=student_attempt_status.id, question_id=question.id).first()
+          st_answers.append(st_answer)
+    return render_template("assessment_attempt.html", user=user, assessment=assessment, mc_forms=mc_forms, st_forms=st_forms, mc_id_char=MC_ID_CHAR, attempt_id=attempt_id, mc_answers=mc_answers, st_answers=st_answers)
+
+@app.route("/assessment/attempt/mc/<int:attempt_id>/<int:question_id>", methods=['GET', 'POST'])
+def assessment_attempt_mc(attempt_id, question_id):
+    attempt = StudentAttemptStatus.query.get(attempt_id)
+    question = McQuestion.query.get(question_id)
+    form = McAnswerForm()
+    if form.validate_on_submit():
+      answer_choice_id = MC_CHAR_ID[form.answer.data]
+      answer_is_correct = question.correct_choice_id == answer_choice_id
+      marks = question.marks if answer_is_correct else 0
+      mc_answer = McStudentAns.query.filter_by(attempt_id=attempt_id, question_id=question_id).first()
+      if mc_answer: # student already submitted an answer before
+          mc_answer.answer_choice_id = answer_choice_id
+          mc_answer.is_correct = answer_is_correct
+          mc_answer.marks = marks
+          flash("Edited MC question")
+      else: # student have not submitted an answer before
+          mc_answer = McStudentAns(attempt_id=attempt.id, question_id=question_id, answer_choice_id=answer_choice_id, is_correct=answer_is_correct, marks=marks)
+          db.session.add(mc_answer)
+          attempt.mc_answers.append(mc_answer)
+          flash("Answered Multiple Choice question")
+      db.session.commit()
+      return redirect(url_for("assessment_attempt", assessment_id=attempt.assessment.id, attempt_id=attempt_id))
+    flash("Failed to answer Multiple Choice question")
+    return redirect(url_for("assessment_attempt", assessment_id=attempt.assessment.id, attempt_id=attempt_id))
+
+@app.route("/assessment/attempt/st/<int:attempt_id>/<int:question_id>", methods=['GET', 'POST'])
+def assessment_attempt_st(attempt_id, question_id):
+    attempt = StudentAttemptStatus.query.get(attempt_id)
+    question = StQuestion.query.get(question_id)
+    form = StAnswerForm()
+    if form.validate_on_submit():
+      answer = form.answer.data
+      answer_is_correct = question.correct_ans == answer
+      marks = question.marks if answer_is_correct else 0
+      st_answer = StStudentAns.query.filter_by(attempt_id=attempt_id, question_id=question_id).first()
+      if st_answer: # student already submitted an answer before
+          st_answer.answer = answer
+          st_answer.is_correct = answer_is_correct
+          st_answer.marks = marks
+          flash("Edited Short question")
+      else: # student have not submitted an answer before
+          st_answer = StStudentAns(attempt_id=attempt.id, question_id=question_id, answer=answer, is_correct=answer_is_correct, marks=marks)
+          db.session.add(st_answer)
+          attempt.st_answers.append(st_answer)
+          flash("Answered Short question")
+      db.session.commit()
+      return redirect(url_for("assessment_attempt", assessment_id=attempt.assessment.id, attempt_id=attempt_id))
+    flash("Failed to answer MC question")
+    return redirect(url_for("assessment_attempt", assessment_id=attempt.assessment.id, attempt_id=attempt_id))
+
+@app.route("/assessment/submit/<int:attempt_id>", methods=['POST'])
+def assessment_submit(attempt_id):
+    attempt = StudentAttemptStatus.query.get(attempt_id)
+    assessment_total_marks, attempt_total_marks = 0, 0
+    # for question in attempt.assessment.mc_questions:
+    #     assessment_total_marks += question.marks
+    # for question in attempt.assessment.st_questions:
+    #     assessment_total_marks += question.marks
+    for answer in attempt.mc_answers:
+        attempt_total_marks += answer.marks
+    for answer in attempt.st_answers:
+        attempt_total_marks += answer.marks
+    attempt.total_marks = attempt_total_marks
+    attempt.is_submitted = True
+    attempt.attempted_at = datetime.utcnow
+    db.session.commit()
+    return redirect(url_for('assessment_result', attempt_id=attempt_id))
+
+@app.route("/assessment/result/<int:attempt_id>", methods=['GET'])
+def assessment_result(attempt_id):
+    attempt = StudentAttemptStatus.query.get(attempt_id)
+    assessment_total_marks = 0
+    for question in attempt.assessment.mc_questions:
+        assessment_total_marks += question.marks
+    for question in attempt.assessment.st_questions:
+        assessment_total_marks += question.marks
+    mc_answers, st_answers = [], []
+    for question in attempt.assessment.template.mc_questions:
+        mc_answer = db.session.query(McStudentAns).filter_by(attempt_id=attempt_id, question_id=question.id).first()
+        mc_answers.append(mc_answer)
+    for question in attempt.assessment.template.st_questions:
+        st_answer = db.session.query(StStudentAns).filter_by(attempt_id=attempt_id, question_id=question.id).first()
+        st_answers.append(st_answer)
+    return render_template("assessment_result", attempt=attempt, assessment_total_marks=assessment_total_marks, mc_answers=mc_answers, st_answers=st_answers)
+
+@app.route("/assessment/result", methods=['GET'])
+def assessment_result(attempt_id):
+    attempt = StudentAttemptStatus.query.get(attempt_id)
+    return render_template("assessment_result", attempt=attempt)
+
+@app.route("/statistic/<int:assessment_id>", methods=['GET'])    
+def statistic(assessment_id):
+    data = StudentAttemptStatus.query.filter_by(assessment_id=assessment_id)
+    return render_template("statistic", data=data)
+
 
 @app.route("/assessments", methods=['GET'])
 def assessments():

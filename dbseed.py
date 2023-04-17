@@ -6,8 +6,10 @@ ACCOUNTS = [
         ["ivor@cardiff.ac.uk", "ivor1010", "Ivor", "Mandekich", "1867157", True, ""], 
         ["mike@cardiff.ac.uk", "mike1010", "Ziye", "Zhang", "21095796", True, ""],
         ["kp@cardiff.ac.uk", "kp1010", "Khai Pong", "Teoh", "22085771", False, "Computer Science"],
-        ["wan@cardiff.ac.uk", "wan1010", "Guowen", "Ye", "22080190", False, "Software Engineering"],
-        ["justin@cardiff.ac.uk", "justin1010", "Chun Ting Justin", "Lo", "22075165", False, "Data Science"]
+        # ["wan@cardiff.ac.uk", "wan1010", "Guowen", "Ye", "22080190", False, "Software Engineering"],
+        ["wan@cardiff.ac.uk", "wan1010", "Guowen", "Ye", "22080190", False, "Computer Science"],
+        # ["justin@cardiff.ac.uk", "justin1010", "Chun Ting Justin", "Lo", "22075165", False, "Data Science"]
+        ["justin@cardiff.ac.uk", "justin1010", "Chun Ting Justin", "Lo", "22075165", False, "Computer Science"]
     ]
 
 DEPARTMENTS = [
@@ -24,7 +26,7 @@ DEPARTMENTS = [
 
 DIFFICULTIES = [1, 2, 3, 4, 5]
 
-TAGS = ["Algorithm", "Data Structure", "Software", "Machine Learning", "Artificial Intelligence", "DevOps", "Design Pattern"]
+TAGS = ["Algorithm", "Data Structure", "Software Development", "Machine Learning", "Artificial Intelligence", "DevOps", "Design Pattern"]
 
 
 

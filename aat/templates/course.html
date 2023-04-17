@@ -31,15 +31,19 @@
                         {% endif %}
                         <div>{{assessment.start_at.date()}}</div>
                         <div>{{assessment.end_at.date()}}</div>
-                        <div>
-                            <a href="{{url_for('assessment', assessment_id=assessment.id)}}">View</a>
-                        </div>
+                        {% if user.student %}
+                            <div><a href="{{ url_for('assessment_attempt', assessment_id=assessment.id, attempt_id=assessment_attempt_ids[loop.index-1]) }}">Attempt</a></div>
+                        {% else %}
+                            <div><a href="{{ url_for('assessment_view', assessment_id=assessment.id) }}">View</a></div>
+                        {% endif %}
                     </div>
                 {% endfor %}
             {% endif %}
-            <div class="btn btn-info">
-                <a href="{{url_for('template_select', course_id=course.id)}}">Add Assessment</a>
-            </div>
+            {% if user.teacher %}
+                <div class="btn btn-info">
+                    <a href="{{url_for('template_select', course_id=course.id)}}">Add Assessment</a>
+                </div>
+            {% endif %}
         </div>
     </div>
 </div>

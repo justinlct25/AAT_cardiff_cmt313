@@ -125,6 +125,18 @@ class McQuestion(db.Model):
   choice_feedback_2 = db.Column(db.String(200)) # easy version of multiple choice without using choice table
   choice_feedback_3 = db.Column(db.String(200)) # easy version of multiple choice without using choice table
   choice_feedback_4 = db.Column(db.String(200)) # easy version of multiple choice without using choice table
+  marks = db.Column(db.Integer, default=1)
+
+class StQuestion(db.Model):
+  id = db.Column(db.Integer, primary_key=True)
+  question = db.Column(db.String(500), nullable=False)
+  correct_ans = db.Column(db.String(100), nullable=False)
+  feedback_correct = db.Column(db.String(200), default="")
+  feedback_wrong = db.Column(db.String(200), default="")
+  difficulty = db.relationship('Difficulty', secondary=stquestion_difficulty_association_table, backref='st_question', uselist=False) 
+  tags = db.relationship('Tag', secondary=stquestion_tags_association_table, backref='st_question')
+  creator_id = db.Column(db.Integer, db.ForeignKey('teacher.id'))
+  marks = db.Column(db.Integer, default=1)
 
 class Choice(db.Model):
   id = db.Column(db.Integer, primary_key=True)
@@ -154,14 +166,27 @@ class StudentAttemptStatus(db.Model):
   attempts = db.Column(db.Integer, default=0)
   total_marks = db.Column(db.Integer, default=0)
   attempted_at = db.Column(db.DateTime)
+  is_submitted = db.Column(db.Boolean, default=False)
+  mc_answers = db.relationship('McStudentAns', secondary=attempt_mc_answers_association_table, backref=db.backref('attempt', uselist=False))
+  st_answers = db.relationship('StStudentAns', secondary=attempt_st_answers_association_table, backref=db.backref('attempt', uselist=False))
 
 class McStudentAns(db.Model):
   id = db.Column(db.Integer, primary_key=True)
   attempt_id = db.Column(db.Integer, db.ForeignKey('student_attempt_status.id'))
   question_id = db.Column(db.Integer, db.ForeignKey('mc_question.id'))
   selected_choices = db.relationship('Choice', secondary=mcans_choices_association_table, backref='mc_ans')
+  answer_choice_id = db.Column(db.Integer, nullable=False)  # easy version of multiple choice without using choice table
+  is_correct = db.Column(db.Boolean, default=False)
   marks = db.Column(db.Integer, default=0)
   creator_id = db.Column(db.Integer, db.ForeignKey('teacher.id'))
+
+class StStudentAns(db.Model):
+  id = db.Column(db.Integer, primary_key=True)
+  attempt_id = db.Column(db.Integer, db.ForeignKey('student_attempt_status.id'))
+  question_id = db.Column(db.Integer, db.ForeignKey('st_question.id'))
+  answer = db.Column(db.String(100), nullable=False)
+  is_correct = db.Column(db.Boolean, default=False)
+  marks = db.Column(db.Integer, default=0)
 
 class FbStudentAns(db.Model):
   id = db.Column(db.Integer, primary_key=True)
@@ -176,19 +201,7 @@ class BlankAns(db.Model):
   blank_id = db.Column(db.Integer, db.ForeignKey('blank.id'))
   student_ans = db.Column(db.String(50))
 
-class StQuestion(db.Model):
-  id = db.Column(db.Integer, primary_key=True)
-  question = db.Column(db.String(500), nullable=False)
-  correct_ans = db.Column(db.String(100), nullable=False)
-  feedback_correct = db.Column(db.String(200), default="")
-  feedback_wrong = db.Column(db.String(200), default="")
-  difficulty = db.relationship('Difficulty', secondary=stquestion_difficulty_association_table, backref='st_question', uselist=False) 
-  tags = db.relationship('Tag', secondary=stquestion_tags_association_table, backref='st_question')
-  creator_id = db.Column(db.Integer, db.ForeignKey('teacher.id'))
 
-class SqStudentAns(db.Model):
-  id = db.Column(db.Integer, primary_key=True)
-  attempt_id = db.Column(db.Integer, db.ForeignKey('student_attempt_status.id'))
-  question_id = db.Column(db.Integer, db.ForeignKey('st_question.id'))
-  answer = db.Column(db.String(100), nullable=False)
+
+
 
