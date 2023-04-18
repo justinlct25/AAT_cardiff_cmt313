@@ -1,0 +1,140 @@
+<!-- Andy part -->
+{% set active_page = 'question_bank'%}
+{% extends "base.html" %}
+{% block content %}
+
+<ul>
+    <li>Questions</li>
+    <li>Categories</li>
+    <li>Import</li>
+    <li>Export</li>
+</ul>
+
+<h1>Question bank</h1>
+Select a category:
+
+<select class="form-select" aria-label="Default select example">
+    <option value="1">Computer Science</option>
+    <option value="2">Software Engineering</option>
+    <option value="3">Data Science</option>
+  </select>
+All questions about the {Category}
+
+No tag filters applied 
+<select class="form-select form-select-sm" aria-label=".form-select-sm example">
+    <option selected>Filter by tags</option>
+    <option value="1">One</option>
+    <option value="2">Two</option>
+    <option value="3">Three</option>
+  </select>
+
+<div class="form-check">
+  <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
+  <label class="form-check-label" for="flexCheckDefault">
+    Show question text in the question list
+  </label>
+</div>
+
+<div class="form-check">
+    <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
+    <label class="form-check-label" for="flexCheckDefault">
+      Also show questions for catogories 
+    </label>
+  </div>
+
+<div class="col-auto">
+    <a href="{{ url_for('questions_add') }}" class="btn btn-primary mb-3">Create a new question...</a>
+
+</div>
+
+
+<h2>Multiple Choice Question</h2>
+  <table class="table table-hover">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Question</th>
+        <th>Answer</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for question in mc_questions %}
+        <tr>
+          <td>{{ question.id }}</td>
+          <td>{{ question.question }}</td>
+          <td>{{ question.choice_1 }}, {{ question.choice_2 }}, {{ question.choice_3 }}, {{ question.choice_4 }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <div class="pagination">
+    {% if mc_questions.has_prev %}
+      <a href="{{ url_for('questions', page=mc_questions.prev_num) }}" class="page-link">&laquo;</a>
+    {% else %}
+      <span class="page-link">&laquo;</span>
+    {% endif %}
+    {% for page_num in mc_questions.iter_pages() %}
+      {% if page_num %}
+        {% if page_num == mc_questions.page %}
+          <span class="page-link">{{ page_num }}</span>
+        {% else %}
+          <a href="{{ url_for('questions', page=page_num) }}" class="page-link">{{ page_num }}</a>
+        {% endif %}
+      {% else %}
+        <span class="page-link">...</span>
+      {% endif %}
+    {% endfor %}
+    {% if mc_questions.has_next %}
+      <a href="{{ url_for('questions', page=mc_questions.next_num) }}" class="page-link">&raquo;</a>
+    {% else %}
+      <span class="page-link">&raquo;</span>
+    {% endif %}
+  </div>
+
+  <h2>Short Question</h2>
+
+  <table class="table table-hover">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Question</th>
+        <th>Answer</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for question in st_questions %}
+        <tr>
+          <td>{{ question.id }}</td>
+          <td>{{ question.question }}</td>
+          <td>{{ question.correct_ans }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <div class="pagination">
+    {% if st_questions.has_prev %}
+      <a href="{{ url_for('questions', page=st_questions.prev_num) }}" class="page-link">&laquo;</a>
+    {% else %}
+      <span class="page-link">&laquo;</span>
+    {% endif %}
+    {% for page_num in st_questions.iter_pages() %}
+      {% if page_num %}
+        {% if page_num == st_questions.page %}
+          <span class="page-link">{{ page_num }}</span>
+        {% else %}
+          <a href="{{ url_for('questions', page=page_num) }}" class="page-link">{{ page_num }}</a>
+        {% endif %}
+      {% else %}
+        <span class="page-link">...</span>
+      {% endif %}
+    {% endfor %}
+    {% if st_questions.has_next %}
+      <a href="{{ url_for('questions', page=st_questions.next_num) }}" class="page-link">&raquo;</a>
+    {% else %}
+      <span class="page-link">&raquo;</span>
+    {% endif %}
+  </div>
+
+
+
+{% endblock content %}

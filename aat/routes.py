@@ -9,9 +9,7 @@ import random
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/home', methods=['GET', 'POST'])
 def home():
-    if current_user:
-       user = User.query.get(current_user.id)
-    return render_template("index.html", user=user)
+    return render_template("index.html")
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -20,15 +18,15 @@ def login():
       user = User.query.filter_by(email=form.email.data).first()
       if user is not None and user.verify_password(form.password.data):
         login_user(user)
-        flash('You\'ve successfully logged in,'+' '+ current_user.email +'!')
+        flash('You\'ve successfully logged in,'+' '+ current_user.email +'!', category="success")
         return redirect(url_for('dashboard'))
-      flash('Invalid email or password.')
+      flash('Invalid email or password.', category="danger")
     return render_template('login.html',title='Login', form=form)
 
 @app.route("/logout")
 def logout():
   logout_user()
-  flash('You\'re now logged out. Thanks for your visit!')
+  flash('You\'re now logged out. Thanks for your visit!', category="success")
   return redirect(url_for('home'))
 
 @app.route("/register", methods=['GET','POST'])
@@ -54,6 +52,28 @@ def profile(user_id):
         is_owner = False   
     user = User.query.get_or_404(user_id)
     return render_template('profile.html', is_owner=is_owner, user=user)
+
+# Andy part
+
+@app.route("/faq", methods=['GET'])
+def faq():
+    return render_template('pages-faq.html')
+
+@app.route("/contact", methods=['GET'])
+def contact():
+    return render_template('pages-contact.html')
+
+@app.route("/questions", methods=['GET'])
+def questions():
+    mc_questions = McQuestion.query.order_by(McQuestion.id.asc()).paginate(page=1, per_page=5)
+    st_questions = StQuestion.query.order_by(StQuestion.id.asc()).paginate(page=1, per_page=5)
+    return render_template('question_bank.html', mc_questions=mc_questions, st_questions=st_questions)
+
+@app.route("/questions/add", methods=["GET", "POST"])
+def questions_add():
+    return render_template('question_bank_add.html')
+
+# Andy part end
 
 @app.route("/courses", methods=['GET', 'POST'])
 def courses():
