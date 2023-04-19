@@ -47,6 +47,7 @@ class Student(db.Model):
   programme_id = db.Column(db.Integer, db.ForeignKey('programme.id'))
   user = db.relationship('User', secondary=user_student_association_table, backref=db.backref('student', uselist=False), uselist=False) # one-to-one
   courses = db.relationship('Course', secondary=student_courses_association_table, backref='student') # many-to-many
+  attempts = db.relationship('StudentAttemptStatus', secondary=student_attempts_association_table, backref=db.backref('student', uselist=False))
   student_num = db.Column(db.String(10), nullable=False)
   start_yr = db.Column(db.DateTime)
   created_at = db.Column(db.DateTime, default=datetime.utcnow)
@@ -90,6 +91,8 @@ class AssessmentTemplate(db.Model):
   can_retake = db.Column(db.Boolean, default=False)
   limit_time = db.Column(db.Boolean, default=False)
   duration = db.Column(db.Integer, default=60)
+  is_confirmed = db.Column(db.Boolean, default=False)
+  total_marks = db.Column(db.Integer, default=0)
   difficulty = db.relationship('Difficulty', secondary=template_difficulty_association_table, backref='template', uselist=False) 
   tags = db.relationship('Tag', secondary=template_tags_association_table, backref='template')
   mc_questions = db.relationship('McQuestion', secondary=template_mcquestions_association_table, backref='template')
