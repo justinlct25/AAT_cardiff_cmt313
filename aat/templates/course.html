@@ -15,26 +15,56 @@
                 <div>no assessment yet</div>
             {% else %}
                 {% for assessment in course.assessments %}
-                    <div class="tab row">
-                        <div>{{ assessment.template.name }} </div>
+                    <div class="d-flex flex-row">
+                        <div class="p-2">{{ assessment.template.name }} </div>
                         {% if assessment.is_formative %}
-                            <div>Formative</div>
+                            <div class="p-2">Formative</div>
                         {% else %}
-                            <div>Summative</div>
+                            <div class="p-2">Summative</div>
                         {% endif %}
-                        {% if assessment.start_at.date() > datetime.now().date() %}
-                            <div>Upcoming</div>
-                        {% elif assessment.end_at.date() < datetime.now().date() %}
-                            <div>Ended</div>
+                        {% if assessment.start_at.date() > datetime.now().date() %} {# assessment havnt start yet #}
+                            <div class="p-2">Upcoming</div>
+                            <div class="p-2">{{assessment.start_at.date()}}</div>
+                            <div class="p-2">{{assessment.end_at.date()}}</div>
+                        {% elif assessment.end_at.date() < datetime.now().date() %} {# assessment aleady ended#}
+                            <div class="p-2">Ended</div>
+                            <div class="p-2">{{assessment.start_at.date()}}</div>
+                            <div class="p-2">{{assessment.end_at.date()}}</div>
+                            {% if user.student %}
+                                {% if assessment_attempts[loop.index-1].is_submitted%}
+                                    <div class="p-2">Submitted</div>
+                                    <div class="p-2"><a href="{{ url_for('assessment_result', assessment_id=assessment.id, attempt_id=assessment_attempts[loop.index-1].id) }}">View</a></div>
+                                {% else %}
+                                    <div class="p-2">Incomplete</div>
+                                {% endif %}
+                            {% else %}
+                                <div class="p-2"><a href="{{ url_for('assessment_view', assessment_id=assessment.id) }}">View Assessment</a></div>
+                                <div class="p-2"><a href="{{ url_for('assessment_results', assessment_id=assessment.id) }}">View Student Results</a></div>
+                            {% endif %}
                         {% else %}
-                            <div>Ongoing</div>
-                        {% endif %}
-                        <div>{{assessment.start_at.date()}}</div>
-                        <div>{{assessment.end_at.date()}}</div>
-                        {% if user.student %}
-                            <div><a href="{{ url_for('assessment_attempt', assessment_id=assessment.id, attempt_id=assessment_attempt_ids[loop.index-1]) }}">Attempt</a></div>
-                        {% else %}
-                            <div><a href="{{ url_for('assessment_view', assessment_id=assessment.id) }}">View</a></div>
+                            <div class="p-2">Ongoing</div>
+                            <div class="p-2">{{assessment.start_at.date()}}</div>
+                            <div class="p-2">{{assessment.end_at.date()}}</div>
+                            {% if user.student %}
+                                {% if not assessment_attempts[loop.index-1] %}
+                                    <div class="p-2">Not Started</div>
+                                    <div class="p-2"><a href="{{ url_for('assessment_attempt', assessment_id=assessment.id, attempt_id=0) }}">Start</a></div> {# no student attemp record #}
+                                {% else %}
+                                    {% if assessment_attempts[loop.index-1].is_submitted %}
+                                        <div class="p-2">Submitted</div>
+                                        <div class="p-2"><a href="{{ url_for('assessment_result', assessment_id=assessment.id, attempt_id=assessment_attempts[loop.index-1].id) }}">View</a></div>
+                                        {% if assessment.is_formative %}
+                                            <div class="p-2"><a href="{{ url_for('assessment_attempt', assessment_id=assessment.id, attempt_id=0) }}">Redo</a></div>
+                                        {% endif %}
+                                    {% else %}
+                                        <div class="p-2">In progress</div>
+                                        <div class="p-2"><a href="{{ url_for('assessment_attempt', assessment_id=assessment.id, attempt_id=assessment_attempts[loop.index-1].id) }}">Continue</a></div>
+                                    {% endif %}
+                                {% endif %} 
+                            {% else %}
+                                <div class="p-2"><a href="{{ url_for('assessment_view', assessment_id=assessment.id) }}">View Assessment</a></div>
+                                <div class="p-2"><a href="{{ url_for('assessment_results', assessment_id=assessment.id) }}">View Student Results</a></div>
+                            {% endif %}
                         {% endif %}
                     </div>
                 {% endfor %}

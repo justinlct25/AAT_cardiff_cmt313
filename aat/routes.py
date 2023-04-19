@@ -168,16 +168,15 @@ def courses():
 def course(course_id):
     user = User.query.get(current_user.id)
     course = Course.query.get(course_id)
-    assessment_attempt_ids = []
+    assessment_attempts = []
     if user.student:
         for assessment in course.assessments:
-            attempts = StudentAttemptStatus.query.filter_by(assessment=assessment)
+            attempts = StudentAttemptStatus.query.filter_by(student_id=user.student.id, assessment=assessment)
             latest_attempt = attempts.order_by(StudentAttemptStatus.id.desc()).first()
-            attempt_id = 0
-            if latest_attempt:
-              attempt_id = latest_attempt.id
-            assessment_attempt_ids.append(attempt_id)
-    return render_template('course.html', course=course, user=user, datetime=datetime, assessment_attempt_ids=assessment_attempt_ids)
+            # if latest_attempt: # of not then no attempt yet
+            assessment_attempts.append(latest_attempt) # attempt_id=0: havnt attempt yet
+    print(assessment_attempts)
+    return render_template('course.html', course=course, user=user, datetime=datetime, assessment_attempts=assessment_attempts)
 
 @app.route("/template/select/<int:course_id>", methods=['GET'])
 def template_select(course_id):
@@ -244,6 +243,12 @@ def template_edit_short_question_new(template_id, course_id):
         db.session.add(question)
         template.st_questions.append(question)
         teacher.created_st_questions.append(question)
+        total_marks = 0
+        for question in template.mc_questions:
+            total_marks += question.marks
+        for question in template.st_questions:
+            total_marks += question.marks
+        template.total_marks = total_marks
         db.session.commit()
         return redirect(url_for("template", template_id=template_id, course_id=course_id))
     return render_template("question_st_new.html", template=template, form=form)
@@ -259,9 +264,32 @@ def template_edit_multiple_choice_question_new(template_id, course_id):
         db.session.add(question)
         template.mc_questions.append(question)
         teacher.created_mc_questions.append(question)
+        total_marks = 0
+        for question in template.mc_questions:
+            total_marks += question.marks
+        for question in template.st_questions:
+            total_marks += question.marks
+        template.total_marks = total_marks
         db.session.commit()
         return redirect(url_for("template", template_id=template_id, course_id=course_id))
     return render_template("question_mc_new.html", template=template, form=form)
+    
+@app.route("/template/edit/question/st/delete/<int:template_id>/<int:course_id>/<int:question_id>", methods=['POST'])
+def template_edit_short_question_delete(template_id, course_id, question_id):
+    pass
+
+@app.route("/template/confirm/<int:template_id>/<int:course_id>", methods=['POST'])
+def template_confirm(template_id, course_id):
+    template = AssessmentTemplate.query.get(template_id)
+    template.is_confirmed = True
+    total_marks = 0
+    for question in template.mc_questions:
+        total_marks += question.marks
+    for question in template.st_questions:
+        total_marks += question.marks
+    template.total_marks = total_marks
+    db.session.commit()
+    return redirect(url_for("template", template_id=template_id, course_id=course_id))
 
 # @app.route("/template/edit/question/mc/new/num_choices<int:template_id>/<int:course_id>", methods=['GET', 'POST'])
 # def template_edit_multiple_choice_question_new_num_choices(template_id, course_id):
@@ -308,12 +336,15 @@ def assessment_attempt(assessment_id, attempt_id=0):
     mc_forms = [McAnswerForm(obj=question) for question in assessment.template.mc_questions]
     st_forms = [StAnswerForm(obj=question) for question in assessment.template.st_questions]
     mc_answers, st_answers = [], []
-    if attempt_id == 0: # student first attempt the assessment
+    if attempt_id == 0: # student first attempt / re-attempt the assessment
       student_attempt_status = StudentAttemptStatus(student_id=user.student.id)
       student_attempt_status.assessment = assessment
       db.session.add(student_attempt_status)
+      user.student.attempts.append(student_attempt_status)
       db.session.commit()
       attempt_id = student_attempt_status.id
+      mc_answers = [0] * len(assessment.template.mc_questions)
+      st_answers = [0] * len(assessment.template.st_questions)
     else: # student continues his/her assessment attempt
       student_attempt_status = StudentAttemptStatus.query.get(attempt_id)
       for question in assessment.template.mc_questions:
@@ -377,18 +408,14 @@ def assessment_attempt_st(attempt_id, question_id):
 @app.route("/assessment/submit/<int:attempt_id>", methods=['POST'])
 def assessment_submit(attempt_id):
     attempt = StudentAttemptStatus.query.get(attempt_id)
-    assessment_total_marks, attempt_total_marks = 0, 0
-    # for question in attempt.assessment.mc_questions:
-    #     assessment_total_marks += question.marks
-    # for question in attempt.assessment.st_questions:
-    #     assessment_total_marks += question.marks
+    attempt_total_marks = 0
     for answer in attempt.mc_answers:
         attempt_total_marks += answer.marks
     for answer in attempt.st_answers:
         attempt_total_marks += answer.marks
     attempt.total_marks = attempt_total_marks
     attempt.is_submitted = True
-    attempt.attempted_at = datetime.utcnow
+    attempt.attempted_at = datetime.utcnow()
     db.session.commit()
     return redirect(url_for('assessment_result', attempt_id=attempt_id))
 
@@ -396,9 +423,9 @@ def assessment_submit(attempt_id):
 def assessment_result(attempt_id):
     attempt = StudentAttemptStatus.query.get(attempt_id)
     assessment_total_marks = 0
-    for question in attempt.assessment.mc_questions:
+    for question in attempt.assessment.template.mc_questions:
         assessment_total_marks += question.marks
-    for question in attempt.assessment.st_questions:
+    for question in attempt.assessment.template.st_questions:
         assessment_total_marks += question.marks
     mc_answers, st_answers = [], []
     for question in attempt.assessment.template.mc_questions:
@@ -407,7 +434,24 @@ def assessment_result(attempt_id):
     for question in attempt.assessment.template.st_questions:
         st_answer = db.session.query(StStudentAns).filter_by(attempt_id=attempt_id, question_id=question.id).first()
         st_answers.append(st_answer)
-    return render_template("assessment_result", attempt=attempt, assessment_total_marks=assessment_total_marks, mc_answers=mc_answers, st_answers=st_answers)
+    return render_template("assessment_result.html", attempt=attempt, assessment=attempt.assessment, assessment_total_marks=assessment_total_marks, mc_answers=mc_answers, st_answers=st_answers, mc_id_char=MC_ID_CHAR)
+
+@app.route("/assessment/results/<int:assessment_id>", methods=['GET'])
+def assessment_results(assessment_id):
+    assessment = Assessment.query.get(assessment_id)
+    programme = assessment.course.programme
+    student_attempt_records = []
+    student_attempt_times = []
+    for student in programme.students:
+        attempts = StudentAttemptStatus.query.filter_by(student_id=student.id, assessment=assessment)
+        record = attempts.order_by(StudentAttemptStatus.id.desc()).first()
+        if record:
+          if assessment.is_formative:
+              student_attempt_times.append(len(attempts.all()))
+          student_attempt_records.append(record)
+    print(student_attempt_records)
+    return render_template("assessment_results.html", programme=programme, assessment=assessment, student_attempt_records=student_attempt_records, student_attempt_times=student_attempt_times)
+
 
 @app.route("/statistic/<int:assessment_id>", methods=['GET'])    
 def statistic(assessment_id):

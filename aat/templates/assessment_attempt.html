@@ -2,6 +2,9 @@
 {% extends "base.html" %}
 {% block content %}
 <div class="outer-container">
+    <div class="btn ">
+        <a href="{{url_for('course', course_id=assessment.course.id)}}">< {{assessment.course.number}} - {{ assessment.course.name}}</a>
+    </div>
     <div class="secondary-title">Assessment Attempt</div>
     <div class="third-title">{{assessment.template.name}}</div>
     <div class="inner-container">
@@ -14,7 +17,7 @@
     <div class="third-title">Quesions</div>
     <div class="inner-container">
         {% if assessment.template.mc_questions == [] %}
-            <div>no Multiple Choice Question yet</div>
+            <div>No Multiple Choice Question yet</div>
         {% else %}
             {% for question in assessment.template.mc_questions %}
                 <div>Multiple Choice Q{{ loop.index }}</div>
@@ -45,14 +48,14 @@
                         <form method="POST" action="{{ url_for('assessment_attempt_mc', attempt_id=attempt_id, question_id=question.id) }}">
                             {{ mc_forms[loop.index-1].csrf_token }}
                             {{ mc_forms[loop.index-1].answer(value=mc_answers[loop.index-1].answer_choice_id) }}
-                            <button type="submit" name="form-{{ question.id }}-submit">Submit</button>
+                            <button type="submit" name="form-{{ question.id }}-submit">Save</button>
                         </form>
                     </div>
                 </div>
             {% endfor %}
         {% endif %}
         {% if assessment.template.st_questions == [] %}
-            <div>no Short Question yet</div>
+            <div>No Short Question yet</div>
         {% else %}
             {% for question in assessment.template.st_questions %}
                 <div>Short Q{{ loop.index }}</div>
@@ -71,12 +74,15 @@
                         <form method="POST" action="{{ url_for('assessment_attempt_st', attempt_id=attempt_id, question_id=question.id) }}">
                             {{ st_forms[loop.index-1].csrf_token }}
                             {{ st_forms[loop.index-1].answer(value=st_answers[loop.index-1].answer) }}
-                            <button type="submit" name="form-{{ question.id }}-submit">Submit</button>
+                            <button type="submit" name="form-{{ question.id }}-submit">Save</button>
                         </form>
                     </div>
                 </div>
             {% endfor %}
         {% endif %}
+        <form method="POST" action="{{url_for('assessment_submit', attempt_id=attempt_id)}}">
+            <button class="btn btn-info" type="submit">Submit</button>
+        </form>
     </div>
 </div>
 

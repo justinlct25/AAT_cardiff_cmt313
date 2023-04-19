@@ -2,26 +2,28 @@
 {% extends "base.html" %}
 {% block content %}
 <div class="outer-container">
-    <div class="secondary-title">Assessment Details</div>
-    <div class="third-title">{{assessment.template.name}}</div>
+    <div class="btn ">
+        <a href="{{url_for('course', course_id=assessment.course.id)}}">< {{assessment.course.number}} - {{ assessment.course.name}}</a>
+    </div>
+    <div class="secondary-title">Assessment Attempt Record</div>
+    <div class="third-title">Assessment: {{assessment.template.name}}</div>
     <div class="inner-container">
-        <div>Course: {{assessment.course.number}} - {{ assessment.course.name}} </div>
         <div>Description: {{ assessment.template.description }}</div>
         <div>Formative: {{assessment.is_formative }}</div>
-        <div>Start: {{assessment.start_at }}</div>
-        <div>End: {{assessment.end_at }}</div>
+        <div>Available Time: {{assessment.start_at.date() }} - {{assessment.end_at.date() }}</div>
+        <div>Submitted at: {{attempt.attempted_at.date()}} </div>
+        <div>Marks: {{attempt.total_marks}} / {{assessment.template.total_marks}} </div>
     </div>
     <div class="third-title">Quesions</div>
     <div class="inner-container">
         {% if assessment.template.mc_questions == [] %}
-            <div>no Multiple Choice Question yet</div>
+            <div>No Multiple Choice Question yet</div>
         {% else %}
             {% for question in assessment.template.mc_questions %}
                 <div>Multiple Choice Q{{ loop.index }}</div>
-                <div class="tab row">
+                <div class="tab row" style="display:flex; flex-direction:row">
                     <div>{{ question.question }}</div>
                     <div>
-                        <div>Correct Choice: {{ mc_id_char[question.correct_choice_id] }}</div>
                         <ol type="A">
                             <li>
                                 <div>{{ question.choice_1 }}</div>
@@ -42,33 +44,53 @@
                         </ol>
                     </div>
                     <div>
-                        {% if mc_answers[loop.index-1] %}
-                            Selected Answer: {{ mc_id_char[mc_answers[loop.index-1].answer_choice_id] }}
-                        {% else %}
-                            Not yet answered
+                        <div>
+                            {% if mc_answers[loop.index-1] %}
+                                {% if mc_answers[loop.index-1].is_correct %}
+                                    <div>Correct</div>
+                                {% else %}
+                                    <div>Wrong</div>
+                                {% endif %}
+                                Selected Answer: {{ mc_id_char[mc_answers[loop.index-1].answer_choice_id] }}
+                            {% else %}
+                                <div>Wrong</div>
+                                <div>Not Answered</div>
+                            {% endif %}
+                        </div>
+                        {% if not mc_answers[loop.index-1].is_correct %}
+                            <div>Correct Answer: {{ mc_id_char[question.correct_choice_id] }}</div>
                         {% endif %}
-                        <form method="POST" action="{{ url_for('assessment_attempt_mc', attempt_id=attempt_id, question_id=question.id) }}">
-                            {{ mc_forms[loop.index-1].csrf_token }}
-                            {{ mc_forms[loop.index-1].answer(value=mc_answers[loop.index-1].answer_choice_id) }}
-                            <button type="submit" name="form-{{ question.id }}-submit">Submit</button>
-                        </form>
                     </div>
                 </div>
             {% endfor %}
         {% endif %}
     <div class="short-questions">
         {% if assessment.template.st_questions == [] %}
-            <div>no Short Question yet</div>
+            <div>No Short Question yet</div>
         {% else %}
             {% for question in assessment.template.st_questions %}
                 <div>Short Q{{ loop.index }}</div>
                 <div class="tab">
-                    <div class="question-container">
-                        <div>{{ question.question }} </div>
+                    <div>{{ question.question }} </div>
+                    {% if st_answers[loop.index-1] %}
+                        {% if st_answers[loop.index-1].is_correct %}
+                            <div>Correct</div>
+                        {% else %}
+                            <div>Wrong</div>
+                        {% endif %}
+                        <div>Written Answer: {{st_answers[loop.index-1].answer}}</div>
+                    {% else %}
+                        <div>Wrong</div>
+                        <div>Not Answered</div>
+                    {% endif %}
+                    {% if not st_answers[loop.index-1].is_correct %}
                         <div>Correct Answer: {{ question.correct_ans }} </div>
-                        <div>Feedback(Correct): {{ question.feedback_correct }}</div>
-                        <div>Feedback(Wrong): {{ question.feedback_wrong }} </div>
-                    </div>
+                    {% endif %}
+                    {% if st_answers[loop.index-1].is_correct %}
+                        <div>Feedback: {{ question.feedback_correct }}</div>
+                    {% else %}
+                        <div>Feedback: {{ question.feedback_wrong }} </div>
+                    {% endif %}
                 </div>
             {% endfor %}
         {% endif %}

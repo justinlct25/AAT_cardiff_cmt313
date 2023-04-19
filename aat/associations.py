@@ -42,6 +42,12 @@ student_courses_association_table = db.Table('student_courses',
                                             db.PrimaryKeyConstraint('student_id', 'course_id')
                                             )
 
+student_attempts_association_table = db.Table('student_attempts',
+                                              db.Column('student_id', db.Integer, db.ForeignKey('student.id')),
+                                              db.Column('attempt_id', db.Integer, db.ForeignKey('student_attempt_status.id')),
+                                              db.PrimaryKeyConstraint('student_id', 'attempt_id')
+                                              )
+
 assessment_template_association_table = db.Table('assessment_assessment_template',
                                             db.Column('assessment_id', db.Integer, db.ForeignKey('assessment.id')),
                                             db.Column('template_id', db.Integer, db.ForeignKey('assessment_template.id')),

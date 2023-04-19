@@ -1,0 +1,41 @@
+{% set active_page = "assessments" %}
+{% extends "base.html" %}
+{% block content %}
+<div class="outer-container">
+    <div class="btn ">
+        <a href="{{url_for('course', course_id=assessment.course.id)}}">< {{assessment.course.number}} - {{ assessment.course.name}}</a>
+    </div>
+    <div class="secondary-title">Assessment Attempt Record</div>
+    <div class="third-title">Assessment: {{assessment.template.name}}</div>
+    <div class="inner-container">
+        <div>Description: {{ assessment.template.description }}</div>
+        <div>Formative: {{assessment.is_formative }}</div>
+        <div>Available Time: {{assessment.start_at.date() }} to {{assessment.end_at.date() }}</div>
+    </div>
+    <div>Student Attempt Records</div>
+        <div class="d-flex flex-row">
+            <div class="p-2">Student No. </div>
+            <div class="p-2">Name</div>
+            <div class="p-2">Date</div>
+            {% if assessment.is_formative %}
+                <div class="p-2">Attempt Times</div>
+            {% else %}
+                <div class="p-2">Marks </div>
+            {% endif %}
+        </div>
+    {% for attempt in student_attempt_records %}
+        <div class="d-flex flex-row">
+            <div class="p-2">{{ attempt.student.student_num }} </div>
+            <div class="p-2">{{ attempt.student.user.firstname }} {{ attempt.student.user.lastname }}</div>
+            <div class="p-2">{{ attempt.attempted_at.date() }}</div>
+            {% if assessment.is_formative %}
+                <div class="p-2">{{ student_attempt_times[loop.index-1] }}</div>
+            {% else %}
+                <div class="p-2">{{ attempt.total_marks }}/{{ attempt.assessment.template.total_marks }} </div>
+            {% endif %}
+        </div>
+    {% endfor %}
+    {# {{ student_attempt_records[2].student_id }} #}
+</div>
+
+{% endblock content %}
