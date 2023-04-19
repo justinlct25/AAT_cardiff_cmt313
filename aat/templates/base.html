@@ -520,6 +520,71 @@
 <script src="{{ url_for('static', filename='assets/vendor/tinymce/tinymce.min.js') }}"></script>
 <script src="{{ url_for('static', filename='assets/vendor/php-email-form/validate.js') }}"></script>
 
+
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+
+
+<!-- For Question page tab switch -->
+<script>
+  $(document).ready(function() {
+    // Load the initial content of the questions tab
+    $('#questions').load('{{ url_for("questions") }}');
+  
+    // Handle tab changes and load the corresponding content using AJAX
+    $('#questionBankTabs a').on('shown.bs.tab', function (e) {
+      var targetTab = $(e.target).attr('href');
+      if (targetTab == "#questions") {
+        $(targetTab).load('{{ url_for("questions") }}');
+      } else if (targetTab == "#categories") {
+        $(targetTab).load('{{ url_for("questions") }}');
+      } else if (targetTab == "#import") {
+        $(targetTab).load('{{ url_for("questions") }}');
+      } else if (targetTab == "#export") {
+        $(targetTab).load('{{ url_for("questions") }}');
+      }
+    });
+  });
+</script>
+
+
+<script>
+  $(document).ready(function() {
+    $('input[name="question_type"]').on('change', function() {
+      var id = $(this).val();
+      if ($(this).is(':checked')) {
+        $('#description-' + id).show();
+      } else {
+        $('#description-' + id).hide();
+      }
+    });
+  });
+</script>
+
+<script>
+  function redirectToQuestionBankAdd() {
+    // Get the selected question type
+    var selectedQuestionType = document.querySelector('input[name="question_type"]:checked').value;
+  
+    // Redirect to the appropriate URL based on the selected question type
+    switch (selectedQuestionType) {
+      case 'multiple_choice':
+        window.location.href = '/question-bank/add/multiple-choice';
+        break;
+      case 'short_answer':
+        window.location.href = '/question-bank/add/short-answer';
+        break;
+      // Add cases for other question types here
+      default:
+        break;
+    }
+  }
+  </script>
+
+<!-- For Question page tab switch end -->
+
+
 <!-- Template Main JS File -->
 <script src="{{ url_for('static', filename='assets/js/main.js') }}"></script>
 

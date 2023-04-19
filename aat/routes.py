@@ -3,7 +3,8 @@ from aat import app, db
 from aat.models import *
 from aat.forms import *
 from flask_login import login_user, logout_user, current_user, login_required
-import random
+from io import TextIOWrapper
+import random, csv
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -55,6 +56,10 @@ def profile(user_id):
 
 # Andy part
 
+@app.route("/view", methods=['GET'])
+def view():
+    return render_template('view.html')
+
 @app.route("/faq", methods=['GET'])
 def faq():
     return render_template('pages-faq.html')
@@ -63,15 +68,83 @@ def faq():
 def contact():
     return render_template('pages-contact.html')
 
-@app.route("/questions", methods=['GET'])
+@app.route("/question-bank/questions", methods=['GET'])
 def questions():
+    categories = Programme.query.order_by(Programme.id.asc())
     mc_questions = McQuestion.query.order_by(McQuestion.id.asc()).paginate(page=1, per_page=5)
     st_questions = StQuestion.query.order_by(StQuestion.id.asc()).paginate(page=1, per_page=5)
-    return render_template('question_bank.html', mc_questions=mc_questions, st_questions=st_questions)
+    question_types = [
+    {'name': 'Multiple Choice', 'id': 'multiple_choice', 'description': 'This question type allows respondents to select one answer choice from a list of options. The options are usually presented in a list format with a radio button or checkbox next to each option.'},
+    {'name': 'Short Answer', 'id': 'short_answer', 'description': 'This question type allows respondents to provide a brief, free-form text response to a prompt or question. The answer length is typically limited to a specific number of characters or words.'},
+    {'name': 'Essay', 'id': 'essay', 'description': 'This question type requires respondents to provide a longer, free-form text response to a prompt or question. Unlike a short answer question, an essay question typically does not have a specific word or character limit.'},
+    {'name': 'True/False', 'id': 'true_false', 'description': 'This question type requires respondents to indicate whether a statement or question is true or false. This is typically done by selecting a radio button or checkbox next to the "true" or "false" option.'},
+    {'name': 'Ranking', 'id': 'ranking', 'description': 'This question type requires respondents to order a list of options according to their preference, importance, or another criteria. The options are usually presented in a list format and the respondent is asked to drag and drop or use arrows to rearrange the order.'},
+    {'name': 'Likert Scale', 'id': 'likert_scale', 'description': 'This question type requires respondents to indicate their level of agreement or disagreement with a statement or question on a scale. The scale typically ranges from "strongly agree" to "strongly disagree" and is presented with radio buttons or checkboxes.'},
+    {'name': 'Dropdown', 'id': 'dropdown', 'description': 'This question type presents a list of options in a dropdown menu format, and respondents must select one of the options from the menu. This question type is often used when there are too many options to display on a single page.'},
+    {'name': 'Matrix', 'id': 'matrix', 'description': 'This question type presents a matrix or grid format, where respondents are asked to rate or evaluate multiple items on a set of predefined criteria. The rows of the matrix represent the items to be evaluated, and the columns represent the criteria.'},
+    {'name': 'Matching', 'id': 'matching', 'description': 'This question type requires respondents to match items from one list to another. The items are usually presented in a list format, with one list containing the options to be matched and the other containing the matching criteria.'},
+    {'name': 'File Upload', 'id': 'file_upload', 'description': 'This question type allows respondents to upload a file or document as their response to a question or prompt. This question type is often used when respondents are asked to provide evidence or examples to support their answers.'}
+]
+    return render_template('question_bank.html', 
+                           mc_questions=mc_questions, st_questions=st_questions, 
+                           categories=categories,
+                           question_types=question_types)
 
-@app.route("/questions/add", methods=["GET", "POST"])
-def questions_add():
-    return render_template('question_bank_add.html')
+@app.route("/question-bank/add/multiple-choice", methods=["GET", "POST"])
+def mc_questions_add():
+    return render_template('mc_question_add.html')
+
+@app.route("/question-bank/add/short-answer", methods=["GET", "POST"])
+def st_questions_add():
+    return render_template('st_question_add.html')
+
+@app.route("/category/add", methods=["GET", "POST"])
+def category_add():
+    return redirect(url_for('questions', _anchor='category'))
+
+@app.route('/upload_csv', methods=['GET', 'POST'])
+def upload_csv():
+    if request.method == 'POST':
+        file = request.files['csv-file']
+        if file:
+            csv_file = TextIOWrapper(file, encoding='utf-8')
+            csv_reader = csv.reader(csv_file)
+            next(csv_reader)  # skip header row
+            for row in csv_reader:
+                question_type = row[0]
+                if question_type == 'mc':
+                    question = McQuestion(
+                        question=row[1],
+                        multiple=bool(row[2]),
+                        feedback=row[3],
+                        choice_1=row[4],
+                        choice_2=row[5],
+                        choice_3=row[6],
+                        choice_4=row[7],
+                        correct_choice_id=int(row[8]),
+                        choice_feedback_1=row[9],
+                        choice_feedback_2=row[10],
+                        choice_feedback_3=row[11],
+                        choice_feedback_4=row[12],
+                        marks=int(row[13])
+                    )
+                    db.session.add(question)
+                elif question_type == 'st':
+                    question = StQuestion(
+                        question=row[1],
+                        correct_ans=row[2],
+                        feedback_correct=row[3],
+                        feedback_wrong=row[4],
+                        marks=int(row[5])
+                    )
+                    db.session.add(question)
+            db.session.commit()
+            flash('CSV file uploaded successfully!')
+            return redirect(url_for('questions'))
+        else:
+            flash('Invalid file format! Only CSV files are allowed.')
+            return redirect(request.url)
+    return render_template('upload_csv.html')
 
 # Andy part end
 

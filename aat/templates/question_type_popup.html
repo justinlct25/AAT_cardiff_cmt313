@@ -1,0 +1,36 @@
+<!-- Modal -->
+<div class="modal fade" id="questionTypeModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
+    <div class="modal-dialog" role="document" style="width: 2000px;">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 class="modal-title" id="exampleModalLongTitle">Choose a question type to add</h3>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body row">
+          <div class="col-md-6" style="overflow-y: scroll; max-height: 500px;">
+            {% for question_type in question_types %}
+              <div class="form-check">
+                  <input class="form-check-input" type="checkbox" value="{{ question_type.id }}" id="{{ question_type.id }}" name="question_type">
+                  <label class="form-check-label" for="{{ question_type.id }}">
+                    {{ question_type.name }}
+                  </label>
+              </div>
+            {% endfor %}
+          </div>
+          <div class="col-md-6">
+            {% for question_type in question_types %}
+              <div id="description-{{ question_type.id }}" class="question-description" style="display:none;">
+                {{ question_type.description }}
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-primary" onclick="redirectToQuestionBankAdd()">Add</button>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+        </div>
+      </div>
+    </div>
+</div>
