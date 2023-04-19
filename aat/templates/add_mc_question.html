@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h1>Add Multiple Question</h1>
+<div class="new-question">
+    <form method="POST" action="">
+        {{form.csrf_token}}
+        <p>
+            <div>{{ form.question.label }}</div>
+            <div>{{ form.question }}</div>
+
+        </p>
+        <p>
+            <div>{{ form.choice_1.label }} </div>
+            <div>{{ form.choice_1 }}</div>
+        </p>
+        <p>
+            <div>{{ form.choice_feedback_1.label }} </div>
+            <div>{{ form.choice_feedback_1 }}</div>
+        </p>
+        <p>
+            <div>{{ form.choice_2.label }} </div>
+            <div>{{ form.choice_2 }}</div>
+        </p>
+        <p>
+            <div>{{ form.choice_feedback_2.label }} </div>
+            <div>{{ form.choice_feedback_2 }}</div>
+        </p>
+        <p>
+            <div>{{ form.choice_3.label }} </div>
+            <div>{{ form.choice_3 }}</div>
+        </p>
+        <p>
+            <div>{{ form.choice_feedback_3.label }} </div>
+            <div>{{ form.choice_feedback_3 }}</div>
+        </p>
+        <p>
+            <div>{{ form.choice_4.label }} </div>
+            <div>{{ form.choice_4 }}</div>
+        </p>
+        <p>
+            <div>{{ form.choice_feedback_4.label }} </div>
+            <div>{{ form.choice_feedback_4 }}</div>
+        </p>
+        <p>
+            <div>{{ form.correct_choice.label }} </div>
+            <div>{{ form.correct_choice }}</div>
+        </p>
+        <p>
+            <div>{{ form.marks.label }} </div>
+            <div>{{ form.marks }}</div>
+        </p>
+        {# <p>{{form.submit}}</p> #}
+        <p><input class="btn btn-info" type="submit" value="Add"></p>
+    </form>
+</div>
+
+{% endblock content %}

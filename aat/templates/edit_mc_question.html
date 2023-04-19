@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>Edit Multiple-Choice Question</h2>
+  <hr>
+  <form method="POST" action="">
+    {{ form.hidden_tag() }}
+    <div class="form-group">
+      {{ form.question.label(class="form-control-label") }}
+      {{ form.question(class="form-control") }}
+    </div>
+    <div class="form-group">
+      {{ form.choice_1.label(class="form-control-label") }}
+      {{ form.choice_1(class="form-control") }}
+    </div>
+    <div class="form-group">
+      {{ form.choice_feedback_1.label(class="form-control-label") }}
+      {{ form.choice_feedback_1(class="form-control") }}
+    </div>
+    <div class="form-group">
+      {{ form.choice_2.label(class="form-control-label") }}
+      {{ form.choice_2(class="form-control") }}
+    </div>
+    <div class="form-group">
+      {{ form.choice_feedback_2.label(class="form-control-label") }}
+      {{ form.choice_feedback_2(class="form-control") }}
+    </div>
+    <div class="form-group">
+      {{ form.choice_3.label(class="form-control-label") }}
+      {{ form.choice_3(class="form-control") }}
+    </div>
+    <div class="form-group">
+      {{ form.choice_feedback_3.label(class="form-control-label") }}
+      {{ form.choice_feedback_3(class="form-control") }}
+    </div>
+    <div class="form-group">
+      {{ form.choice_4.label(class="form-control-label") }}
+      {{ form.choice_4(class="form-control") }}
+    </div>
+    <div class="form-group">
+      {{ form.choice_feedback_4.label(class="form-control-label") }}
+      {{ form.choice_feedback_4(class="form-control") }}
+    </div>
+    <div class="form-group">
+      {{ form.correct_choice.label(class="form-control-label") }}
+      {{ form.correct_choice(class="form-control") }}
+    </div>
+    <div class="form-group">
+      {{ form.feedback.label(class="form-control-label") }}
+      {{ form.feedback(class="form-control") }}
+    </div>
+    <div class="form-group">
+      {{ form.marks.label(class="form-control-label") }}
+      {{ form.marks(class="form-control") }}
+    </div>
+    <button type="submit" class="btn btn-primary">Save Changes</button>
+    <a href="{{ url_for('questions') }}" class="btn btn-secondary">Cancel</a>
+  </form>
+{% endblock %}

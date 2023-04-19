@@ -71,8 +71,8 @@ def contact():
 @app.route("/question-bank/questions", methods=['GET'])
 def questions():
     categories = Programme.query.order_by(Programme.id.asc())
-    mc_questions = McQuestion.query.order_by(McQuestion.id.asc()).paginate(page=1, per_page=5)
-    st_questions = StQuestion.query.order_by(StQuestion.id.asc()).paginate(page=1, per_page=5)
+    mc_questions = McQuestion.query.order_by(McQuestion.id.asc()).paginate(page=request.args.get('mc_page', 1, type=int), per_page=5)
+    st_questions = StQuestion.query.order_by(StQuestion.id.asc()).paginate(page=request.args.get('st_page', 1, type=int), per_page=5)
     question_types = [
     {'name': 'Multiple Choice', 'id': 'multiple_choice', 'description': 'This question type allows respondents to select one answer choice from a list of options. The options are usually presented in a list format with a radio button or checkbox next to each option.'},
     {'name': 'Short Answer', 'id': 'short_answer', 'description': 'This question type allows respondents to provide a brief, free-form text response to a prompt or question. The answer length is typically limited to a specific number of characters or words.'},
@@ -92,15 +92,74 @@ def questions():
 
 @app.route("/question-bank/add/multiple-choice", methods=["GET", "POST"])
 def mc_questions_add():
-    return render_template('mc_question_add.html')
+    form = McQuestionForm()
+    if form.validate_on_submit():
+        question = McQuestion(creator_id=current_user.id, question=form.question.data, feedback=form.feedback.data, choice_1=form.choice_1.data, choice_2=form.choice_2.data, choice_3=form.choice_3.data, choice_4=form.choice_4.data, choice_feedback_1=form.choice_feedback_1.data, choice_feedback_2=form.choice_feedback_2.data, choice_feedback_3=form.choice_feedback_3.data, choice_feedback_4=form.choice_feedback_4.data, correct_choice_id=MC_CHAR_ID[form.correct_choice.data], marks=form.marks.data)
+        db.session.add(question)
+        db.session.commit()
+        flash('Question created successfully!', category="success")
+        return redirect(url_for('questions'))
+    return render_template('add_mc_question.html', form=form)
+
 
 @app.route("/question-bank/add/short-answer", methods=["GET", "POST"])
 def st_questions_add():
-    return render_template('st_question_add.html')
+    form = StQuestionForm()
+    if form.validate_on_submit():
+        question = StQuestion(creator_id=current_user.id, question=form.question.data, correct_ans=form.correct_ans.data, feedback_correct=form.feedback_correct.data, feedback_wrong=form.feedback_wrong.data, marks=form.marks.data)
+        db.session.add(question)
+        db.session.commit()
+        flash('Question created successfully!', category="success")
+        return redirect(url_for('questions'))
+    return render_template('add_st_question.html')
 
 @app.route("/category/add", methods=["GET", "POST"])
 def category_add():
     return redirect(url_for('questions', _anchor='category'))
+
+
+# Route to delete a multiple choice question
+@app.route('/delete-mc-question', methods=['POST'])
+def delete_mc_question():
+    question_ids = request.form.getlist('question_ids')
+    for question_id in question_ids:
+        question = McQuestion.query.get_or_404(question_id)
+        db.session.delete(question)
+        db.session.commit()
+    return redirect(url_for('question_bank'))
+
+# Route to delete a short question
+@app.route('/delete-st-question', methods=['POST'])
+def delete_st_question():
+    question_ids = request.form.getlist('question_ids')
+    for question_id in question_ids:
+        question = StQuestion.query.get_or_404(question_id)
+        db.session.delete(question)
+        db.session.commit()
+    return redirect(url_for('question_bank'))
+
+@app.route('/edit-mc-question/<int:question_id>', methods=['GET', 'POST'])
+def edit_mc_question(question_id):
+    question = McQuestion.query.get_or_404(question_id)
+    form = McQuestionForm(obj=question)
+    if form.validate_on_submit():
+        form.populate_obj(question)
+        question.correct_choice_id = MC_CHAR_ID[form.correct_choice.data]
+        db.session.commit()
+        flash('Question updated successfully!', category='success')
+        return redirect(url_for('questions'))
+    return render_template('edit_mc_question.html', form=form, question=question)
+
+@app.route('/edit-st-question/<int:question_id>', methods=['GET', 'POST'])
+def edit_st_question(question_id):
+    question = StQuestion.query.get_or_404(question_id)
+    form = StQuestionForm(obj=question)
+    if form.validate_on_submit():
+        form.populate_obj(question)
+        db.session.commit()
+        flash('Question updated successfully!', category='success')
+        return redirect(url_for('questions'))
+    return render_template('edit_st_question.html', form=form, question=question)
 
 @app.route('/upload_csv', methods=['GET', 'POST'])
 def upload_csv():
@@ -139,7 +198,7 @@ def upload_csv():
                     )
                     db.session.add(question)
             db.session.commit()
-            flash('CSV file uploaded successfully!')
+            flash('CSV file uploaded successfully!', category="success")
             return redirect(url_for('questions'))
         else:
             flash('Invalid file format! Only CSV files are allowed.')
@@ -160,7 +219,7 @@ def courses():
 		db.session.flush()
 		user.teacher.courses.append(course)
 		db.session.commit()
-		flash('Course created successfully!')
+		flash('Course created successfully!', category="success")
 		return redirect(url_for('courses'))
 	return render_template('courses.html', courses=courses, form=form, user=user)
 

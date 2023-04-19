@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h1>Add Short Question</h1>
+<div class="new-question">
+    <form method="POST" action="">
+        {{form.csrf_token}}
+        <p>
+            <div>{{ form.question.label }}</div>
+            <div>{{ form.question }}</div>
+
+        </p>
+        <p>
+            <div>{{ form.correct_ans.label }} </div>
+            <div>{{ form.correct_ans }}</div>
+        </p>
+        <p>
+            <div>{{ form.feedback_correct.label }} </div>
+            <div>{{ form.feedback_correct }}</div>
+        </p>
+        <p>
+            <div>{{ form.feedback_wrong.label }} </div>
+            <div>{{ form.feedback_wrong }}</div>
+        </p>
+        <p>
+            <div>{{ form.marks.label }}</div>
+            <div>{{ form.marks }}</div>
+        </p>
+        {# <p>{{form.submit}}</p> #}
+        <p><input class="btn btn-info" type="submit" value="Add"></p>
+    </form>
+</div>
+
+
+{% endblock content %}

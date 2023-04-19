@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h1>Edit Short Answer Question</h1>
+  <form method="post" action="">
+    {{ form.hidden_tag() }}
+    <div class="form-group">
+      {{ form.question.label(class="form-control-label") }}
+      {{ form.question(class="form-control") }}
+      {% for error in form.question.errors %}
+        <span class="text-danger">{{ error }}</span>
+      {% endfor %}
+    </div>
+    <div class="form-group">
+      {{ form.correct_ans.label(class="form-control-label") }}
+      {{ form.correct_ans(class="form-control") }}
+      {% for error in form.correct_ans.errors %}
+        <span class="text-danger">{{ error }}</span>
+      {% endfor %}
+    </div>
+    <div class="form-group">
+      {{ form.feedback_correct.label(class="form-control-label") }}
+      {{ form.feedback_correct(class="form-control") }}
+      {% for error in form.feedback_correct.errors %}
+        <span class="text-danger">{{ error }}</span>
+      {% endfor %}
+    </div>
+    <div class="form-group">
+      {{ form.feedback_wrong.label(class="form-control-label") }}
+      {{ form.feedback_wrong(class="form-control") }}
+      {% for error in form.feedback_wrong.errors %}
+        <span class="text-danger">{{ error }}</span>
+      {% endfor %}
+    </div>
+    <div class="form-group">
+      {{ form.marks.label(class="form-control-label") }}
+      {{ form.marks(class="form-control") }}
+      {% for error in form.marks.errors %}
+        <span class="text-danger">{{ error }}</span>
+      {% endfor %}
+    </div>
+    <button type="submit" class="btn btn-primary">Save Changes</button>
+    <a href="{{ url_for('questions') }}" class="btn btn-secondary">Cancel</a>
+  </form>
+{% endblock %}
