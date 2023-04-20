@@ -1231,3 +1231,12 @@ h6 {
   font-size: 13px;
   color: #012970;
 }
+
+.modal-dialog {
+  width: 1000px !important;
+  max-width: 1000px !important;
+}
+
+.table-fixed td:not(:first-child) {
+  width: 150px; /* set your desired width for non-first columns */
+}
