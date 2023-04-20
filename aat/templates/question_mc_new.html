@@ -1,63 +1,114 @@
 {% set active_page = "assessments" %}
 {% extends "base.html" %}
 {% block content %}
+<div class="btn ">
+    <a href="{{url_for('template', template_id=template.id, course_id=course.id )}}">< {{course.number}} - {{ course.name }}</a>
+    {# <a href="#" onclick="history.back(); return false;">< Template - {{template.name}}</a> #}
+</div>
 <div>
     <div>Assessment Template</div>
     <div>Name: {{template.name}}</div>
-    <div>Creator: {{template_creator}}</div>
+    <div>Creator: {{template.creator.user.firstname}} {{template.creator.user.lastname}}</div>
     <div>Created at: {{template.created_at}}</div>
 </div>
 <div class="new-question">
-    Add Short Question
-    <form method="POST" action="">
-        {{form.csrf_token}}
-        <p>
-            <div>{{ form.question.label }}</div>
-            <div>{{ form.question }}</div>
+    Add Multiple Choices Question
+    <div>
+        <div>Select from Question Bank</div>
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Question</th>
+                    <th>Choices</th>
+                    <th>Answer</th>
+                    <th>Operations</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for question in mc_questions %}
+                    <tr>
+                        <td>{{ question.id }}</td>
+                        <td>{{ question.question }}</td>
+                        <td>{{ question.choice_1 }}, {{ question.choice_2 }}, {{ question.choice_3 }}, {{ question.choice_4 }}</td>
+                        <td>{{ mc_id_char[question.correct_choice_id] }}</td>
+                        <td>
+                            <form method="POST" action="{{ url_for('template_edit_multiple_choice_question_select', question_id=question.id, template_id=template.id, course_id=course.id) }}">
+                                <button class="btn-info" type="submit">Select</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+    </table>
+        <div class="pagination">
+            {% if mc_questions.has_prev %}
+            <a href="{{ url_for('template_edit_multiple_choice_question_new', page=mc_questions.prev_num, template_id=template.id, course_id=course.id) }}" class="page-link">&laquo;</a>
+            {% else %}
+            <span class="page-link">&laquo;</span>
+            {% endif %}
+            {% for page_num in mc_questions.iter_pages() %}
+            {% if page_num %}
+                {% if page_num == mc_questions.page %}
+                <span class="page-link">{{ page_num }}</span>
+                {% else %}
+                <a href="{{ url_for('template_edit_multiple_choice_question_new', page=page_num, template_id=template.id, course_id=course.id) }}" class="page-link">{{ page_num }}</a>
+                {% endif %}
+            {% else %}
+                <span class="page-link">...</span>
+            {% endif %}
+            {% endfor %}
+            {% if mc_questions.has_next %}
+            <a href="{{ url_for('template_edit_multiple_choice_question_new', page=mc_questions.next_num, template_id=template.id, course_id=course.id) }}" class="page-link">&raquo;</a>
+            {% else %}
+            <span class="page-link">&raquo;</span>
+            {% endif %}
+        </div>
+    </div>
+    <div>
+        <div>Create New Question</div>
+        <form method="POST" action="">
+            {{form.csrf_token}}
+            <p>
+                <div>{{ form.question.label }}</div>
+                <div>{{ form.question }}</div>
 
-        </p>
-        <p>
-            <div>{{ form.choice_1.label }} </div>
-            <div>{{ form.choice_1 }}</div>
-        </p>
-        <p>
-            <div>{{ form.choice_feedback_1.label }} </div>
-            <div>{{ form.choice_feedback_1 }}</div>
-        </p>
-        <p>
-            <div>{{ form.choice_2.label }} </div>
-            <div>{{ form.choice_2 }}</div>
-        </p>
-        <p>
-            <div>{{ form.choice_feedback_2.label }} </div>
-            <div>{{ form.choice_feedback_2 }}</div>
-        </p>
-        <p>
-            <div>{{ form.choice_3.label }} </div>
-            <div>{{ form.choice_3 }}</div>
-        </p>
-        <p>
-            <div>{{ form.choice_feedback_3.label }} </div>
-            <div>{{ form.choice_feedback_3 }}</div>
-        </p>
-        <p>
-            <div>{{ form.choice_4.label }} </div>
-            <div>{{ form.choice_4 }}</div>
-        </p>
-        <p>
-            <div>{{ form.choice_feedback_4.label }} </div>
-            <div>{{ form.choice_feedback_4 }}</div>
-        </p>
-        <p>
-            <div>{{ form.correct_choice.label }} </div>
-            <div>{{ form.correct_choice }}</div>
-        </p>
-        <p>
-            <div>{{ form.marks.label }} </div>
-            <div>{{ form.marks }}</div>
-        </p>
-        {# <p>{{form.submit}}</p> #}
-        <p><input class="btn btn-info" type="submit" value="Add"></p>
-    </form>
+            </p>
+            <p>
+                <div>{{ form.choice_1.label }} {{ form.choice_1 }}</div>
+            </p>
+            <p>
+                <div>{{ form.choice_feedback_1.label }} {{ form.choice_feedback_1 }}</div>
+            </p>
+            <p>
+                <div>{{ form.choice_2.label }} {{ form.choice_2 }}</div>
+            </p>
+            <p>
+                <div>{{ form.choice_feedback_2.label }} {{ form.choice_feedback_2 }}</div>
+            </p>
+            <p>
+                <div>{{ form.choice_3.label }} {{ form.choice_3 }}</div>
+            </p>
+            <p>
+                <div>{{ form.choice_feedback_3.label }} {{ form.choice_feedback_3 }}</div>
+            </p>
+            <p>
+                <div>{{ form.choice_4.label }} {{ form.choice_4 }}</div>
+            </p>
+            <p>
+                <div>{{ form.choice_feedback_4.label }} {{ form.choice_feedback_4 }}</div>
+            </p>
+            <p>
+                <div>{{ form.correct_choice.label }}</div>
+                <div>{{ form.correct_choice }}</div>
+            </p>
+            <p>
+                <div>{{ form.marks.label }} </div>
+                <div>{{ form.marks }}</div>
+            </p>
+            {# <p>{{form.submit}}</p> #}
+            <p><input class="btn btn-info" type="submit" value="Create"></p>
+        </form>
+    </div>
 </div>
 {% endblock content %}
