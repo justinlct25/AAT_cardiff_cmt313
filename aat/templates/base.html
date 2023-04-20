@@ -582,7 +582,39 @@
   }
   </script>
 
+
 <!-- For Question page tab switch end -->
+
+<!-- For multiple checkbox switch -->
+<script>
+  function editSelectedMCQuestions() {
+    var selectedIDs = [];
+    var checkboxes = document.getElementsByTagName('input');
+    for (var i = 0; i < checkboxes.length; i++) {
+      if (checkboxes[i].type === 'checkbox' && checkboxes[i].checked) {
+        selectedIDs.push(checkboxes[i].id.split('_')[2]);
+      }
+    }
+    if (selectedIDs.length > 0) {
+      window.location.href = '/edit-mc-questions?ids=' + selectedIDs.join(',');
+    }
+  }
+  
+  function deleteSelectedMCQuestions() {
+    var selectedIDs = [];
+    var checkboxes = document.getElementsByTagName('input');
+    for (var i = 0; i < checkboxes.length; i++) {
+      if (checkboxes[i].type === 'checkbox' && checkboxes[i].checked) {
+        selectedIDs.push(checkboxes[i].id.split('_')[2]);
+      }
+    }
+    if (selectedIDs.length > 0) {
+      window.location.href = '/delete-mc-questions?ids=' + selectedIDs.join(',');
+    }
+  }
+  </script>
+
+
 
 
 <!-- Template Main JS File -->

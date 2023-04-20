@@ -119,24 +119,24 @@ def category_add():
 
 
 # Route to delete a multiple choice question
-@app.route('/delete-mc-question', methods=['POST'])
-def delete_mc_question():
-    question_ids = request.form.getlist('question_ids')
-    for question_id in question_ids:
-        question = McQuestion.query.get_or_404(question_id)
-        db.session.delete(question)
-        db.session.commit()
-    return redirect(url_for('question_bank'))
+@app.route('/delete-mc-question/<int:question_id>')
+def delete_mc_question(question_id):
+    question = McQuestion.query.get_or_404(question_id)
+    db.session.delete(question)
+    db.session.commit()
+    flash('Question deleted successfully!', category='success')
+    return redirect(url_for('questions'))
 
 # Route to delete a short question
-@app.route('/delete-st-question', methods=['POST'])
-def delete_st_question():
-    question_ids = request.form.getlist('question_ids')
-    for question_id in question_ids:
-        question = StQuestion.query.get_or_404(question_id)
-        db.session.delete(question)
-        db.session.commit()
-    return redirect(url_for('question_bank'))
+@app.route('/delete-st-question/<int:question_id>')
+def delete_st_question(question_id):
+    question = StQuestion.query.get_or_404(question_id)
+    db.session.delete(question)
+    db.session.commit()
+    flash('Question deleted successfully!', category='success')
+    return redirect(url_for('questions'))
+
+
 
 @app.route('/edit-mc-question/<int:question_id>', methods=['GET', 'POST'])
 def edit_mc_question(question_id):
@@ -160,6 +160,35 @@ def edit_st_question(question_id):
         flash('Question updated successfully!', category='success')
         return redirect(url_for('questions'))
     return render_template('edit_st_question.html', form=form, question=question)
+
+
+# Test the edit or delete for multiple questions
+# Route to edit multiple choice questions
+@app.route('/edit-mc-questions', methods=['GET'])
+def edit_mc_questions():
+    ids = request.args.get('ids').split(',')
+    questions = McQuestion.query.filter(McQuestion.id.in_(ids)).all()
+    form = McQuestionForm(obj=questions)
+    if form.validate_on_submit():
+        for question in questions:
+            form.populate_obj(question)
+            question.correct_choice_id = MC_CHAR_ID[form.correct_choice.data]
+            db.session.commit()
+        flash('Questions updated successfully!', category='success')
+        return redirect(url_for('questions'))
+    return render_template('edit_mc_questions.html', form=form, questions=questions)
+
+# Route to delete multiple choice questions
+@app.route('/delete-mc-questions', methods=['GET'])
+def delete_mc_questions():
+    ids = request.args.get('ids').split(',')
+    for question_id in ids:
+        question = McQuestion.query.get_or_404(question_id)
+        db.session.delete(question)
+        db.session.commit()
+    flash('Questions deleted successfully!', category='success')
+    return redirect(url_for('questions'))
+
 
 @app.route('/upload_csv', methods=['GET', 'POST'])
 def upload_csv():
