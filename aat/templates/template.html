@@ -34,10 +34,15 @@
         <a href="{{url_for('template_edit_short_question_new', template_id=template.id, course_id=course.id)}}">Add Short Question</a>
     </div>
     {% if template.mc_questions == [] %}
-        <div>no Multiple Choice Question yet</div>
+        <div>No Multiple Choice Question yet</div>
     {% else %}
         {% for question in template.mc_questions %}
-            <div>Multiple Choice Q{{ loop.index }}</div>
+            <div class="d-flex flex-row">
+                <div>Multiple Choice Q{{ loop.index }}</div>
+                <form method="POST" action="{{ url_for('template_edit_multiple_choice_question_delete', question_id=question.id, template_id=template.id, course_id=course.id) }}">
+                    <button class="btn-info" type="submit">Delete</button>
+                </form>
+            </div>
             <div>{{ question.question }} ({{question.marks}} marks)</div>
             <div>Correct Choice: {{ mc_id_char[question.correct_choice_id] }}</div>
             <ol type="A">
@@ -62,10 +67,15 @@
     {% endif %}
     <div class="short-questions">
         {% if template.st_questions == [] %}
-            <div>no Short Question yet</div>
+            <div>No Short Question yet</div>
         {% else %}
             {% for question in template.st_questions %}
+                <div class="d-flex flex-row">
                 <div>Short Q{{ loop.index }}</div>
+                    <form method="POST" action="{{ url_for('template_edit_short_question_delete', question_id=question.id, template_id=template.id, course_id=course.id) }}">
+                        <button class="btn-info" type="submit">Delete</button>
+                    </form>
+                </div>
                 <div class="question-container">
                     <div>{{ question.question }} ({{question.marks}} marks)</div>
                     <div>Correct Answer: {{ question.correct_ans }} </div>

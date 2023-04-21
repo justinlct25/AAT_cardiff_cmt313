@@ -1,6 +1,10 @@
 {% set active_page = "assessments" %}
 {% extends "base.html" %}
 {% block content %}
+<div class="btn ">
+    <a href="{{url_for('template', template_id=template.id, course_id=course.id )}}">< {{course.number}} - {{ course.name }}</a>
+    {# <a href="#" onclick="history.back(); return false;">< Template - {{template.name}}</a> #}
+</div>
 <div>
     <div>Assessment Template</div>
     <div>Name: {{template.name}}</div>
@@ -9,31 +13,83 @@
 </div>
 <div class="new-question">
     Add Short Question
-    <form method="POST" action="">
-        {{form.csrf_token}}
-        <p>
-            <div>{{ form.question.label }}</div>
-            <div>{{ form.question }}</div>
+    <div>
+        <div>Select from Question Bank</div>
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Question</th>
+                    <th>Answer</th>
+                    <th>Operations</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for question in st_questions %}
+                    <tr>
+                        <td>{{ question.id }}</td>
+                        <td>{{ question.question }}</td>
+                        <td>{{ question.correct_ans}}</td>
+                        <td>
+                            <form method="POST" action="{{ url_for('template_edit_short_question_select', question_id=question.id, template_id=template.id, course_id=course.id) }}">
+                                <button class="btn-info" type="submit">Select</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <div class="pagination">
+            {% if st_questions.has_prev %}
+            <a href="{{ url_for('template_edit_short_question_new', page=st_questions.prev_num, template_id=template.id, course_id=course.id) }}" class="page-link">&laquo;</a>
+            {% else %}
+            <span class="page-link">&laquo;</span>
+            {% endif %}
+            {% for page_num in st_questions.iter_pages() %}
+            {% if page_num %}
+                {% if page_num == st_questions.page %}
+                <span class="page-link">{{ page_num }}</span>
+                {% else %}
+                <a href="{{ url_for('template_edit_short_question_new', page=page_num, template_id=template.id, course_id=course.id) }}" class="page-link">{{ page_num }}</a>
+                {% endif %}
+            {% else %}
+                <span class="page-link">...</span>
+            {% endif %}
+            {% endfor %}
+            {% if st_questions.has_next %}
+            <a href="{{ url_for('template_edit_short_question_new', page=st_questions.next_num, template_id=template.id, course_id=course.id) }}" class="page-link">&raquo;</a>
+            {% else %}
+            <span class="page-link">&raquo;</span>
+            {% endif %}
+        </div>
+    </div>
+    <div>
+        <form method="POST" action="">
+            {{form.csrf_token}}
+            <p>
+                <div>{{ form.question.label }}</div>
+                <div>{{ form.question }}</div>
 
-        </p>
-        <p>
-            <div>{{ form.correct_ans.label }} </div>
-            <div>{{ form.correct_ans }}</div>
-        </p>
-        <p>
-            <div>{{ form.feedback_correct.label }} </div>
-            <div>{{ form.feedback_correct }}</div>
-        </p>
-        <p>
-            <div>{{ form.feedback_wrong.label }} </div>
-            <div>{{ form.feedback_wrong }}</div>
-        </p>
-        <p>
-            <div>{{ form.marks.label }}</div>
-            <div>{{ form.marks }}</div>
-        </p>
-        {# <p>{{form.submit}}</p> #}
-        <p><input class="btn btn-info" type="submit" value="Add"></p>
-    </form>
+            </p>
+            <p>
+                <div>{{ form.correct_ans.label }} </div>
+                <div>{{ form.correct_ans }}</div>
+            </p>
+            <p>
+                <div>{{ form.feedback_correct.label }} </div>
+                <div>{{ form.feedback_correct }}</div>
+            </p>
+            <p>
+                <div>{{ form.feedback_wrong.label }} </div>
+                <div>{{ form.feedback_wrong }}</div>
+            </p>
+            <p>
+                <div>{{ form.marks.label }}</div>
+                <div>{{ form.marks }}</div>
+            </p>
+            {# <p>{{form.submit}}</p> #}
+            <p><input class="btn btn-info" type="submit" value="Add"></p>
+        </form>
+    </div>
 </div>
 {% endblock content %}

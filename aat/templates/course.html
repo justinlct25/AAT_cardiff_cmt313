@@ -30,7 +30,7 @@
                             <div class="p-2">Ended</div>
                             <div class="p-2">{{assessment.start_at.date()}}</div>
                             <div class="p-2">{{assessment.end_at.date()}}</div>
-                            {% if user.student %}
+                            {% if user.student and not assessment_attempts|length == 0 %}
                                 {% if assessment_attempts[loop.index-1].is_submitted%}
                                     <div class="p-2">Submitted</div>
                                     <div class="p-2"><a href="{{ url_for('assessment_result', assessment_id=assessment.id, attempt_id=assessment_attempts[loop.index-1].id) }}">View</a></div>
@@ -45,7 +45,7 @@
                             <div class="p-2">Ongoing</div>
                             <div class="p-2">{{assessment.start_at.date()}}</div>
                             <div class="p-2">{{assessment.end_at.date()}}</div>
-                            {% if user.student %}
+                            {% if user.student and not assessment_attempts|length == 0%}
                                 {% if not assessment_attempts[loop.index-1] %}
                                     <div class="p-2">Not Started</div>
                                     <div class="p-2"><a href="{{ url_for('assessment_attempt', assessment_id=assessment.id, attempt_id=0) }}">Start</a></div> {# no student attemp record #}

@@ -10,12 +10,12 @@
             {% else %}
             <div class="third-title">Assessment Templates:</div>
             {% for template in templates %}
-            <div class="tab row">
-                <div>{{ template.name }}</div>
-                <div>{{template.created_at.date()}}</div>
-                <div>{{ template.creator.user.firstname}} {{template.creator.user.lastname}}</div>
-                <div><a href="{{url_for('assessment_new', template_id=template.id, course_id=course.id)}}">Select</a></div>
-                <div><a href="{{url_for('template', template_id=template.id, course_id=course.id)}}">View</a></div>
+            <div class="d-flex flex-row">
+                <div class="p-2">{{ template.name }}</div>
+                <div class="p-2">{{template.created_at.date()}}</div>
+                <div class="p-2">{{ template.creator.user.firstname}} {{template.creator.user.lastname}}</div>
+                <div class="p-2"><a href="{{url_for('assessment_new', template_id=template.id, course_id=course.id)}}">Select</a></div>
+                <div class="p-2"><a href="{{url_for('template', template_id=template.id, course_id=course.id)}}">View</a></div>
             </div>
             {% endfor %}
         {% endif %}

@@ -3,6 +3,7 @@ from aat import app, db
 from aat.models import *
 from aat.forms import *
 from flask_login import login_user, logout_user, current_user, login_required
+from aat.helper import update_template_total_marks
 from io import TextIOWrapper
 import random, csv
 
@@ -323,6 +324,7 @@ def template_edit(template_id, course_id):
 @app.route("/template/edit/question/st/new/<int:template_id>/<int:course_id>", methods=['GET', 'POST'])
 def template_edit_short_question_new(template_id, course_id):
     user = User.query.get(current_user.id)
+    course = Course.query.get(course_id)
     teacher = Teacher.query.get(user.teacher.id)
     template = AssessmentTemplate.query.get(template_id)
     form = StQuestionForm()
@@ -331,19 +333,16 @@ def template_edit_short_question_new(template_id, course_id):
         db.session.add(question)
         template.st_questions.append(question)
         teacher.created_st_questions.append(question)
-        total_marks = 0
-        for question in template.mc_questions:
-            total_marks += question.marks
-        for question in template.st_questions:
-            total_marks += question.marks
-        template.total_marks = total_marks
+        update_template_total_marks(template)
         db.session.commit()
         return redirect(url_for("template", template_id=template_id, course_id=course_id))
-    return render_template("question_st_new.html", template=template, form=form)
+    st_questions = StQuestion.query.order_by(StQuestion.id.asc()).paginate(page=1, per_page=5)
+    return render_template("question_st_new.html", template=template, form=form, st_questions=st_questions, course=course)
 
 @app.route("/template/edit/question/mc/new/<int:template_id>/<int:course_id>", methods=['GET', 'POST'])
 def template_edit_multiple_choice_question_new(template_id, course_id):
     user = User.query.get(current_user.id)
+    course = Course.query.get(course_id)
     teacher = Teacher.query.get(user.teacher.id)
     template = AssessmentTemplate.query.get(template_id)
     form = McQuestionForm()
@@ -352,30 +351,59 @@ def template_edit_multiple_choice_question_new(template_id, course_id):
         db.session.add(question)
         template.mc_questions.append(question)
         teacher.created_mc_questions.append(question)
-        total_marks = 0
-        for question in template.mc_questions:
-            total_marks += question.marks
-        for question in template.st_questions:
-            total_marks += question.marks
-        template.total_marks = total_marks
+        update_template_total_marks(template)
         db.session.commit()
         return redirect(url_for("template", template_id=template_id, course_id=course_id))
-    return render_template("question_mc_new.html", template=template, form=form)
-    
-@app.route("/template/edit/question/st/delete/<int:template_id>/<int:course_id>/<int:question_id>", methods=['POST'])
-def template_edit_short_question_delete(template_id, course_id, question_id):
-    pass
+    mc_questions = McQuestion.query.order_by(McQuestion.id.asc()).paginate(page=1, per_page=5)
+    return render_template("question_mc_new.html", template=template, form=form, mc_questions=mc_questions, course=course, mc_id_char=MC_ID_CHAR)
+
+@app.route("/template/edit/question/st/select/<int:question_id>/<int:template_id>/<int:course_id>", methods=['POST'])
+def template_edit_short_question_select(question_id, template_id, course_id):
+    st_question = StQuestion.query.get(question_id)
+    course = Course.query.get(course_id)
+    template = AssessmentTemplate.query.get(template_id)
+    template.st_questions.append(st_question)
+    update_template_total_marks(template)
+    db.session.commit()
+    return redirect(url_for('template', template_id=template.id, course_id=course.id))
+
+@app.route("/template/edit/question/mc/select/<int:question_id>/<int:template_id>/<int:course_id>", methods=['POST'])
+def template_edit_multiple_choice_question_select(question_id, template_id, course_id):
+    mc_question = McQuestion.query.get(question_id)
+    course = Course.query.get(course_id)
+    template = AssessmentTemplate.query.get(template_id)
+    template.mc_questions.append(mc_question)
+    update_template_total_marks(template)
+    db.session.commit()
+    return redirect(url_for('template', template_id=template.id, course_id=course.id))
+
+@app.route("/template/edit/question/st/delete/<int:question_id>/<int:template_id>/<int:course_id>", methods=['POST'])
+def template_edit_short_question_delete(question_id, template_id, course_id):
+    st_question = StQuestion.query.get(question_id)
+    course = Course.query.get(course_id)
+    template = AssessmentTemplate.query.get(template_id)
+    if st_question in template.st_questions:
+      template.st_questions.remove(st_question)
+      update_template_total_marks(template)
+      db.session.commit()
+    return redirect(url_for('template', template_id=template.id, course_id=course.id))
+
+@app.route("/template/edit/question/mc/delete/<int:question_id>/<int:template_id>/<int:course_id>", methods=['POST'])
+def template_edit_multiple_choice_question_delete(question_id, template_id, course_id):
+    mc_question = McQuestion.query.get(question_id)
+    course = Course.query.get(course_id)
+    template = AssessmentTemplate.query.get(template_id)
+    if mc_question in template.mc_questions:
+      template.mc_questions.remove(mc_question)
+      update_template_total_marks(template)
+      db.session.commit()
+    return redirect(url_for('template', template_id=template.id, course_id=course.id))
 
 @app.route("/template/confirm/<int:template_id>/<int:course_id>", methods=['POST'])
 def template_confirm(template_id, course_id):
     template = AssessmentTemplate.query.get(template_id)
     template.is_confirmed = True
-    total_marks = 0
-    for question in template.mc_questions:
-        total_marks += question.marks
-    for question in template.st_questions:
-        total_marks += question.marks
-    template.total_marks = total_marks
+    update_template_total_marks(template)
     db.session.commit()
     return redirect(url_for("template", template_id=template_id, course_id=course_id))
 
