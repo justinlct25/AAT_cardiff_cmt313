@@ -111,7 +111,7 @@ def st_questions_add():
         db.session.commit()
         flash('Question created successfully!', category="success")
         return redirect(url_for('questions'))
-    return render_template('add_st_question.html')
+    return render_template('add_st_question.html', form=form)
 
 @app.route("/category/add", methods=["GET", "POST"])
 def category_add():
@@ -164,7 +164,7 @@ def edit_st_question(question_id):
 
 # Test the edit or delete for multiple questions
 # Route to edit multiple choice questions
-@app.route('/edit-mc-questions', methods=['GET'])
+@app.route('/edit-mc-questions', methods=['GET', 'POST'])
 def edit_mc_questions():
     ids = request.args.get('ids').split(',')
     questions = McQuestion.query.filter(McQuestion.id.in_(ids)).all()
@@ -176,10 +176,10 @@ def edit_mc_questions():
             db.session.commit()
         flash('Questions updated successfully!', category='success')
         return redirect(url_for('questions'))
-    return render_template('edit_mc_questions.html', form=form, questions=questions)
+    return render_template('edit_mc_questions.html', form=form, questions=questions, ids=ids)
 
 # Route to delete multiple choice questions
-@app.route('/delete-mc-questions', methods=['GET'])
+@app.route('/delete-mc-questions', methods=['GET', 'POST'])
 def delete_mc_questions():
     ids = request.args.get('ids').split(',')
     for question_id in ids:
