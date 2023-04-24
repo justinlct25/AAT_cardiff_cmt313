@@ -562,16 +562,21 @@ def assessment_results(assessment_id):
         return redirect(url_for("courses"))
     assessment = Assessment.query.get(assessment_id)
     programme = assessment.course.programme
-    student_attempt_records = []
-    student_attempt_times = []
+    student_attempt_records, student_attempt_times, student_not_attempt_records = [], [], []
+    attempt_students_num = 0
     for student in programme.students:
         attempts = StudentAttemptStatus.query.filter_by(student_id=student.id, assessment=assessment)
-        record = attempts.order_by(StudentAttemptStatus.id.desc()).first()
-        if record:
+        attempt = attempts.order_by(StudentAttemptStatus.id.desc()).first()
+        if attempt:
           if assessment.is_formative:
               student_attempt_times.append(len(attempts.all()))
-          student_attempt_records.append(record)
-    return render_template("assessment_results.html", user=user, programme=programme, assessment=assessment, student_attempt_records=student_attempt_records, student_attempt_times=student_attempt_times)
+          student_attempt_records.append(attempt)
+          attempt_students_num += 1
+        else:
+            not_attempt_record = StudentAttemptStatus(student=student, assessment=assessment)
+            student_not_attempt_records.append(not_attempt_record)
+    student_attempt_records.extend(student_not_attempt_records)
+    return render_template("assessment_results.html", user=user, programme=programme, assessment=assessment, student_attempt_records=student_attempt_records, student_attempt_times=student_attempt_times, attempt_students_num=attempt_students_num)
 
 @app.route("/assessment/result/confirm/<int:attempt_id>/<int:is_confirmed>", methods=['POST'])
 def assessment_result_confirm(attempt_id, is_confirmed):

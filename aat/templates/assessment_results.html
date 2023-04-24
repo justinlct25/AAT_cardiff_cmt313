@@ -6,27 +6,31 @@
         <a href="{{url_for('course', course_id=assessment.course.id)}}">< {{assessment.course.number}} - {{ assessment.course.name}}</a>
     </div>
     <h1>Assessment Attempt Record</h1>
-    <div>Assessment: {{assessment.template.name}}</div>
     <div class="inner-container">
+        <div>Assessment: {{assessment.template.name}}</div>
         <div>Description: {{ assessment.template.description }}</div>
         <div>Formative: {{assessment.is_formative }}</div>
         <div>Available Time: {{assessment.start_at.date() }} to {{assessment.end_at.date() }}</div>
     </div>
     <br>
     <h2>Student Attempt Records</h2>
+    <div class="d-flex flex-row">
+        <div>All Students: {{ assessment.course.programme.students|length }}</div>
+        <div class="ml-3">Participating Students: {{ attempt_students_num }}</div>
+    </div>
     <table class="table table-hover">
         <thead>
             <tr>
                 <th>Student No. </th>
                 <th>Name</th>
-                <th>Date</th>
                 {% if assessment.is_formative %}
                     <th>Attempt Times</th>
                 {% else %}
+                    <th>Date</th>
                     <th>Marks</th>
-                    <th>Result Confirmation</th>
+                    <th>Status</th>
+                    <th>Operations</th>
                 {% endif %}
-                <th>Operations</th>
             </tr>
         </thead>
         <tbody>
@@ -34,24 +38,32 @@
                 <tr>
                     <td>{{ attempt_record.student.student_num }} </td>
                     <td>{{ attempt_record.student.user.firstname }} {{ attempt_record.student.user.lastname }}</td>
-                    <td>{{ attempt_record.attempted_at.date() }}</td>
-                    {% if assessment.is_formative %}
-                        <td>{{ student_attempt_times[loop.index-1] }}</td>
-                    {% else %} {# summative #}
-                        <td>{{ attempt_record.total_marks }}/{{ attempt_record.assessment.template.total_marks }} </td>
-                        <td>
-                            <div class="d-flex flex-row">
-                                <div>{{ "Confirmed" if attempt_record.result_is_confirmed else "Unconfirmed"}}</div>
-                                <form class="ml-3" method="POST" action="{{ url_for('assessment_result_confirm', attempt_id=attempt_record.id, is_confirmed=not attempt_record.result_is_confirmed) }}">
-                                    <button type="submit">{{"Confirm" if not attempt_record.result_is_confirmed else "Unconfirmed"}}</button>
-                                </form>
-                            </div>
-                        </td>
-                        <td>
-                            <div class="btn">
-                                <a href="{{url_for('assessment_result', attempt_id=attempt_record.id)}}">View</a>
-                            </div>
-                        </td>
+                    {% if not attempt_record.assessment.is_formative %}
+                        {% if attempt_record.attempted_at %}
+                            <td>{{ attempt_record.attempted_at.date() }}</td>
+                            <td>{{ attempt_record.total_marks }}/{{ attempt_record.assessment.template.total_marks }} </td>
+                            <td>
+                                <div class="d-flex flex-row">
+                                    <div>{{ "Confirmed" if attempt_record.result_is_confirmed else "Submitted"}}</div>
+                                    <form class="ml-3" method="POST" action="{{ url_for('assessment_result_confirm', attempt_id=attempt_record.id, is_confirmed=not attempt_record.result_is_confirmed) }}">
+                                        <button type="submit">{{"Confirm" if not attempt_record.result_is_confirmed else "Unconfirm"}}</button>
+                                    </form>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="btn">
+                                    <a href="{{url_for('assessment_result', attempt_id=attempt_record.id)}}">View</a>
+                                </div>
+                            </td>
+                        {% else %}
+                            <td>-</td>
+                            <td>-</td>
+                            <td>Not Submitted</td>
+                            <td>-</td>
+                        {% endif %}
+                    {% else %}
+                            {# <td>{{ attempt_record.attempted_at.date() }}</td> #}
+                            <td>{{ student_attempt_times[loop.index-1] if student_attempt_times[loop.index-1] else 0 }}</td>
                     {% endif %}
                 </tr>
             {% endfor %}

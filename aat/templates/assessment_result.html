@@ -11,17 +11,22 @@
         <div>Description: {{ assessment.template.description }}</div>
         <div>Formative: {{assessment.is_formative }}</div>
         <div>Available Time: {{assessment.start_at.date() }} to {{assessment.end_at.date() }}</div>
+        {% if user.teacher %}
+            <div>Student Name: {{attempt.student.user.firstname}} {{attempt.student.user.lastname}}</div>
+            <div>Student Number: {{attempt.student.student_num }}</div>
+        {% endif %}
         <div>Submitted at: {{attempt.attempted_at.date()}} </div>
         <div>Marks: {{attempt.total_marks}} / {{assessment.template.total_marks}} </div>
     </div>
     {% if user.teacher %}
-        <div class="confirm">
+        <div class="d-flex flex-row">
+            Result&nbsp
             {% if attempt.result_is_confirmed %}
-                <div>Result Confirmed</div>
+                <div>Confirmed</div>
             {% else %}
-                <div>Result not Confirmed</div>
+                <div>Not Confirmed</div>
             {% endif %}
-            <form method="POST" action="{{ url_for('assessment_result_confirm', attempt_id=attempt.id, is_confirmed=not attempt.result_is_confirmed) }}">
+            <form class="ml-3" method="POST" action="{{ url_for('assessment_result_confirm', attempt_id=attempt.id, is_confirmed=not attempt.result_is_confirmed) }}">
                 <button type="submit">{{"Confirm" if not attempt.result_is_confirmed else "Unconfirm"}}</button>
             </form>
         </div>
