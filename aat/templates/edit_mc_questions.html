@@ -22,10 +22,10 @@
         <br>
         <label for="correct_choice_{{ question.id }}">Correct Choice:</label>
         <select class="form-control" name="correct_choice_{{ question.id }}" id="correct_choice_{{ question.id }}" required>
-          <option value="1" {% if question.correct_choice_id = 1 %}selected{% endif %}>Choice 1</option>
-          <option value="2" {% if question.correct_choice_id = 2 %}selected{% endif %}>Choice 2</option>
-          <option value="3" {% if question.correct_choice_id = 3 %}selected{% endif %}>Choice 3</option>
-          <option value="4" {% if question.correct_choice_id = 4 %}selected{% endif %}>Choice 4</option>
+          <option value="1" {% if question.correct_choice_id == 1 %}selected{% endif %}>Choice 1</option>
+          <option value="2" {% if question.correct_choice_id == 2 %}selected{% endif %}>Choice 2</option>
+          <option value="3" {% if question.correct_choice_id == 3 %}selected{% endif %}>Choice 3</option>
+          <option value="4" {% if question.correct_choice_id == 4 %}selected{% endif %}>Choice 4</option>
         </select>
         <br>
       </div>

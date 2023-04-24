@@ -354,13 +354,14 @@
         </a>
       </li><!-- End Login Page Nav -->
 
-
+      {% if current_user.teacher %}
       <li class="nav-item">
         <a class="nav-link collapsed" href="{{ url_for('questions') }}">
             <i class="bi bi-box-arrow-in-right"></i>
           <span>Questions</span>
         </a>
       </li>
+      {% endif %}
 
       <li class="nav-item">
         <a class="nav-link collapsed" data-bs-target="#tables-nav" data-bs-toggle="collapse" href="#">
