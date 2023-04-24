@@ -5,61 +5,123 @@
     <div class="btn ">
         <a href="{{url_for('course', course_id=assessment.course.id)}}">< {{assessment.course.number}} - {{ assessment.course.name}}</a>
     </div>
-    <div class="secondary-title">Assessment Attempt Record</div>
-    <div class="third-title">Assessment: {{assessment.template.name}}</div>
+    <h1>Assessment Attempt Record</h1>
+    <div>Assessment: {{assessment.template.name}}</div>
     <div class="inner-container">
         <div>Description: {{ assessment.template.description }}</div>
         <div>Formative: {{assessment.is_formative }}</div>
-        <div>Available Time: {{assessment.start_at.date() }} - {{assessment.end_at.date() }}</div>
+        <div>Available Time: {{assessment.start_at.date() }} to {{assessment.end_at.date() }}</div>
         <div>Submitted at: {{attempt.attempted_at.date()}} </div>
         <div>Marks: {{attempt.total_marks}} / {{assessment.template.total_marks}} </div>
     </div>
-    <div class="third-title">Quesions</div>
-    <div class="inner-container">
+    {% if user.teacher %}
+        <div class="confirm">
+            {% if attempt.result_is_confirmed %}
+                <div>Result Confirmed</div>
+            {% else %}
+                <div>Result not Confirmed</div>
+            {% endif %}
+            <form method="POST" action="{{ url_for('assessment_result_confirm', attempt_id=attempt.id, is_confirmed=not attempt.result_is_confirmed) }}">
+                <button type="submit">{{"Confirm" if not attempt.result_is_confirmed else "Unconfirm"}}</button>
+            </form>
+        </div>
+    {% endif %}
+    <div class="feedback">
+        {% if attempt.feedback %}
+            <div>Feedback: {{attempt.feedback}}</div>
+        {% else %}
+            <div>Feedback: -</div>
+        {% endif %}
+        {% if user.teacher %}
+            <form method="POST" action="">
+                {{form.csrf_token}}
+                {{form.feedback}}
+                {{form.submit}}
+            </form>
+        {% endif %}
+    </div>
+    <br>
+    <h2>Quesions</h2>
+    <div class="">
         {% if assessment.template.mc_questions == [] %}
             <div>No Multiple Choice Question yet</div>
         {% else %}
             {% for question in assessment.template.mc_questions %}
-                <div>Multiple Choice Q{{ loop.index }}</div>
-                <div class="tab row" style="display:flex; flex-direction:row">
-                    <div>{{ question.question }}</div>
-                    <div>
-                        <ol type="A">
-                            <li>
-                                <div>{{ question.choice_1 }}</div>
-                                <div>Feedback: {{ question.choice_feedback_1 }}</div>
-                            </li>
-                            <li>
-                                <div>{{ question.choice_2 }}</div>
-                                <div>Feedback: {{ question.choice_feedback_2 }}</div>
-                            </li>
-                            <li>
-                                <div>{{ question.choice_3 }}</div>
-                                <div>Feedback: {{ question.choice_feedback_3 }}</div>
-                            </li>
-                            <li>
-                                <div>{{ question.choice_4 }}</div>
-                                <div>Feedback: {{ question.choice_feedback_4 }}</div>
-                            </li>
-                        </ol>
-                    </div>
-                    <div>
-                        <div>
+                <div class="card card-body">
+                    <div class="d-flex flex-row">
+                        <div class="font-weight-bold">Multiple Choice Q{{ loop.index }}</div>
+                        <div class="ml-1">({{question.marks}} marks)</div>
+                        {# <div class="ml-3 {{'bg-success' if mc_answers[loop.index-1].is_correct else 'bg-danger'}}"> #}
+                        <div class="ml-3">
                             {% if mc_answers[loop.index-1] %}
                                 {% if mc_answers[loop.index-1].is_correct %}
-                                    <div>Correct</div>
+                                    <i class="text-success fa-solid fa-check"></i>
                                 {% else %}
-                                    <div>Wrong</div>
+                                    <i class="text-danger fa-solid fa-xmark"></i>
                                 {% endif %}
-                                Selected Answer: {{ mc_id_char[mc_answers[loop.index-1].answer_choice_id] }}
+                                {# Selected Answer: {{ mc_id_char[mc_answers[loop.index-1].answer_choice_id] }} #}
                             {% else %}
-                                <div>Wrong</div>
-                                <div>Not Answered</div>
+                                <i class="text-danger fa-solid fa-xmark"></i>
+                                {# <div class="ml-3">Not Answered</div> #}
                             {% endif %}
                         </div>
-                        {% if not mc_answers[loop.index-1].is_correct %}
-                            <div>Correct Answer: {{ mc_id_char[question.correct_choice_id] }}</div>
-                        {% endif %}
+                    </div>
+                    <div class="tab row" style="display:flex; flex-direction:row">
+                        <div>{{ question.question }}</div>
+                        <div>
+                            <ol type="A">
+                                <li>
+                                    {% if question.correct_choice_id==1 %}
+                                        <div class="text-success">{{ question.choice_1 }}</div>
+                                    {% elif mc_answers[loop.index-1].answer_choice_id==1 %}
+                                        <div class="text-danger">{{ question.choice_1 }}</div>
+                                    {% else %}
+                                        <div>{{ question.choice_1 }}</div>
+                                    {% endif %}
+                                    {# <div>Feedback: {{ question.choice_feedback_1 }}</div> #}
+                                </li>
+                                <li>
+                                    {% if question.correct_choice_id==2 %}
+                                        <div class="text-success">{{ question.choice_2 }}</div>
+                                    {% elif mc_answers[loop.index-1].answer_choice_id==2 %}
+                                        <div class="text-danger">{{ question.choice_2 }}</div>
+                                    {% else %}
+                                        <div>{{ question.choice_2 }}</div>
+                                    {% endif %}
+                                    {# <div>Feedback: {{ question.choice_feedback_2 }}</div> #}
+                                </li>
+                                <li>
+                                    {% if question.correct_choice_id==3 %}
+                                        <div class="text-success">{{ question.choice_3 }}</div>
+                                    {% elif mc_answers[loop.index-1].answer_choice_id==3 %}
+                                        <div class="text-danger">{{ question.choice_3 }}</div>
+                                    {% else %}
+                                        <div>{{ question.choice_3 }}</div>
+                                    {% endif %}
+                                    {# <div>Feedback: {{ question.choice_feedback_3 }}</div> #}
+                                </li>
+                                <li>
+                                    {% if question.correct_choice_id==4 %}
+                                        <div class="text-success">{{ question.choice_4 }}</div>
+                                    {% elif mc_answers[loop.index-1].answer_choice_id==4 %}
+                                        <div class="text-danger">{{ question.choice_4 }}</div>
+                                    {% else %}
+                                        <div>{{ question.choice_4 }}</div>
+                                    {% endif %}
+                                    {# <div>Feedback: {{ question.choice_feedback_4 }}</div> #}
+                                </li>
+                            </ol>
+                            {% if mc_answers[loop.index-1] %}
+                                <div>Feedback: {{ mc_feedbacks[loop.index-1][mc_answers[loop.index-1].answer_choice_id-1] }}</div>
+                            {% else %}
+                                <div>Feedback: Not Answered</div>
+                            {% endif %}
+                            {% if not mc_answers[loop.index-1].is_correct %}
+                                {# <div>Correct Answer: {{ mc_id_char[question.correct_choice_id] }}</div> #}
+                            {% endif %}
+                        </div>
+                        <div>
+                        </div>
                     </div>
                 </div>
             {% endfor %}
@@ -69,30 +131,50 @@
             <div>No Short Question yet</div>
         {% else %}
             {% for question in assessment.template.st_questions %}
-                <div>Short Q{{ loop.index }}</div>
-                <div class="tab">
-                    <div>{{ question.question }} </div>
-                    {% if st_answers[loop.index-1] %}
-                        {% if st_answers[loop.index-1].is_correct %}
-                            <div>Correct</div>
-                        {% else %}
-                            <div>Wrong</div>
+                <div class="card card-body">
+                    <div class="d-flex flex-row">
+                        <div class="font-weight-bold">Short Q{{ loop.index }}</div>
+                        <div class="ml-1">({{question.marks}} marks)</div>
+                        <div class="ml-3">
+                            {% if st_answers[loop.index-1] %}
+                                {% if st_answers[loop.index-1].is_correct %}
+                                    <i class="text-success fa-solid fa-check"></i>
+                                {% else %}
+                                    <i class="text-danger fa-solid fa-xmark"></i>
+                                {% endif %}
+                            {% else %}
+                                <i class="text-danger fa-solid fa-xmark"></i>
+                                {# <div class="ml-3">Not Answered</div> #}
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="tab">
+                        <div>{{ question.question }} </div>
+                        {% if not st_answers[loop.index-1] %}
+                            <div>Written Answer: Not Answered</div>
+                        {% elif not st_answers[loop.index-1].is_correct %}
+                            <div class="d-flex flex-row">
+                                <div>Written Answer:&nbsp</div>
+                                <div class="text-danger">{{st_answers[loop.index-1].answer}}</div>
+                            </div>
                         {% endif %}
-                        <div>Written Answer: {{st_answers[loop.index-1].answer}}</div>
-                    {% else %}
-                        <div>Wrong</div>
-                        <div>Not Answered</div>
-                    {% endif %}
-                    {% if not st_answers[loop.index-1].is_correct %}
-                        <div>Correct Answer: {{ question.correct_ans }} </div>
-                    {% endif %}
-                    {% if st_answers[loop.index-1].is_correct %}
-                        <div>Feedback: {{ question.feedback_correct }}</div>
-                    {% else %}
-                        <div>Feedback: {{ question.feedback_wrong }} </div>
-                    {% endif %}
+                            <div class="d-flex flex-row">
+                                <div>Correct Answer:&nbsp</div>
+                                <div class="text-success">{{ question.correct_ans }} </div>
+                            </div>
+                        {% if st_answers[loop.index-1].is_correct %}
+                            <div>Feedback: {{ question.feedback_correct }}</div>
+                        {% else %}
+                            <div>Feedback: {{ question.feedback_wrong }} </div>
+                        {% endif %}
+                    </div>
                 </div>
             {% endfor %}
+        {% endif %}
+        {% if assessment.is_formative %}
+            <div class="btn btn-info">
+                <a href="{{ url_for('assessment_attempt', assessment_id=assessment.id, attempt_id=0) }}">Redo</a>
+            </div>
         {% endif %}
     </div>
 </div>

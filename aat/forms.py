@@ -128,3 +128,7 @@ class StAnswerForm(FlaskForm):
 class McAnswerForm(FlaskForm):
   answer = SelectField("Answer", choices=["A", "B", "C", "D"])
   submit = SubmitField('Save')
+
+class AttemptFeedbackForm(FlaskForm):
+  feedback = StringField("Feedback", validators=[DataRequired()])
+  submit = SubmitField('Save')

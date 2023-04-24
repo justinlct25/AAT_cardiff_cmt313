@@ -170,6 +170,8 @@ class StudentAttemptStatus(db.Model):
   total_marks = db.Column(db.Integer, default=0)
   attempted_at = db.Column(db.DateTime)
   is_submitted = db.Column(db.Boolean, default=False)
+  result_is_confirmed = db.Column(db.Boolean, default=False)
+  feedback = db.Column(db.String(200), default="")
   mc_answers = db.relationship('McStudentAns', secondary=attempt_mc_answers_association_table, backref=db.backref('attempt', uselist=False))
   st_answers = db.relationship('StStudentAns', secondary=attempt_st_answers_association_table, backref=db.backref('attempt', uselist=False))
 

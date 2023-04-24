@@ -3,78 +3,101 @@
     <div class="btn ">
         <a href="{{url_for('courses')}}">< All Courses</a>
     </div>
-    <div class="main-title">{{ course.number }} {{course.name}}</div>
+    <h1 class="main-title">{{ course.number }} {{course.name}}</h1>
     <div>Department: {{course.programme.department.name}}</div>
     <div>Programme: {{course.programme.name}}</div>
     <div>Description:</div>
     <div class="tab">{{ course.description }}</div>
-    <div class="">
-        <div class="inner-container">
-            <div class="secondary-title">Assessments</div>
-            {% if course.assessments == [] %}
-                <div>no assessment yet</div>
-            {% else %}
-                {% for assessment in course.assessments %}
-                    <div class="d-flex flex-row">
-                        <div class="p-2">{{ assessment.template.name }} </div>
-                        {% if assessment.is_formative %}
-                            <div class="p-2">Formative</div>
-                        {% else %}
-                            <div class="p-2">Summative</div>
-                        {% endif %}
-                        {% if assessment.start_at.date() > datetime.now().date() %} {# assessment havnt start yet #}
-                            <div class="p-2">Upcoming</div>
-                            <div class="p-2">{{assessment.start_at.date()}}</div>
-                            <div class="p-2">{{assessment.end_at.date()}}</div>
-                        {% elif assessment.end_at.date() < datetime.now().date() %} {# assessment aleady ended#}
-                            <div class="p-2">Ended</div>
-                            <div class="p-2">{{assessment.start_at.date()}}</div>
-                            <div class="p-2">{{assessment.end_at.date()}}</div>
-                            {% if user.student and not assessment_attempts|length == 0 %}
-                                {% if assessment_attempts[loop.index-1].is_submitted%}
-                                    <div class="p-2">Submitted</div>
-                                    <div class="p-2"><a href="{{ url_for('assessment_result', assessment_id=assessment.id, attempt_id=assessment_attempts[loop.index-1].id) }}">View</a></div>
-                                {% else %}
-                                    <div class="p-2">Incomplete</div>
-                                {% endif %}
+    <br>
+    <div class="inner-container">
+        <h2>Assessments</h2>
+        {% if course.assessments == [] %}
+            <div>No Assessment Yet</div>
+        {% else %}
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Assessment</th>
+                        <th>Mode</th>
+                        <th>Stage</th>
+                        <th>Shart</th>
+                        <th>End</th>
+                        <th>Status</th>
+                        <th>Operations</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for assessment in course.assessments %}
+                        <tr>
+                            <td>{{ assessment.template.name }} </td>
+                            {% if assessment.is_formative %}
+                                <td>Formative</td>
                             {% else %}
-                                <div class="p-2"><a href="{{ url_for('assessment_view', assessment_id=assessment.id) }}">View Assessment</a></div>
-                                <div class="p-2"><a href="{{ url_for('assessment_results', assessment_id=assessment.id) }}">View Student Results</a></div>
+                                <td>Summative</td>
                             {% endif %}
-                        {% else %}
-                            <div class="p-2">Ongoing</div>
-                            <div class="p-2">{{assessment.start_at.date()}}</div>
-                            <div class="p-2">{{assessment.end_at.date()}}</div>
-                            {% if user.student and not assessment_attempts|length == 0%}
-                                {% if not assessment_attempts[loop.index-1] %}
-                                    <div class="p-2">Not Started</div>
-                                    <div class="p-2"><a href="{{ url_for('assessment_attempt', assessment_id=assessment.id, attempt_id=0) }}">Start</a></div> {# no student attemp record #}
-                                {% else %}
-                                    {% if assessment_attempts[loop.index-1].is_submitted %}
-                                        <div class="p-2">Submitted</div>
-                                        <div class="p-2"><a href="{{ url_for('assessment_result', assessment_id=assessment.id, attempt_id=assessment_attempts[loop.index-1].id) }}">View</a></div>
-                                        {% if assessment.is_formative %}
-                                            <div class="p-2"><a href="{{ url_for('assessment_attempt', assessment_id=assessment.id, attempt_id=0) }}">Redo</a></div>
-                                        {% endif %}
+                            {% if assessment.start_at.date() > datetime.now().date() %} {# assessment havnt start yet #}
+                                <td>Upcoming</td>
+                                <td>{{assessment.start_at.date()}}</td>
+                                <td>{{assessment.end_at.date()}}</td>
+                            {% elif assessment.end_at.date() < datetime.now().date() %} {# assessment aleady ended#}
+                                <td>Ended</td>
+                                <td>{{assessment.start_at.date()}}</td>
+                                <td>{{assessment.end_at.date()}}</td>
+                                {% if user.student and not assessment_attempts|length == 0 %}
+                                    {% if assessment_attempts[loop.index-1].is_submitted%}
+                                        <td>Submitted</td>
+                                        <td><a href="{{ url_for('assessment_result', assessment_id=assessment.id, attempt_id=assessment_attempts[loop.index-1].id) }}">View</a></td>
                                     {% else %}
-                                        <div class="p-2">In progress</div>
-                                        <div class="p-2"><a href="{{ url_for('assessment_attempt', assessment_id=assessment.id, attempt_id=assessment_attempts[loop.index-1].id) }}">Continue</a></div>
+                                        <td>Incomplete</td>
                                     {% endif %}
-                                {% endif %} 
-                            {% else %}
-                                <div class="p-2"><a href="{{ url_for('assessment_view', assessment_id=assessment.id) }}">View Assessment</a></div>
-                                <div class="p-2"><a href="{{ url_for('assessment_results', assessment_id=assessment.id) }}">View Student Results</a></div>
+                                {% elif user.teacher %}
+                                    <td><a href="{{ url_for('assessment_view', assessment_id=assessment.id) }}">View Assessment</a></td>
+                                    <td><a href="{{ url_for('assessment_results', assessment_id=assessment.id) }}">View Student Results</a></td>
+                                {% endif %}
+                            {% else %} {# assessment is ongoing #}
+                                <td>Ongoing</td>
+                                <td>{{assessment.start_at.date()}}</td>
+                                <td>{{assessment.end_at.date()}}</td>
+                                {% if user.student and not assessment_attempts|length == 0%}
+                                    {% if not assessment_attempts[loop.index-1] %}
+                                        <td>Not Started</td>
+                                        <td><a href="{{ url_for('assessment_attempt', assessment_id=assessment.id, attempt_id=0) }}">Start</a></td> {# no student attemp record #}
+                                    {% else %}
+                                        {% if assessment_attempts[loop.index-1].is_submitted %}
+                                            {% if assessment.is_formative %}
+                                                <td>Submitted</td>
+                                                <td><a href="{{ url_for('assessment_result', assessment_id=assessment.id, attempt_id=assessment_attempts[loop.index-1].id) }}">View</a>
+                                                    <a href="{{ url_for('assessment_attempt', assessment_id=assessment.id, attempt_id=0) }}">Redo</a>
+                                                </td>
+                                            {% else %}
+                                                {% if assessment_attempts[loop.index-1].result_is_confirmed %}
+                                                    <td>Marked</td>
+                                                    <td><a href="{{ url_for('assessment_result', assessment_id=assessment.id, attempt_id=assessment_attempts[loop.index-1].id) }}">View</a></td>
+                                                {% else %}
+                                                    <td>Submitted</td>
+                                                    <td>-</td>
+                                                {% endif %}
+                                            {% endif %}
+                                        {% else %}
+                                            <td>In progress</td>
+                                            <td><a href="{{ url_for('assessment_attempt', assessment_id=assessment.id, attempt_id=assessment_attempts[loop.index-1].id) }}">Continue</a></td>
+                                        {% endif %}
+                                    {% endif %} 
+                                {% elif user.teacher %}
+                                    <td><a href="{{ url_for('assessment_view', assessment_id=assessment.id) }}">View Assessment</a></td>
+                                    <td><a href="{{ url_for('assessment_results', assessment_id=assessment.id) }}">View Student Results</a></td>
+                                {% endif %}
                             {% endif %}
-                        {% endif %}
-                    </div>
-                {% endfor %}
-            {% endif %}
-            {% if user.teacher %}
-                <div class="btn btn-info">
-                    <a href="{{url_for('template_select', course_id=course.id)}}">Add Assessment</a>
-                </div>
-            {% endif %}
-        </div>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+        {% if user.teacher %}
+            <div class="btn btn-info">
+                <a href="{{url_for('template_select', course_id=course.id)}}">Add Assessment</a>
+            </td>
+        {% endif %}
     </div>
 </div>
 

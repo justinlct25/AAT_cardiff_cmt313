@@ -2,7 +2,8 @@
 {% extends "base.html" %}
 {% block content %}
 <div class="btn ">
-    <a href="{{url_for('template', template_id=template.id, course_id=course.id )}}">< {{course.number}} - {{ course.name }}</a>
+    {# <a href="{{url_for('template', template_id=template.id, course_id=course.id )}}">< {{course.number}} - {{ course.name }}</a> #}
+    <a href="{{url_for('template', template_id=template.id, course_id=course.id )}}">< Template - {{ template.name }}</a>
     {# <a href="#" onclick="history.back(); return false;">< Template - {{template.name}}</a> #}
 </div>
 <div>

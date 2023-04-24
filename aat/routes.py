@@ -261,6 +261,7 @@ def course(course_id):
     if user.student:
         for assessment in course.assessments:
             attempts = StudentAttemptStatus.query.filter_by(student_id=user.student.id, assessment=assessment)
+            # print(attempts)
             latest_attempt = attempts.order_by(StudentAttemptStatus.id.desc()).first()
             # if latest_attempt: # of not then no attempt yet
             assessment_attempts.append(latest_attempt) # attempt_id=0: havnt attempt yet
@@ -535,25 +536,30 @@ def assessment_submit(attempt_id):
     db.session.commit()
     return redirect(url_for('assessment_result', attempt_id=attempt_id))
 
-@app.route("/assessment/result/<int:attempt_id>", methods=['GET'])
+@app.route("/assessment/result/<int:attempt_id>", methods=['GET', 'POST'])
 def assessment_result(attempt_id):
+    user = User.query.get(current_user.id)
     attempt = StudentAttemptStatus.query.get(attempt_id)
-    assessment_total_marks = 0
+    form = AttemptFeedbackForm()
+    if form.validate_on_submit():
+      attempt.feedback = form.feedback.data
+      db.session.commit()
+      return redirect(url_for("assessment_result", attempt_id=attempt_id))
+    mc_feedbacks, mc_answers, st_answers = [], [], []
     for question in attempt.assessment.template.mc_questions:
-        assessment_total_marks += question.marks
-    for question in attempt.assessment.template.st_questions:
-        assessment_total_marks += question.marks
-    mc_answers, st_answers = [], []
-    for question in attempt.assessment.template.mc_questions:
+        mc_feedbacks.append([question.choice_feedback_1, question.choice_feedback_2, question.choice_feedback_3, question.choice_feedback_4])
         mc_answer = db.session.query(McStudentAns).filter_by(attempt_id=attempt_id, question_id=question.id).first()
         mc_answers.append(mc_answer)
     for question in attempt.assessment.template.st_questions:
         st_answer = db.session.query(StStudentAns).filter_by(attempt_id=attempt_id, question_id=question.id).first()
         st_answers.append(st_answer)
-    return render_template("assessment_result.html", attempt=attempt, assessment=attempt.assessment, assessment_total_marks=assessment_total_marks, mc_answers=mc_answers, st_answers=st_answers, mc_id_char=MC_ID_CHAR)
+    return render_template("assessment_result.html", user=user, attempt=attempt, assessment=attempt.assessment, mc_feedbacks=mc_feedbacks, mc_answers=mc_answers, st_answers=st_answers, mc_id_char=MC_ID_CHAR, form=form)
 
 @app.route("/assessment/results/<int:assessment_id>", methods=['GET'])
 def assessment_results(assessment_id):
+    user = User.query.get(current_user.id)
+    if not user.teacher:
+        return redirect(url_for("courses"))
     assessment = Assessment.query.get(assessment_id)
     programme = assessment.course.programme
     student_attempt_records = []
@@ -565,9 +571,27 @@ def assessment_results(assessment_id):
           if assessment.is_formative:
               student_attempt_times.append(len(attempts.all()))
           student_attempt_records.append(record)
-    print(student_attempt_records)
-    return render_template("assessment_results.html", programme=programme, assessment=assessment, student_attempt_records=student_attempt_records, student_attempt_times=student_attempt_times)
+    return render_template("assessment_results.html", user=user, programme=programme, assessment=assessment, student_attempt_records=student_attempt_records, student_attempt_times=student_attempt_times)
 
+@app.route("/assessment/result/confirm/<int:attempt_id>/<int:is_confirmed>", methods=['POST'])
+def assessment_result_confirm(attempt_id, is_confirmed):
+    attempt = StudentAttemptStatus.query.get(attempt_id)
+    attempt.result_is_confirmed = is_confirmed
+    db.session.commit()
+    return redirect(url_for("assessment_results", assessment_id=attempt.assessment.id))
+
+@app.route("/assessment/results/confirm/<int:assessment_id>", methods=['POST'])
+def assessment_results_confirm(assessment_id):
+    attempts = StudentAttemptStatus.query.join(StudentAttemptStatus.assessment).filter(Assessment.id == assessment_id).all()
+    for attempt in attempts:
+        attempt.result_is_confirmed = True
+        db.session.commit()
+    return redirect(url_for("assessment_results", assessment_id=assessment_id))
+
+@app.route("/attempt/feedback/<int:attempt_id>", methods=["POST"])
+def attempt_feedback(attempt_id):
+    attempt = StudentAttemptStatus.query.get(attempt_id)
+    attempt
 
 @app.route("/statistic/<int:assessment_id>", methods=['GET'])    
 def statistic(assessment_id):
