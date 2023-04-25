@@ -22,7 +22,9 @@
                         <th>Stage</th>
                         <th>Shart</th>
                         <th>End</th>
-                        <th>Status</th>
+                        {% if user.student %}
+                            <th>Status</th>
+                        {% endif %}
                         <th>Operations</th>
                     </tr>
                 </thead>
@@ -51,8 +53,10 @@
                                         <td>Incomplete</td>
                                     {% endif %}
                                 {% elif user.teacher %}
-                                    <td><a href="{{ url_for('assessment_view', assessment_id=assessment.id) }}">View Assessment</a></td>
-                                    <td><a href="{{ url_for('assessment_results', assessment_id=assessment.id) }}">View Student Results</a></td>
+                                    <td>
+                                        <a href="{{ url_for('assessment_view', assessment_id=assessment.id) }}">View Assessment</a>
+                                        <a cllass="ml-3" href="{{ url_for('assessment_results', assessment_id=assessment.id) }}">View Student Results</a>
+                                    </td>
                                 {% endif %}
                             {% else %} {# assessment is ongoing #}
                                 <td>Ongoing</td>
@@ -79,13 +83,15 @@
                                                 {% endif %}
                                             {% endif %}
                                         {% else %}
-                                            <td>In progress</td>
+                                            <td>In Progress</td>
                                             <td><a href="{{ url_for('assessment_attempt', assessment_id=assessment.id, attempt_id=assessment_attempts[loop.index-1].id) }}">Continue</a></td>
                                         {% endif %}
                                     {% endif %} 
                                 {% elif user.teacher %}
-                                    <td><a href="{{ url_for('assessment_view', assessment_id=assessment.id) }}">View Assessment</a></td>
-                                    <td><a href="{{ url_for('assessment_results', assessment_id=assessment.id) }}">View Student Results</a></td>
+                                    <td>
+                                        <a href="{{ url_for('assessment_view', assessment_id=assessment.id) }}">View Assessment</a>
+                                        <a cllass="ml-3" href="{{ url_for('assessment_results', assessment_id=assessment.id) }}">View Student Results</a>
+                                    </td>
                                 {% endif %}
                             {% endif %}
                         </tr>
