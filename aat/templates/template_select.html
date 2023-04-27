@@ -3,21 +3,37 @@
     <div class="btn ">
         <a href="{{url_for('course', course_id=course.id )}}">< {{course.number}} - {{ course.name }}</a>
     </div>
-    <div class="secondary-title">Select an Assessment Template</div>
+    <h1>Select an Assessment Template</h1>
     <div class="inner-container">
         {% if templates == [] %}
-            <div>No Template yet</div>
+            <div>No Assessment Template yet</div>
             {% else %}
-            <div class="third-title">Assessment Templates:</div>
-            {% for template in templates %}
-            <div class="d-flex flex-row">
-                <div class="p-2">{{ template.name }}</div>
-                <div class="p-2">{{template.created_at.date()}}</div>
-                <div class="p-2">{{ template.creator.user.firstname}} {{template.creator.user.lastname}}</div>
-                <div class="p-2"><a href="{{url_for('assessment_new', template_id=template.id, course_id=course.id)}}">Select</a></div>
-                <div class="p-2"><a href="{{url_for('template', template_id=template.id, course_id=course.id)}}">View</a></div>
-            </div>
-            {% endfor %}
+            {# <h2>Assessment Templates:</h2> #}
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Category Tag</th>
+                        <th>Difficulty</th>
+                        <th>Created at</th>
+                        <th>Created by</th>
+                        <th>Operations</th>
+                    </tr>
+                </thead>
+                {% for template in templates %}
+                <tr>
+                    <td>{{ template.name }}</td>
+                    <td>{{ template.tags[0].tag }}</td>
+                    <td>{{ template.difficulty.level }}</td>
+                    <td>{{template.created_at.date()}}</td>
+                    <td>{{ template.creator.user.firstname}} {{template.creator.user.lastname}}</td>
+                    <td>
+                        <a href="{{url_for('assessment_new', template_id=template.id, course_id=course.id)}}">Select</a>
+                        <a href="{{url_for('template', template_id=template.id, course_id=course.id)}}">View</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </table>
         {% endif %}
         <div class="new-template btn btn-info">
             <a href="{{url_for('template_new', course_id=course.id)}}">New Template</a>

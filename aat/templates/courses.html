@@ -7,9 +7,9 @@
     {% endif %}
     <div class="inner-container">
         {% if user.teacher %}
-            <div class="third-title">Courses Teaching:</div>
+            <h1>Courses Teaching:</h1>
         {% elif user.student %}
-            <div class="third-title">Courses Taking:</div>
+            <h1>Courses Taking:</h1>
         {% endif %}
         {% if courses == [] %}
             <div>no course yet</div>
@@ -17,7 +17,7 @@
             <div class="row flex-row flex-nowrap">
                 {% for course in courses %}
                     <div class="col-4">
-                        <div class="card h-100">
+                        <div class="h-100">
                             <div class="card card-body">
                                 <div class="card-title">{{course.number}} {{course.name}}</div>
                                 <div class="card-text">{{course.description}}</div>
@@ -31,7 +31,8 @@
     </div>
     {% if user.teacher %}
         <div class="inner-container">
-            <div class="third-title">Add Course</div>
+            <br>
+            <h2>Add Course</h2>
             <form class="tab" method="POST" action="">
                 {{form.csrf_token}}
                 <p>

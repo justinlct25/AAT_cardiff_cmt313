@@ -239,19 +239,20 @@ def upload_csv():
 
 @app.route("/courses", methods=['GET', 'POST'])
 def courses():
-	user = User.query.get(current_user.id)
-	if user.student: courses = user.student.programme.courses if user.student.programme.courses else []
-	else: courses = user.teacher.courses if user.teacher.courses else []
-	form = CourseForm()
-	if form.validate_on_submit() and current_user.teacher:
-		course = Course(number=form.number.data, name=form.name.data, description=form.description.data, programme_id=form.programme_id.data)
-		db.session.add(course)
-		db.session.flush()
-		user.teacher.courses.append(course)
-		db.session.commit()
-		flash('Course created successfully!', category="success")
-		return redirect(url_for('courses'))
-	return render_template('courses.html', courses=courses, form=form, user=user)
+  user = User.query.get(current_user.id)
+  if user.student: courses = user.student.programme.courses if user.student.programme.courses else []
+  else: courses = Course.query.all()
+	# else: courses = user.teacher.courses if user.teacher.courses else []
+  form = CourseForm()
+  if form.validate_on_submit() and current_user.teacher:
+    course = Course(number=form.number.data, name=form.name.data, description=form.description.data, programme_id=form.programme_id.data)
+    db.session.add(course)
+    db.session.flush()
+    user.teacher.courses.append(course)
+    db.session.commit()
+    flash('Course created successfully!', category="success")
+    return redirect(url_for('courses'))
+  return render_template('courses.html', courses=courses, form=form, user=user)
 
 @app.route("/course/<int:course_id>", methods=['GET'])
 def course(course_id):
