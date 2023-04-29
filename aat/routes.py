@@ -617,3 +617,15 @@ def page_not_found(e):
 @app.errorhandler(500)
 def page_not_found(e):
     return render_template("500.html"), 500
+
+@app.route("/allcourses", methods=['GET'])
+def allcourses():
+    return render_template('allcourses.html')
+
+@app.route("/formative", methods=['GET'])
+def formative():
+    return render_template('formative.html')
+
+@app.route("/summative", methods=['GET'])
+def summative():
+    return render_template('summative.html')
