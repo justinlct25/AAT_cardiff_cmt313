@@ -641,3 +641,51 @@ def formative():
 @app.route("/summative", methods=['GET'])
 def summative():
     return render_template('summative.html')
+
+@app.route("/CMT119", methods=['GET'])
+def CMT119():
+    return render_template('CMT119-table.html')
+
+@app.route("/CMT119charts", methods=['GET'])
+def CMT119charts():
+    return render_template('CMT119-charts.html')
+
+@app.route("/CMT120", methods=['GET'])
+def CMT120():
+    return render_template('CMT120-table.html')
+
+@app.route("/CMT120charts", methods=['GET'])
+def CMT120charts():
+    return render_template('CMT120-charts.html')
+
+@app.route("/CMT219", methods=['GET'])
+def CMT219():
+    return render_template('CMT219-table.html')
+
+@app.route("/CMT219charts", methods=['GET'])
+def CMT219charts():
+    return render_template('CMT219-charts.html')
+
+@app.route("/CMT220", methods=['GET'])
+def CMT220():
+    return render_template('CMT220-table.html')
+
+@app.route("/CMT220charts", methods=['GET'])
+def CMT220charts():
+    return render_template('CMT220-charts.html')
+
+@app.route("/CMT221", methods=['GET'])
+def CMT221():
+    return render_template('CMT221-table.html')
+
+@app.route("/CMT221charts", methods=['GET'])
+def CMT221charts():
+    return render_template('CMT221-charts.html')
+
+@app.route("/CMT313", methods=['GET'])
+def CMT313():
+    return render_template('CMT313-table.html')
+
+@app.route("/CMT313charts", methods=['GET'])
+def CMT313charts():
+    return render_template('CMT313-charts.html')
