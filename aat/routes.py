@@ -220,7 +220,7 @@ def delete_mc_questions():
     flash('Questions deleted successfully!', category='success')
     return redirect(url_for('questions'))
 
-# To edit or delete several SAQs
+# To edit several SAQs
 @app.route('/edit-st-questions', methods=['GET', 'POST'])
 def edit_st_questions():
     ids = request.args.get('ids').split(',')
@@ -234,9 +234,18 @@ def edit_st_questions():
         return redirect(url_for('questions'))
     return render_template('edit_st_questions.html', form=form, questions=questions, ids=ids)
 
+# To delete several SAQs
+@app.route('/delete-st-questions', methods=['GET', 'POST'])
+def delete_st_questions():
+    ids = request.args.get('ids').split(',')
+    for question_id in ids:
+        question = StQuestion.query.get_or_404(question_id)
+        db.session.delete(question)
+        db.session.commit()
+    flash('Questions deleted successfully!', category='success')
+    return redirect(url_for('questions'))
 
-
-
+# To add a category
 @app.route('/add_category', methods=['POST', 'GET'])
 def add_category():
     if request.method == 'POST':
