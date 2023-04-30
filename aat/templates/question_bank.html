@@ -28,11 +28,12 @@
 Select a category:
 
 <select class="form-select" aria-label="Default select example">
+  <option selected>Default</option>
   {% for category in categories %}
   <option>{{ category.tag }}</option>
   {% endfor %}
 </select>
-All questions about the {Category}
+
 
 No tag filters applied 
 <select class="form-select form-select-sm" aria-label=".form-select-sm example">
@@ -264,18 +265,12 @@ No tag filters applied
           </tr>
         </thead>
         <tbody>
-          {% for category in categories %}
+          
+          {% for tag_count in tag_counts %}
           <tr>
-            <td><input type="text" class="form-control" value="{{ category.tag }}"></td>
+            <td><input type="text" class="form-control" value="{{ tag_count[0] }}"></td>
             <td>
-              {% set question_count = 0 %}
-              {% for question in category.mc_questions %}
-                {% set question_count = question_count + 1 %}
-              {% endfor %}
-              {% for question in category.st_questions %}
-                {% set question_count = question_count + 1 %}
-              {% endfor %}
-              {{ question_count }}
+              {{ tag_count[1] }}
             </td>
             <td>
               <div class="dropdown">
@@ -294,6 +289,10 @@ No tag filters applied
           <!-- Add more rows here -->
         </tbody>
       </table>  
+
+      
+    
+      
 
   </div>
   </div>
@@ -351,6 +350,7 @@ No tag filters applied
             </div>
             <div class="col-sm-8">
               <select class="form-select form-select-sm" aria-label=".form-select-sm example">
+                <option selected>Default</option>
                 {% for category in categories %}
                 <option>{{ category.tag }}</option>
                 {% endfor %}

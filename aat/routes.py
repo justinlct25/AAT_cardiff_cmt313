@@ -5,6 +5,9 @@ from aat.forms import *
 from flask_login import login_user, logout_user, current_user, login_required
 from aat.helper import update_template_total_marks
 from io import TextIOWrapper, StringIO
+from sqlalchemy import func
+from urllib.parse import unquote
+
 import random, csv
 
 
@@ -71,6 +74,13 @@ def contact():
 
 @app.route("/question-bank/questions", methods=['GET'])
 def questions():
+    tags = Tag.query.all()
+    tag_counts = []
+    for tag in tags:
+        st_count = StQuestion.query.filter(StQuestion.tags.contains(tag)).count()
+        mc_count = McQuestion.query.filter(McQuestion.tags.contains(tag)).count()
+        tag_counts.append((tag.tag, st_count + mc_count))
+
     categories = Tag.query.order_by(Tag.id.asc())
     mc_questions = McQuestion.query.order_by(McQuestion.id.asc()).paginate(page=request.args.get('mc_page', 1, type=int), per_page=5)
     st_questions = StQuestion.query.order_by(StQuestion.id.asc()).paginate(page=request.args.get('st_page', 1, type=int), per_page=5)
@@ -89,11 +99,13 @@ def questions():
     return render_template('question_bank.html', 
                            mc_questions=mc_questions, st_questions=st_questions, 
                            categories=categories,
-                           question_types=question_types)
+                           question_types=question_types,
+                           tag_counts=tag_counts)
 
 @app.route("/question-bank/add/multiple-choice", methods=["GET", "POST"])
 def mc_questions_add():
     form = McQuestionForm()
+    
     if form.validate_on_submit():
         question = McQuestion(creator_id=current_user.id, question=form.question.data, feedback=form.feedback.data, choice_1=form.choice_1.data, choice_2=form.choice_2.data, choice_3=form.choice_3.data, choice_4=form.choice_4.data, choice_feedback_1=form.choice_feedback_1.data, choice_feedback_2=form.choice_feedback_2.data, choice_feedback_3=form.choice_feedback_3.data, choice_feedback_4=form.choice_feedback_4.data, correct_choice_id=MC_CHAR_ID[form.correct_choice.data], marks=form.marks.data)
         db.session.add(question)
