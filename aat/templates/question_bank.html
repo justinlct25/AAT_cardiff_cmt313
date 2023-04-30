@@ -29,7 +29,7 @@ Select a category:
 
 <select class="form-select" aria-label="Default select example">
   {% for category in categories %}
-  <option>{{ category.name }}</option>
+  <option>{{ category.tag }}</option>
   {% endfor %}
 </select>
 All questions about the {Category}
@@ -266,8 +266,17 @@ No tag filters applied
         <tbody>
           {% for category in categories %}
           <tr>
-            <td><input type="text" class="form-control" value="{{ category.name }}"></td>
-            <td>5</td>
+            <td><input type="text" class="form-control" value="{{ category.tag }}"></td>
+            <td>
+              {% set question_count = 0 %}
+              {% for question in category.mc_questions %}
+                {% set question_count = question_count + 1 %}
+              {% endfor %}
+              {% for question in category.st_questions %}
+                {% set question_count = question_count + 1 %}
+              {% endfor %}
+              {{ question_count }}
+            </td>
             <td>
               <div class="dropdown">
                 <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -342,10 +351,9 @@ No tag filters applied
             </div>
             <div class="col-sm-8">
               <select class="form-select form-select-sm" aria-label=".form-select-sm example">
-                <option selected>Filter by tags</option>
-                <option value="1">One</option>
-                <option value="2">Two</option>
-                <option value="3">Three</option>
+                {% for category in categories %}
+                <option>{{ category.tag }}</option>
+                {% endfor %}
               </select>
               <div class="row mt-3">
                 <div class="col-sm-6">

@@ -1,10 +1,10 @@
-from flask import render_template, flash, request, redirect, url_for
+from flask import render_template, flash, request, redirect, url_for, Response
 from aat import app, db
 from aat.models import *
 from aat.forms import *
 from flask_login import login_user, logout_user, current_user, login_required
 from aat.helper import update_template_total_marks
-from io import TextIOWrapper
+from io import TextIOWrapper, StringIO
 import random, csv
 
 
@@ -71,7 +71,7 @@ def contact():
 
 @app.route("/question-bank/questions", methods=['GET'])
 def questions():
-    categories = Programme.query.order_by(Programme.id.asc())
+    categories = Tag.query.order_by(Tag.id.asc())
     mc_questions = McQuestion.query.order_by(McQuestion.id.asc()).paginate(page=request.args.get('mc_page', 1, type=int), per_page=5)
     st_questions = StQuestion.query.order_by(StQuestion.id.asc()).paginate(page=request.args.get('st_page', 1, type=int), per_page=5)
     question_types = [
@@ -246,6 +246,34 @@ def upload_csv():
             flash('Invalid file format! Only CSV files are allowed.')
             return redirect(request.url)
     return render_template('upload_csv.html')
+
+
+@app.route('/export_questions', methods=['POST'])
+def export_questions():
+    selected_category = request.form.get('category')
+    write_category = request.form.get('write_category')
+    write_context = request.form.get('write_context')
+
+    # Fetch all questions with the selected category
+    mc_questions = McQuestion.query.filter(McQuestion.tags.any(Tag.tag == selected_category)).all()
+    st_questions = StQuestion.query.filter(StQuestion.tags.any(Tag.tag == selected_category)).all()
+
+    # Create a CSV file with the question data
+    csv_data = StringIO()
+    writer = csv.writer(csv_data)
+    writer.writerow(['Question', 'Correct Answer', 'Feedback (Correct)', 'Feedback (Wrong)', 'Difficulty'])
+
+    for question in mc_questions:
+        writer.writerow([question.question, question.choices[question.correct_choice_id-1].choice, question.feedback, '', question.difficulty.difficulty])
+    
+    for question in st_questions:
+        writer.writerow([question.question, question.correct_ans, question.feedback_correct, question.feedback_wrong, question.difficulty.difficulty])
+
+    # Return the file as a download to the user
+    response = Response(csv_data.getvalue(), mimetype='text/csv')
+    response.headers.set('Content-Disposition', 'attachment', filename='questions.csv')
+    return response
+
 
 # Andy part end
 
