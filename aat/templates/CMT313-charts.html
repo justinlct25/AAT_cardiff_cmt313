@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% block content %}
+
+    <a href="#" onclick="history.back(); return false;">Back</a>
+    <div class="pagetitle">
+      <h1>22/23-CMT313- Software Engineering</h1>
+      <nav>
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="index.html">Home</a></li>
+          <li class="breadcrumb-item">Marks</li>
+          <li class="breadcrumb-item active">CMT313</li>
+        </ol>
+      </nav>
+    </div><!-- End Page Title -->
+    <h3>How Am I Doing?</h3>
+    <p>View how you are doing in the charts below.
+
+        These charts present all information available based on data obtained from your course. As you begin to take the assessment more, the data will improve over time.
+        To see 'My Marks' chart, you need your instructor to set up the 'overall mark' column in the gradebook.</p>
+
+    <section class="section">
+      <div class="row">
+
+        <div class="col-lg-6">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">My Activity</h5>
+              <h6>Line Chart</h6>
+
+              <!-- Line Chart -->
+              <canvas id="lineChart" style="max-height: 400px;"></canvas>
+              <script>
+                document.addEventListener("DOMContentLoaded", () => {
+                  new Chart(document.querySelector('#lineChart'), {
+                    type: 'line',
+                    data: {
+                      labels: ['September', 'October', 'November', 'December', 'January', 'February', 'March','April','May'],
+                      datasets: [{
+                        label: 'Hours in Assessment Every Month',
+                        data: [7, 12, 9, 5, 8, 13, 10,9,6],
+                        fill: false,
+                        borderColor: 'rgb(75, 192, 192)',
+                        tension: 0.1
+                      }]
+                    },
+                    options: {
+                      scales: {
+                        y: {
+                          beginAtZero: true
+                        }
+                      }
+                    }
+                  });
+                });
+              </script>
+              <!-- End Line CHart -->
+
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-6">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">My Activity</h5>
+              <h6>Bar Chart</h6>
+
+              <!-- Bar Chart -->
+              <canvas id="barChart" style="max-height: 400px;"></canvas>
+              <script>
+                document.addEventListener("DOMContentLoaded", () => {
+                  new Chart(document.querySelector('#barChart'), {
+                    type: 'bar',
+                    data: {
+                      labels: ['September', 'October', 'November', 'December', 'January', 'February', 'March','April','May'],
+                      datasets: [{
+                        label: 'Hours in Assessment Every Month',
+                        data: [7, 12, 9, 5, 8, 13, 10,9,6],
+                        backgroundColor: [
+                          'rgba(255, 99, 132, 0.2)',
+                          'rgba(255, 159, 64, 0.2)',
+                          'rgba(255, 205, 86, 0.2)',
+                          'rgba(75, 192, 192, 0.2)',
+                          'rgba(54, 162, 235, 0.2)',
+                          'rgba(153, 102, 255, 0.2)',
+                          'rgba(201, 203, 207, 0.2)'
+                        ],
+                        borderColor: [
+                          'rgb(255, 99, 132)',
+                          'rgb(255, 159, 64)',
+                          'rgb(255, 205, 86)',
+                          'rgb(75, 192, 192)',
+                          'rgb(54, 162, 235)',
+                          'rgb(153, 102, 255)',
+                          'rgb(201, 203, 207)'
+                        ],
+                        borderWidth: 1
+                      }]
+                    },
+                    options: {
+                      scales: {
+                        y: {
+                          beginAtZero: true
+                        }
+                      }
+                    }
+                  });
+                });
+              </script>
+              <!-- End Bar CHart -->
+
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+{% endblock content %}

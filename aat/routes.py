@@ -1,10 +1,13 @@
-from flask import render_template, flash, request, redirect, url_for
+from flask import render_template, flash, request, redirect, url_for, Response
 from aat import app, db
 from aat.models import *
 from aat.forms import *
 from flask_login import login_user, logout_user, current_user, login_required
 from aat.helper import update_template_total_marks
-from io import TextIOWrapper
+from io import TextIOWrapper, StringIO
+from sqlalchemy import func
+from urllib.parse import unquote
+
 import random, csv
 
 
@@ -71,7 +74,14 @@ def contact():
 
 @app.route("/question-bank/questions", methods=['GET'])
 def questions():
-    categories = Programme.query.order_by(Programme.id.asc())
+    tags = Tag.query.all()
+    tag_counts = []
+    for tag in tags:
+        st_count = StQuestion.query.filter(StQuestion.tags.contains(tag)).count()
+        mc_count = McQuestion.query.filter(McQuestion.tags.contains(tag)).count()
+        tag_counts.append((tag.tag, st_count + mc_count))
+
+    categories = Tag.query.order_by(Tag.id.asc())
     mc_questions = McQuestion.query.order_by(McQuestion.id.asc()).paginate(page=request.args.get('mc_page', 1, type=int), per_page=5)
     st_questions = StQuestion.query.order_by(StQuestion.id.asc()).paginate(page=request.args.get('st_page', 1, type=int), per_page=5)
     question_types = [
@@ -89,11 +99,13 @@ def questions():
     return render_template('question_bank.html', 
                            mc_questions=mc_questions, st_questions=st_questions, 
                            categories=categories,
-                           question_types=question_types)
+                           question_types=question_types,
+                           tag_counts=tag_counts)
 
 @app.route("/question-bank/add/multiple-choice", methods=["GET", "POST"])
 def mc_questions_add():
     form = McQuestionForm()
+    
     if form.validate_on_submit():
         question = McQuestion(creator_id=current_user.id, question=form.question.data, feedback=form.feedback.data, choice_1=form.choice_1.data, choice_2=form.choice_2.data, choice_3=form.choice_3.data, choice_4=form.choice_4.data, choice_feedback_1=form.choice_feedback_1.data, choice_feedback_2=form.choice_feedback_2.data, choice_feedback_3=form.choice_feedback_3.data, choice_feedback_4=form.choice_feedback_4.data, correct_choice_id=MC_CHAR_ID[form.correct_choice.data], marks=form.marks.data)
         db.session.add(question)
@@ -191,6 +203,18 @@ def delete_mc_questions():
     return redirect(url_for('questions'))
 
 
+@app.route('/add_category', methods=['POST', 'GET'])
+def add_category():
+    if request.method == 'POST':
+        category_name = request.form['category_name']
+        category = Tag(tag=category_name)
+        db.session.add(category)
+        db.session.commit()
+        flash('Category added successfully!', category='success')
+        return redirect(url_for('questions'))
+    return render_template('add_category.html')
+
+
 @app.route('/upload_csv', methods=['GET', 'POST'])
 def upload_csv():
     if request.method == 'POST':
@@ -234,6 +258,10 @@ def upload_csv():
             flash('Invalid file format! Only CSV files are allowed.')
             return redirect(request.url)
     return render_template('upload_csv.html')
+
+
+
+
 
 # Andy part end
 
@@ -617,3 +645,63 @@ def page_not_found(e):
 @app.errorhandler(500)
 def page_not_found(e):
     return render_template("500.html"), 500
+
+@app.route("/allcourses", methods=['GET'])
+def allcourses():
+    return render_template('allcourses.html')
+
+@app.route("/formative", methods=['GET'])
+def formative():
+    return render_template('formative.html')
+
+@app.route("/summative", methods=['GET'])
+def summative():
+    return render_template('summative.html')
+
+@app.route("/CMT119", methods=['GET'])
+def CMT119():
+    return render_template('CMT119-table.html')
+
+@app.route("/CMT119charts", methods=['GET'])
+def CMT119charts():
+    return render_template('CMT119-charts.html')
+
+@app.route("/CMT120", methods=['GET'])
+def CMT120():
+    return render_template('CMT120-table.html')
+
+@app.route("/CMT120charts", methods=['GET'])
+def CMT120charts():
+    return render_template('CMT120-charts.html')
+
+@app.route("/CMT219", methods=['GET'])
+def CMT219():
+    return render_template('CMT219-table.html')
+
+@app.route("/CMT219charts", methods=['GET'])
+def CMT219charts():
+    return render_template('CMT219-charts.html')
+
+@app.route("/CMT220", methods=['GET'])
+def CMT220():
+    return render_template('CMT220-table.html')
+
+@app.route("/CMT220charts", methods=['GET'])
+def CMT220charts():
+    return render_template('CMT220-charts.html')
+
+@app.route("/CMT221", methods=['GET'])
+def CMT221():
+    return render_template('CMT221-table.html')
+
+@app.route("/CMT221charts", methods=['GET'])
+def CMT221charts():
+    return render_template('CMT221-charts.html')
+
+@app.route("/CMT313", methods=['GET'])
+def CMT313():
+    return render_template('CMT313-table.html')
+
+@app.route("/CMT313charts", methods=['GET'])
+def CMT313charts():
+    return render_template('CMT313-charts.html')

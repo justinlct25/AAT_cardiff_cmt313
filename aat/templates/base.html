@@ -387,18 +387,18 @@
         </a>
         <ul id="charts-nav" class="nav-content collapse " data-bs-parent="#sidebar-nav">
           <li>
-            <a href="charts-chartjs.html">
-              <i class="bi bi-circle"></i><span>Charts</span>
+            <a class="nav-link collapsed" href="{{ url_for('allcourses') }}">
+              <i class="bi bi-circle"></i><span>All Courses</span>
             </a>
           </li>
           <li>
-            <a href="charts-apexcharts.html">
-              <i class="bi bi-circle"></i><span>ApexCharts</span>
+            <a class="nav-link collapsed" href="{{ url_for('formative') }}">
+              <i class="bi bi-circle"></i><span>Formative Assessments</span>
             </a>
           </li>
           <li>
-            <a href="charts-echarts.html">
-              <i class="bi bi-circle"></i><span>ECharts</span>
+            <a class="nav-link collapsed" href="{{ url_for('summative') }}">
+              <i class="bi bi-circle"></i><span>Summative Assessments</span>
             </a>
           </li>
         </ul>
