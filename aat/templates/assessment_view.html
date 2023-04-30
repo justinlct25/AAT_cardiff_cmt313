@@ -24,7 +24,7 @@
             {% for question in assessment.template.mc_questions %}
                 <div class="card card-body">
                     <div class="d-flex flex-row">
-                        <div class="font-weight-bold">Multiple Choice Q{{ loop.index }}</div>
+                        <div><b>Multiple Choice Q{{ loop.index }}</b></div>
                         <div class="ml-1">({{question.marks}} marks)</div>
                     </div>
                     <div class="tab">
@@ -59,7 +59,7 @@
             {% for question in assessment.template.st_questions %}
                 <div class="card card-body">
                     <div class="d-flex flex-row">
-                            <div class="font-weight-bold">Short Q{{ loop.index }}</div>
+                            <div><b>Short Q{{ loop.index }}</b></div>
                             <div class="ml-1">({{question.marks}} marks)</div>
                         </div>
                     <div class="tab">

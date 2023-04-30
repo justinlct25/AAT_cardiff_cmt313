@@ -5,6 +5,7 @@ ACCOUNTS = [
         ["andy@cardiff.ac.uk", "andy1010", "Tsang An", "Lee", "22011528", True, ""],
         ["ivor@cardiff.ac.uk", "ivor1010", "Ivor", "Mandekich", "1867157", True, ""], 
         ["mike@cardiff.ac.uk", "mike1010", "Ziye", "Zhang", "21095796", True, ""],
+        # ["dustin@cardiff.ac.uk", "hustin1010", "Chun Ting Dustin", "Lou", "22075165", True, ""],
         ["kp@cardiff.ac.uk", "kp1010", "Khai Pong", "Teoh", "22085771", False, "Computer Science"],
         # ["wan@cardiff.ac.uk", "wan1010", "Guowen", "Ye", "22080190", False, "Software Engineering"],
         ["wan@cardiff.ac.uk", "wan1010", "Guowen", "Ye", "22080190", False, "Computer Science"],

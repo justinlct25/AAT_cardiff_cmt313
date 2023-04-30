@@ -563,7 +563,11 @@ def assessment_submit(attempt_id):
     attempt.is_submitted = True
     attempt.attempted_at = datetime.utcnow()
     db.session.commit()
-    return redirect(url_for('assessment_result', attempt_id=attempt_id))
+    if attempt.assessment.is_formative:
+      return redirect(url_for('assessment_result', attempt_id=attempt_id))
+    else:
+        return redirect(url_for('course', course_id=attempt.assessment.course.id))
+        
 
 @app.route("/assessment/result/<int:attempt_id>", methods=['GET', 'POST'])
 def assessment_result(attempt_id):
@@ -646,8 +650,8 @@ def page_not_found(e):
 def page_not_found(e):
     return render_template("500.html"), 500
 
-@app.route("/allcourses", methods=['GET'])
-def allcourses():
+@app.route("/statistic/courses", methods=['GET'])
+def statistic_courses():
     return render_template('allcourses.html')
 
 @app.route("/formative", methods=['GET'])
@@ -660,7 +664,15 @@ def summative():
 
 @app.route("/CMT119", methods=['GET'])
 def CMT119():
-    return render_template('CMT119-table.html')
+    user = User.query.get(current_user.id)
+    course = Course.query.filter_by(number="CMT119").first()
+    assessment_attempts = []
+    for assessment in course.assessments:
+            attempts = StudentAttemptStatus.query.filter_by(student_id=user.student.id, assessment=assessment)
+            latest_attempt = attempts.order_by(StudentAttemptStatus.id.desc()).first()
+            # if latest_attempt: # of not then no attempt yet
+            assessment_attempts.append(latest_attempt) # attempt_id=0: havnt attempt yet
+    return render_template('CMT119-table.html', course=course, assessment_attempts=assessment_attempts)
 
 @app.route("/CMT119charts", methods=['GET'])
 def CMT119charts():
