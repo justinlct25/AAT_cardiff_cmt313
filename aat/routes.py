@@ -1,11 +1,14 @@
-from flask import render_template, flash, request, redirect, url_for
+from flask import render_template, flash, request, redirect, url_for, Response
 from aat import app, db
 from aat.models import *
 from aat.forms import *
 from flask_login import login_user, logout_user, current_user, login_required
 from aat.helper import update_template_total_marks
-from io import TextIOWrapper
-import random, csv
+from io import TextIOWrapper, StringIO
+from sqlalchemy import func
+from urllib.parse import unquote
+
+import random, csv, io
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -44,7 +47,10 @@ def register():
 
 @app.route("/dashboard", methods=["GET"])
 def dashboard():
-    return render_template('dashboard.html')
+    if current_user.student:
+        return render_template('dashboard.html')
+    else:
+        return render_template('teacher_dashboard.html')
 
 @app.route("/profile/<int:user_id>", methods=["GET"])
 def profile(user_id):
@@ -71,7 +77,14 @@ def contact():
 
 @app.route("/question-bank/questions", methods=['GET'])
 def questions():
-    categories = Programme.query.order_by(Programme.id.asc())
+    tags = Tag.query.all()
+    tag_counts = []
+    for tag in tags:
+        st_count = StQuestion.query.filter(StQuestion.tags.contains(tag)).count()
+        mc_count = McQuestion.query.filter(McQuestion.tags.contains(tag)).count()
+        tag_counts.append((tag.tag, st_count + mc_count))
+
+    categories = Tag.query.order_by(Tag.id.asc())
     mc_questions = McQuestion.query.order_by(McQuestion.id.asc()).paginate(page=request.args.get('mc_page', 1, type=int), per_page=5)
     st_questions = StQuestion.query.order_by(StQuestion.id.asc()).paginate(page=request.args.get('st_page', 1, type=int), per_page=5)
     question_types = [
@@ -89,13 +102,23 @@ def questions():
     return render_template('question_bank.html', 
                            mc_questions=mc_questions, st_questions=st_questions, 
                            categories=categories,
-                           question_types=question_types)
+                           question_types=question_types,
+                           tag_counts=tag_counts)
 
 @app.route("/question-bank/add/multiple-choice", methods=["GET", "POST"])
 def mc_questions_add():
     form = McQuestionForm()
+    
     if form.validate_on_submit():
-        question = McQuestion(creator_id=current_user.id, question=form.question.data, feedback=form.feedback.data, choice_1=form.choice_1.data, choice_2=form.choice_2.data, choice_3=form.choice_3.data, choice_4=form.choice_4.data, choice_feedback_1=form.choice_feedback_1.data, choice_feedback_2=form.choice_feedback_2.data, choice_feedback_3=form.choice_feedback_3.data, choice_feedback_4=form.choice_feedback_4.data, correct_choice_id=MC_CHAR_ID[form.correct_choice.data], marks=form.marks.data)
+        category = request.args.get('category')
+        print(category)
+        tag = Tag.query.filter_by(tag=category).first_or_404()
+        print(tag)
+        difficulty = Difficulty.query.filter_by(level=form.difficulty.data).first_or_404()
+
+        question = McQuestion(creator_id=current_user.id, question=form.question.data, feedback=form.feedback.data, choice_1=form.choice_1.data, choice_2=form.choice_2.data, choice_3=form.choice_3.data, choice_4=form.choice_4.data, choice_feedback_1=form.choice_feedback_1.data, choice_feedback_2=form.choice_feedback_2.data, choice_feedback_3=form.choice_feedback_3.data, choice_feedback_4=form.choice_feedback_4.data, correct_choice_id=MC_CHAR_ID[form.correct_choice.data], marks=form.marks.data,
+        tags=[tag],
+        difficulty=difficulty)
         db.session.add(question)
         db.session.commit()
         flash('Question created successfully!', category="success")
@@ -107,7 +130,14 @@ def mc_questions_add():
 def st_questions_add():
     form = StQuestionForm()
     if form.validate_on_submit():
-        question = StQuestion(creator_id=current_user.id, question=form.question.data, correct_ans=form.correct_ans.data, feedback_correct=form.feedback_correct.data, feedback_wrong=form.feedback_wrong.data, marks=form.marks.data)
+        category = request.args.get('category')
+        print(category)
+        tag = Tag.query.filter_by(tag=category).first_or_404()
+        print(tag)
+        difficulty = Difficulty.query.filter_by(level=form.difficulty.data).first_or_404()
+        question = StQuestion(creator_id=current_user.id, question=form.question.data, correct_ans=form.correct_ans.data, feedback_correct=form.feedback_correct.data, feedback_wrong=form.feedback_wrong.data, marks=form.marks.data,
+        tags=[tag],
+        difficulty=difficulty)
         db.session.add(question)
         db.session.commit()
         flash('Question created successfully!', category="success")
@@ -190,6 +220,34 @@ def delete_mc_questions():
     flash('Questions deleted successfully!', category='success')
     return redirect(url_for('questions'))
 
+# To edit or delete several SAQs
+@app.route('/edit-st-questions', methods=['GET', 'POST'])
+def edit_st_questions():
+    ids = request.args.get('ids').split(',')
+    questions = StQuestion.query.filter(StQuestion.id.in_(ids)).all()
+    form = StQuestionForm(obj=questions)
+    if form.validate_on_submit():
+        for question in questions:
+            form.populate_obj(question)
+            db.session.commit()
+        flash('Questions updated successfully!', category='success')
+        return redirect(url_for('questions'))
+    return render_template('edit_st_questions.html', form=form, questions=questions, ids=ids)
+
+
+
+
+@app.route('/add_category', methods=['POST', 'GET'])
+def add_category():
+    if request.method == 'POST':
+        category_name = request.form['category_name']
+        category = Tag(tag=category_name)
+        db.session.add(category)
+        db.session.commit()
+        flash('Category added successfully!', category='success')
+        return redirect(url_for('questions'))
+    return render_template('add_category.html')
+
 
 @app.route('/upload_csv', methods=['GET', 'POST'])
 def upload_csv():
@@ -234,6 +292,37 @@ def upload_csv():
             flash('Invalid file format! Only CSV files are allowed.')
             return redirect(request.url)
     return render_template('upload_csv.html')
+
+# Testing export file part
+
+@app.route('/export_questions/<tag>', methods=['GET'])
+def export_questions(tag):
+    # Get mc questions and st questions related to the selected tag
+    mc_questions = McQuestion.query.filter(McQuestion.tags.any(Tag.tag == tag)).all()
+    st_questions = StQuestion.query.filter(StQuestion.tags.any(Tag.tag == tag)).all()
+
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow(['Question Type', 'Question', 'Multiple Choice', 'Feedback', 'Difficulty', 'Tags', 'Marks', 'Choice 1', 'Choice 1 Feedback', 'Choice 2', 'Choice 2 Feedback', 'Choice 3', 'Choice 3 Feedback', 'Choice 4', 'Choice 4 Feedback', 'Correct Answer', 'Correct Feedback', 'Incorrect Feedback'])
+    
+    for mc_question in mc_questions:
+        row = ['Multiple Choice', mc_question.question, mc_question.multiple, mc_question.feedback, mc_question.difficulty.name if mc_question.difficulty else "", ",".join([tag.tag for tag in mc_question.tags]), mc_question.marks]
+        for choice in mc_question.choices:
+            row.append(choice.choice_text)
+            row.append(choice.feedback)
+        row.extend([mc_question.choice_1, mc_question.choice_feedback_1, mc_question.choice_2, mc_question.choice_feedback_2, mc_question.choice_3, mc_question.choice_feedback_3, mc_question.choice_4, mc_question.choice_feedback_4, "", ""])
+        writer.writerow(row)
+
+    for st_question in st_questions:
+        row = ['Short Text', st_question.question, "", "", st_question.difficulty.name if st_question.difficulty else "", ",".join([tag.tag for tag in st_question.tags]), st_question.marks, "", "", "", "", "", "", "", st_question.correct_ans, st_question.feedback_correct, st_question.feedback_wrong]
+        writer.writerow(row)
+
+    # Return CSV file
+    response = Response(output.getvalue(), content_type='text/csv')
+    response.headers.set("Content-Disposition", "attachment", filename="questions.csv")
+    return response
+
+
 
 # Andy part end
 
@@ -338,7 +427,7 @@ def template_edit_short_question_new(template_id, course_id):
         update_template_total_marks(template)
         db.session.commit()
         return redirect(url_for("template", template_id=template_id, course_id=course_id))
-    st_questions = StQuestion.query.order_by(StQuestion.id.asc()).paginate(page=1, per_page=5)
+    st_questions = StQuestion.query.order_by(StQuestion.id.asc()).paginate(page=1, per_page=8)
     return render_template("question_st_new.html", template=template, form=form, st_questions=st_questions, course=course)
 
 @app.route("/template/edit/question/mc/new/<int:template_id>/<int:course_id>", methods=['GET', 'POST'])
@@ -356,7 +445,7 @@ def template_edit_multiple_choice_question_new(template_id, course_id):
         update_template_total_marks(template)
         db.session.commit()
         return redirect(url_for("template", template_id=template_id, course_id=course_id))
-    mc_questions = McQuestion.query.order_by(McQuestion.id.asc()).paginate(page=1, per_page=5)
+    mc_questions = McQuestion.query.order_by(McQuestion.id.asc()).paginate(page=1, per_page=8)
     return render_template("question_mc_new.html", template=template, form=form, mc_questions=mc_questions, course=course, mc_id_char=MC_ID_CHAR)
 
 @app.route("/template/edit/question/st/select/<int:question_id>/<int:template_id>/<int:course_id>", methods=['POST'])
@@ -535,7 +624,11 @@ def assessment_submit(attempt_id):
     attempt.is_submitted = True
     attempt.attempted_at = datetime.utcnow()
     db.session.commit()
-    return redirect(url_for('assessment_result', attempt_id=attempt_id))
+    if attempt.assessment.is_formative:
+      return redirect(url_for('assessment_result', attempt_id=attempt_id))
+    else:
+        return redirect(url_for('course', course_id=attempt.assessment.course.id))
+        
 
 @app.route("/assessment/result/<int:attempt_id>", methods=['GET', 'POST'])
 def assessment_result(attempt_id):
@@ -618,3 +711,71 @@ def page_not_found(e):
 @app.errorhandler(500)
 def page_not_found(e):
     return render_template("500.html"), 500
+
+@app.route("/statistic/courses", methods=['GET'])
+def statistic_courses():
+    return render_template('allcourses.html')
+
+@app.route("/formative", methods=['GET'])
+def formative():
+    return render_template('formative.html')
+
+@app.route("/summative", methods=['GET'])
+def summative():
+    return render_template('summative.html')
+
+@app.route("/CMT119", methods=['GET'])
+def CMT119():
+    user = User.query.get(current_user.id)
+    course = Course.query.filter_by(number="CMT119").first()
+    assessment_attempts = []
+    for assessment in course.assessments:
+            attempts = StudentAttemptStatus.query.filter_by(student_id=user.student.id, assessment=assessment)
+            latest_attempt = attempts.order_by(StudentAttemptStatus.id.desc()).first()
+            # if latest_attempt: # of not then no attempt yet
+            assessment_attempts.append(latest_attempt) # attempt_id=0: havnt attempt yet
+    return render_template('CMT119-table.html', course=course, assessment_attempts=assessment_attempts)
+
+@app.route("/CMT119charts", methods=['GET'])
+def CMT119charts():
+    return render_template('CMT119-charts.html')
+
+@app.route("/CMT120", methods=['GET'])
+def CMT120():
+    return render_template('CMT120-table.html')
+
+@app.route("/CMT120charts", methods=['GET'])
+def CMT120charts():
+    return render_template('CMT120-charts.html')
+
+@app.route("/CMT219", methods=['GET'])
+def CMT219():
+    return render_template('CMT219-table.html')
+
+@app.route("/CMT219charts", methods=['GET'])
+def CMT219charts():
+    return render_template('CMT219-charts.html')
+
+@app.route("/CMT220", methods=['GET'])
+def CMT220():
+    return render_template('CMT220-table.html')
+
+@app.route("/CMT220charts", methods=['GET'])
+def CMT220charts():
+    return render_template('CMT220-charts.html')
+
+@app.route("/CMT221", methods=['GET'])
+def CMT221():
+    return render_template('CMT221-table.html')
+
+@app.route("/CMT221charts", methods=['GET'])
+def CMT221charts():
+    return render_template('CMT221-charts.html')
+
+@app.route("/CMT313", methods=['GET'])
+def CMT313():
+    return render_template('CMT313-table.html')
+
+@app.route("/CMT313charts", methods=['GET'])
+def CMT313charts():
+    return render_template('CMT313-charts.html')

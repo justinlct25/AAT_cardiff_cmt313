@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block content %}
+
+    <a href="#" onclick="history.back(); return false;">Back</a>
+    <div class="pagetitle">
+      <h1>Assessment Table</h1>
+      <nav>
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="index.html">Home</a></li>
+          <li class="breadcrumb-item">Courses</li>
+          <li class="breadcrumb-item active">CMT221</li>
+        </ol>
+      </nav>
+    </div><!-- End Page Title -->
+
+    <section class="section">
+      <div class="row">
+        <div class="col-lg-12">
+
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">Assessments</h5>
+              <!-- <p>Add lightweight datatables to your project with using the <a href="https://github.com/fiduswriter/Simple-DataTables" target="_blank">Simple DataTables</a> library. Just add <code>.datatable</code> class name to any table you wish to conver to a datatable</p> -->
+
+              <!-- Table with stripped rows -->
+              <table class="table datatable">
+                <thead>
+                  <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Assessment Name</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Mark</th>
+                    <th scope="col">Attempt</th>
+                    <th scope="col">Due Date</th>
+                    <th scope="col">Feedback</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <th scope="row">1</th>
+                    <td><a href="">Assessment 1</td>
+                    <td>Marked</td>
+                    <td>60</td>
+                    <td>1</td>
+                    <td>2023-01-30</td>
+                    <td></td>
+                  </tr>
+                  <tr>
+                    <th scope="row">2</th>
+                    <td><a href="">Assessment 2</td>
+                    <td>Marked</td>
+                    <td>75</td>
+                    <td>2</td>
+                    <td>2023-02-15</td>
+                    <td></td>
+                  </tr>
+                  <tr>
+                    <th scope="row">3</th>
+                    <td><a href="">Quiz 3</td>
+                    <td>Marked</td>
+                    <td>90</td>
+                    <td>1</td>
+                    <td>2023-02-04</td>
+                    <td></td>
+                  </tr>
+                  <tr>
+                    <th scope="row">4</th>
+                    <td><a href="">Quiz 2</td>
+                    <td>Draft Saved</td>
+                    <td>--%</td>
+                    <td>1</td>
+                    <td>2023-01-23</td>
+                    <td></td>
+                  </tr>
+                  <tr>
+                    <th scope="row">5</th>
+                    <td><a href="">Quiz 1</td>
+                    <td>Unopened</td>
+                    <td>-- %</td>
+                    <td>0</td>
+                    <td>2023-01-12</td>
+                    <td></td>
+                  </tr>
+                </tbody>
+              </table>
+              <!-- End Table with stripped rows -->
+
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+{% endblock content %}

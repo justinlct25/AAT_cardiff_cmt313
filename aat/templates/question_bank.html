@@ -27,12 +27,13 @@
     <h1>Question bank</h1>
 Select a category:
 
-<select class="form-select" aria-label="Default select example">
+<select class="form-select" aria-label="Default select example" name="category">
+  <option selected>Default</option>
   {% for category in categories %}
-  <option>{{ category.name }}</option>
+  <option>{{ category.tag }}</option>
   {% endfor %}
 </select>
-All questions about the {Category}
+
 
 No tag filters applied 
 <select class="form-select form-select-sm" aria-label=".form-select-sm example">
@@ -59,13 +60,14 @@ No tag filters applied
 
 <div class="col-auto">
 
-  <button type="button" class="btn btn-primary mb-3" data-toggle="modal" data-target="#questionTypeModal">Create a new question...</button>
+  <button type="button" class="btn btn-primary mb-3" data-toggle="modal" data-target="#questionTypeModal" onclick="setCategory()">Create a new question...</button>
    
 </div>
 
 {% with question_types=question_types %}
   {% include 'question_type_popup.html' %}
 {% endwith %}
+
 
 
 <br>
@@ -87,8 +89,11 @@ No tag filters applied
       <tr>
         <th><input type="checkbox" id="select-all"></th>
         <th>ID</th>
+        <th>Category</th>
         <th>Question</th>
+        <th>Difficulty</th>
         <th>Answer</th>
+        <th>Marks</th>
         <th>Action</th>
       </tr>
     </thead>
@@ -97,8 +102,15 @@ No tag filters applied
         <tr>
           <td><input type="checkbox" id="mc_question_{{ question.id }}"></td> <!-- Bootstrap checkbox -->
           <td>{{ question.id }}</td>
+          <td>
+          {% for tag in question.tags %}
+            {{ tag.tag }}        
+          {% endfor %}
+          </td>
           <td>{{ question.question }}</td>
+          <td>{{ question.difficulty.level }}</td>
           <td>{{ question.choice_1 }}, {{ question.choice_2 }}, {{ question.choice_3 }}, {{ question.choice_4 }}</td>
+          <td>{{ question.marks }}</td>
           <td>
             <div class="btn-group" role="group">
               <a href="{{ url_for('edit_mc_question', question_id=question.id) }}" class="btn btn-primary btn-sm mr-2">Edit</a>
@@ -161,15 +173,26 @@ No tag filters applied
   </div>
 
   <br>
+<!-- saq edit buttons -->
+  <h2 id="stquestion">Short Answer Question</h2>
 
-  <h2 id="stquestion">Short Question</h2>
+  <div class="d-flex justify-content-between mb-3">
+    <div>
+      <button type="button" class="btn btn-primary mr-2" onclick="editSelectedStQuestions()">Edit Selected</button>
+      <button type="button" class="btn btn-danger" onclick="deleteSelectedStQuestions()">Delete Selected</button>
+    </div>
+    
+  </div>
     <table class="table table-hover">
       <thead>
         <tr>
-          <th></th> <!-- New column for buttons -->
+          <th><input type="checkbox" id="select-all"></th>
           <th>ID</th>
+          <th>Category</th>
           <th>Question</th>
+          <th>Difficulty</th>
           <th>Answer</th>
+          <th>Marks</th>
           <th>Action</th>
         </tr>
       </thead>
@@ -178,8 +201,11 @@ No tag filters applied
           <tr>
             <th><input type="checkbox" id="select-all"></th>
             <td>{{ question.id }}</td>
+            <td>{{ question.tags.tag }}</td>
             <td>{{ question.question }}</td>
+            <td>{{ question.difficulty.level }}</td>
             <td>{{ question.correct_ans }}</td>
+            <td>{{ question.marks }}</td>
             <td>
               <div class="btn-group" role="group">
 
@@ -249,7 +275,10 @@ No tag filters applied
     <h1>Category</h1>
 
     <div class="col-auto">
-      <a href="{{ url_for('category_add') }}" class="btn btn-success mb-3">Add new category</a>
+    
+      <button type="button" class="btn btn-success mb-3" data-toggle="modal" data-target="#addCategoryModal">Add new category</button>
+
+      {% include 'category_popup.html' %}
   
       <table class="table">
         <thead>
@@ -260,10 +289,13 @@ No tag filters applied
           </tr>
         </thead>
         <tbody>
-          {% for category in categories %}
+          
+          {% for tag_count in tag_counts %}
           <tr>
-            <td><input type="text" class="form-control" value="{{ category.name }}"></td>
-            <td>5</td>
+            <td><input type="text" class="form-control" value="{{ tag_count[0] }}"></td>
+            <td>
+              {{ tag_count[1] }}
+            </td>
             <td>
               <div class="dropdown">
                 <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -282,6 +314,10 @@ No tag filters applied
         </tbody>
       </table>  
 
+      
+    
+      
+
   </div>
   </div>
   <div id="import" class="tab-pane">
@@ -298,10 +334,89 @@ No tag filters applied
   </form>
 
   </div>
-  <div id="export" class="tab-pane">
-    <!-- Content for the "Export" tab goes here -->
-    <h1>Export</h1>
-  </div>
+
+
+
+    <div id="export" class="tab-pane">
+      <!-- Content for the "Export" tab goes here -->
+      <h1>Export</h1>
+      
+      <h2>Choose file format</h2>
+      <div class="form-check form-check-round" style="margin-left:400px;">
+        <input class="form-check-input" type="checkbox" value="" id="defaultCheck1">
+        <label class="form-check-label" for="defaultCheck1">
+          CSV format
+        </label>
+      </div>
+      <div class="form-check form-check-round" style="margin-left: 400px;">
+        <input class="form-check-input" type="checkbox" value="" id="defaultCheck1">
+        <label class="form-check-label" for="defaultCheck1">
+          XML format
+        </label>
+      </div>
+      <div class="form-check form-check-round" style="margin-left: 400px;">
+        <input class="form-check-input" type="checkbox" value="" id="defaultCheck1">
+        <label class="form-check-label" for="defaultCheck1">
+          XHTML format
+        </label>
+      </div>
+      <div class="form-check form-check-round" style="margin-left: 400px;">
+        <input class="form-check-input" type="checkbox" value="" id="defaultCheck1">
+        <label class="form-check-label" for="defaultCheck1">
+          Alken format
+        </label>
+      </div>
+      
+      <h2>General</h2>
+          <div class="row">
+            <div class="col-sm-4">
+              Export category 
+            </div>
+            <div class="col-sm-8">
+              <select class="form-select form-select-sm" aria-label=".form-select-sm example"
+              id="category">
+                <option selected>Default</option>
+                {% for category in categories %}
+                <option>{{ category.tag }}</option>
+                {% endfor %}
+              </select>
+              <div class="row mt-3">
+                <div class="col-sm-6">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="checkbox1">
+                    <label class="form-check-label" for="checkbox1">
+                      Write category to file
+                    </label>
+                  </div>
+                </div>
+                <div class="col-sm-6">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="checkbox2">
+                    <label class="form-check-label" for="checkbox2">
+                      Write context to file
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <br>
+          <br>
+
+          <div class="row">
+            <div class="d-flex justify-content-center align-items-center">
+              <button class="btn btn-primary" onclick="window.location.href='/export_questions/'+document.getElementById('category').value;">Export Questions to File</button>
+
+            </div>
+          </div>
+    </div>
+    
+
+  
+ 
+
+
 </div>
 
 

@@ -1,10 +1,18 @@
 {% extends "base.html" %}
 {% block content %}
 
+<a href="#" class="btn btn-primary btn-sm" onclick="history.back(); return false;">Back</a>
+  <br>
+  <br>
+
 <h1>Add Multiple Question</h1>
 <div class="new-question">
     <form method="POST" action="">
+
         {{form.csrf_token}}
+
+        <input type="hidden" name="category" value="{{ category }}">
+
         <p>
             <div>{{ form.question.label }}</div>
             <div>{{ form.question }}</div>
@@ -45,6 +53,10 @@
         <p>
             <div>{{ form.correct_choice.label }} </div>
             <div>{{ form.correct_choice }}</div>
+        </p>
+        <p>
+            <div>{{ form.difficulty.label }} </div>
+            <div>{{ form.difficulty }}</div>
         </p>
         <p>
             <div>{{ form.marks.label }} </div>
