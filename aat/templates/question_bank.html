@@ -82,12 +82,10 @@ No tag filters applied
   </div>
   
 </div>
-
-
   <table class="table table-hover">
     <thead>
       <tr>
-        <th><input type="checkbox" id="select-all"></th>
+        <th><input type='checkbox' id='select-all' onchange="checkAll(this)"></th>
         <th>ID</th>
         <th>Category</th>
         <th>Question</th>
@@ -175,7 +173,6 @@ No tag filters applied
   <br>
 <!-- saq edit buttons -->
   <h2 id="stquestion">Short Answer Question</h2>
-
   <div class="d-flex justify-content-between mb-3">
     <div>
       <button type="button" class="btn btn-primary mr-2" onclick="editSelectedStQuestions()">Edit Selected</button>
@@ -186,7 +183,7 @@ No tag filters applied
     <table class="table table-hover">
       <thead>
         <tr>
-          <th><input type="checkbox" id="select-all"></th>
+          <th><input type='checkbox' id='select-all' onchange="checkAll(this)"></th>          
           <th>ID</th>
           <th>Category</th>
           <th>Question</th>
