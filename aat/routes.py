@@ -248,31 +248,7 @@ def upload_csv():
     return render_template('upload_csv.html')
 
 
-@app.route('/export_questions', methods=['POST'])
-def export_questions():
-    selected_category = request.form.get('category')
-    write_category = request.form.get('write_category')
-    write_context = request.form.get('write_context')
 
-    # Fetch all questions with the selected category
-    mc_questions = McQuestion.query.filter(McQuestion.tags.any(Tag.tag == selected_category)).all()
-    st_questions = StQuestion.query.filter(StQuestion.tags.any(Tag.tag == selected_category)).all()
-
-    # Create a CSV file with the question data
-    csv_data = StringIO()
-    writer = csv.writer(csv_data)
-    writer.writerow(['Question', 'Correct Answer', 'Feedback (Correct)', 'Feedback (Wrong)', 'Difficulty'])
-
-    for question in mc_questions:
-        writer.writerow([question.question, question.choices[question.correct_choice_id-1].choice, question.feedback, '', question.difficulty.difficulty])
-    
-    for question in st_questions:
-        writer.writerow([question.question, question.correct_ans, question.feedback_correct, question.feedback_wrong, question.difficulty.difficulty])
-
-    # Return the file as a download to the user
-    response = Response(csv_data.getvalue(), mimetype='text/csv')
-    response.headers.set('Content-Disposition', 'attachment', filename='questions.csv')
-    return response
 
 
 # Andy part end
