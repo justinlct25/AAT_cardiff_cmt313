@@ -114,8 +114,11 @@ def mc_questions_add():
         print(category)
         tag = Tag.query.filter_by(tag=category).first_or_404()
         print(tag)
+        difficulty = Difficulty.query.filter_by(level=form.difficulty.data).first_or_404()
+
         question = McQuestion(creator_id=current_user.id, question=form.question.data, feedback=form.feedback.data, choice_1=form.choice_1.data, choice_2=form.choice_2.data, choice_3=form.choice_3.data, choice_4=form.choice_4.data, choice_feedback_1=form.choice_feedback_1.data, choice_feedback_2=form.choice_feedback_2.data, choice_feedback_3=form.choice_feedback_3.data, choice_feedback_4=form.choice_feedback_4.data, correct_choice_id=MC_CHAR_ID[form.correct_choice.data], marks=form.marks.data,
-        tags=[tag])
+        tags=[tag],
+        difficulty=difficulty)
         db.session.add(question)
         db.session.commit()
         flash('Question created successfully!', category="success")
