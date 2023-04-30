@@ -89,9 +89,12 @@ No tag filters applied
       <tr>
         <th><input type="checkbox" id="select-all"></th>
         <th>ID</th>
+        <th>Category</th>
         <th>Question</th>
-        <th>Difficulty</th>          <th>Answer</th>
-        <th>Marks</th>          <th>Action</th>
+        <th>Difficulty</th>
+        <th>Answer</th>
+        <th>Marks</th>
+        <th>Action</th>
       </tr>
     </thead>
     <tbody>
@@ -99,6 +102,11 @@ No tag filters applied
         <tr>
           <td><input type="checkbox" id="mc_question_{{ question.id }}"></td> <!-- Bootstrap checkbox -->
           <td>{{ question.id }}</td>
+          <td>
+          {% for tag in question.tags %}
+            {{ tag.tag }}        
+          {% endfor %}
+          </td>
           <td>{{ question.question }}</td>
           <td>{{ question.difficulty.level }}</td>
           <td>{{ question.choice_1 }}, {{ question.choice_2 }}, {{ question.choice_3 }}, {{ question.choice_4 }}</td>
@@ -180,9 +188,12 @@ No tag filters applied
         <tr>
           <th><input type="checkbox" id="select-all"></th>
           <th>ID</th>
+          <th>Category</th>
           <th>Question</th>
-          <th>Difficulty</th>          <th>Answer</th>
-          <th>Marks</th>          <th>Action</th>
+          <th>Difficulty</th>
+          <th>Answer</th>
+          <th>Marks</th>
+          <th>Action</th>
         </tr>
       </thead>
       <tbody>
@@ -190,6 +201,7 @@ No tag filters applied
           <tr>
             <th><input type="checkbox" id="select-all"></th>
             <td>{{ question.id }}</td>
+            <td>{{ question.tags.tag }}</td>
             <td>{{ question.question }}</td>
             <td>{{ question.difficulty.level }}</td>
             <td>{{ question.correct_ans }}</td>
