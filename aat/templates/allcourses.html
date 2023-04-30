@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% block content %}
+
+    <a href="#" onclick="history.back(); return false;">Back</a>
+    <div class="pagetitle">
+      <h1>All Courses
+      </h1>
+      <nav>
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="index.html">Home</a></li>
+          <li class="breadcrumb-item">Marks</li>
+          <li class="breadcrumb-item active">All Courses</li>
+        </ol>
+      </nav>
+    </div><!-- End Page Title -->
+
+    <section class="section">
+      <div class="row">
+        <div class="col-lg-6">
+
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">2223-CMT119</h5>
+              <a href="{{ url_for('CMT119') }}">22/23-CMT119 Computational Thinking</a>&emsp;&emsp;&emsp;<a href="{{ url_for('CMT119charts') }}" class="bi bi-pie-chart-fill"></a>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="col-lg-6">
+
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">2223-CMT120</h5>
+              <a href="{{ url_for('CMT120') }}">22/23-CMT120 Fundamentals of Programming</a>&emsp;&emsp;&emsp;<a href="{{ url_for('CMT120charts') }}" class="bi bi-pie-chart-fill"></a>
+            </div>
+          </div>
+
+        </div>
+          
+      </div>
+    </section>
+    <section class="section">
+      <div class="row">
+        <div class="col-lg-6">
+
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">2223-CMT219</h5>
+              <a href="{{ url_for('CMT219') }}">22/23-CMT219 Algorithms, Data Structures and Programming</a>&emsp;&emsp;&emsp;<a href="{{ url_for('CMT219charts') }}" class="bi bi-pie-chart-fill"></a>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="col-lg-6">
+
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">2223-CMT220</h5>
+              <a href="{{ url_for('CMT220') }}">22/23-CMT220 Databases and Modelling</a>&emsp;&emsp;&emsp;<a href="{{ url_for('CMT220charts') }}" class="bi bi-pie-chart-fill"></a>
+            </div>
+          </div>
+
+        </div>
+          
+      </div>
+    </section>
+    <section class="section">
+      <div class="row">
+        <div class="col-lg-6">
+
+          <div class="card">  
+            <div class="card-body">
+              <h5 class="card-title">2223-CMT221</h5>
+              <a href="{{ url_for('CMT221') }}">22/23-CMT221 Topics, Research and Skills in Computing</a>&emsp;&emsp;&emsp;<a href="{{ url_for('CMT221charts') }}" class="bi bi-pie-chart-fill"></a>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="col-lg-6">
+
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">2223-CMT313</h5>
+              <a href="{{ url_for('CMT313') }}">22/23-CMT313 Software Engineering</a>&emsp;&emsp;&emsp;<a href="{{ url_for('CMT313charts') }}" class="bi bi-pie-chart-fill"></a>
+            </div>
+          </div>
+
+        </div>
+          
+      </div>
+    </section>
+    
+{% endblock content %}
