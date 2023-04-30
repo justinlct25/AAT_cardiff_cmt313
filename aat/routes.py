@@ -134,8 +134,10 @@ def st_questions_add():
         print(category)
         tag = Tag.query.filter_by(tag=category).first_or_404()
         print(tag)
+        difficulty = Difficulty.query.filter_by(level=form.difficulty.data).first_or_404()
         question = StQuestion(creator_id=current_user.id, question=form.question.data, correct_ans=form.correct_ans.data, feedback_correct=form.feedback_correct.data, feedback_wrong=form.feedback_wrong.data, marks=form.marks.data,
-        tags=[tag])
+        tags=[tag],
+        difficulty=difficulty)
         db.session.add(question)
         db.session.commit()
         flash('Question created successfully!', category="success")

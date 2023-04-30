@@ -93,6 +93,7 @@ class StQuestionForm(FlaskForm):
   feedback_correct = StringField("Feedback for Correct Answer")
   feedback_wrong = StringField("Feedback for Wrong Answer")
   marks = IntegerField("Marks", default=1)
+  difficulty = IntegerField("Difficulty")
 
 # class McChoicesNumberForm(FlaskForm):
 #   num_choices = IntegerField('Number of Choices')
