@@ -90,8 +90,8 @@ No tag filters applied
         <th><input type="checkbox" id="select-all"></th>
         <th>ID</th>
         <th>Question</th>
-        <th>Answer</th>
-        <th>Action</th>
+        <th>Difficulty</th>          <th>Answer</th>
+        <th>Marks</th>          <th>Action</th>
       </tr>
     </thead>
     <tbody>
@@ -100,7 +100,9 @@ No tag filters applied
           <td><input type="checkbox" id="mc_question_{{ question.id }}"></td> <!-- Bootstrap checkbox -->
           <td>{{ question.id }}</td>
           <td>{{ question.question }}</td>
+          <td>{{ question.difficulty }}</td>
           <td>{{ question.choice_1 }}, {{ question.choice_2 }}, {{ question.choice_3 }}, {{ question.choice_4 }}</td>
+          <td>{{ question.marks }}</td>
           <td>
             <div class="btn-group" role="group">
               <a href="{{ url_for('edit_mc_question', question_id=question.id) }}" class="btn btn-primary btn-sm mr-2">Edit</a>
@@ -163,16 +165,24 @@ No tag filters applied
   </div>
 
   <br>
-
+<!-- saq edit buttons -->
   <h2 id="stquestion">Short Answer Question</h2>
+
+  <div class="d-flex justify-content-between mb-3">
+    <div>
+      <button type="button" class="btn btn-primary mr-2" onclick="editSelectedStQuestions()">Edit Selected</button>
+      <button type="button" class="btn btn-danger" onclick="deleteSelectedStQuestions()">Delete Selected</button>
+    </div>
+    
+  </div>
     <table class="table table-hover">
       <thead>
         <tr>
-          <th></th> <!-- New column for buttons -->
+          <th><input type="checkbox" id="select-all"></th>
           <th>ID</th>
           <th>Question</th>
-          <th>Answer</th>
-          <th>Action</th>
+          <th>Difficulty</th>          <th>Answer</th>
+          <th>Marks</th>          <th>Action</th>
         </tr>
       </thead>
       <tbody>
@@ -181,7 +191,9 @@ No tag filters applied
             <th><input type="checkbox" id="select-all"></th>
             <td>{{ question.id }}</td>
             <td>{{ question.question }}</td>
+            <td>{{ question.difficulty }}</td>
             <td>{{ question.correct_ans }}</td>
+            <td>{{ question.marks }}</td>
             <td>
               <div class="btn-group" role="group">
 

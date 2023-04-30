@@ -212,6 +212,22 @@ def delete_mc_questions():
     flash('Questions deleted successfully!', category='success')
     return redirect(url_for('questions'))
 
+# To edit or delete several SAQs
+@app.route('/edit-st-questions', methods=['GET', 'POST'])
+def edit_st_questions():
+    ids = request.args.get('ids').split(',')
+    questions = StQuestion.query.filter(StQuestion.id.in_(ids)).all()
+    form = StQuestionForm(obj=questions)
+    if form.validate_on_submit():
+        for question in questions:
+            form.populate_obj(question)
+            db.session.commit()
+        flash('Questions updated successfully!', category='success')
+        return redirect(url_for('questions'))
+    return render_template('edit_st_questions.html', form=form, questions=questions, ids=ids)
+
+
+
 
 @app.route('/add_category', methods=['POST', 'GET'])
 def add_category():
