@@ -102,7 +102,12 @@ No tag filters applied
         <tr>
           <td><input type="checkbox" id="mc_question_{{ question.id }}"></td> <!-- Bootstrap checkbox -->
           <td>{{ question.id }}</td>
-          <td>{{ question.tags.tag }}</td>          <td>{{ question.question }}</td>
+          <td>
+          {% for tag in question.tags %}
+            {{ tag.tag }}        
+          {% endfor %}
+          </td>
+          <td>{{ question.question }}</td>
           <td>{{ question.difficulty.level }}</td>
           <td>{{ question.choice_1 }}, {{ question.choice_2 }}, {{ question.choice_3 }}, {{ question.choice_4 }}</td>
           <td>{{ question.marks }}</td>
