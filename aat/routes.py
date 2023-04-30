@@ -107,7 +107,12 @@ def mc_questions_add():
     form = McQuestionForm()
     
     if form.validate_on_submit():
-        question = McQuestion(creator_id=current_user.id, question=form.question.data, feedback=form.feedback.data, choice_1=form.choice_1.data, choice_2=form.choice_2.data, choice_3=form.choice_3.data, choice_4=form.choice_4.data, choice_feedback_1=form.choice_feedback_1.data, choice_feedback_2=form.choice_feedback_2.data, choice_feedback_3=form.choice_feedback_3.data, choice_feedback_4=form.choice_feedback_4.data, correct_choice_id=MC_CHAR_ID[form.correct_choice.data], marks=form.marks.data)
+        category = request.args.get('category')
+        print(category)
+        tag = Tag.query.filter_by(tag=category).first_or_404()
+        print(tag)
+        question = McQuestion(creator_id=current_user.id, question=form.question.data, feedback=form.feedback.data, choice_1=form.choice_1.data, choice_2=form.choice_2.data, choice_3=form.choice_3.data, choice_4=form.choice_4.data, choice_feedback_1=form.choice_feedback_1.data, choice_feedback_2=form.choice_feedback_2.data, choice_feedback_3=form.choice_feedback_3.data, choice_feedback_4=form.choice_feedback_4.data, correct_choice_id=MC_CHAR_ID[form.correct_choice.data], marks=form.marks.data,
+        tags=[tag])
         db.session.add(question)
         db.session.commit()
         flash('Question created successfully!', category="success")
@@ -119,7 +124,12 @@ def mc_questions_add():
 def st_questions_add():
     form = StQuestionForm()
     if form.validate_on_submit():
-        question = StQuestion(creator_id=current_user.id, question=form.question.data, correct_ans=form.correct_ans.data, feedback_correct=form.feedback_correct.data, feedback_wrong=form.feedback_wrong.data, marks=form.marks.data)
+        category = request.args.get('category')
+        print(category)
+        tag = Tag.query.filter_by(tag=category).first_or_404()
+        print(tag)
+        question = StQuestion(creator_id=current_user.id, question=form.question.data, correct_ans=form.correct_ans.data, feedback_correct=form.feedback_correct.data, feedback_wrong=form.feedback_wrong.data, marks=form.marks.data,
+        tags=[tag])
         db.session.add(question)
         db.session.commit()
         flash('Question created successfully!', category="success")

@@ -9,6 +9,8 @@
 <div class="new-question">
     <form method="POST" action="">
         {{form.csrf_token}}
+
+        <input type="hidden" name="category" value="{{ category }}">
         <p>
             <div>{{ form.question.label }}</div>
             <div>{{ form.question }}</div>

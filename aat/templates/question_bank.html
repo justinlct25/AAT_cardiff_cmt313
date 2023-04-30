@@ -27,7 +27,7 @@
     <h1>Question bank</h1>
 Select a category:
 
-<select class="form-select" aria-label="Default select example">
+<select class="form-select" aria-label="Default select example" name="category">
   <option selected>Default</option>
   {% for category in categories %}
   <option>{{ category.tag }}</option>
@@ -60,7 +60,7 @@ No tag filters applied
 
 <div class="col-auto">
 
-  <button type="button" class="btn btn-primary mb-3" data-toggle="modal" data-target="#questionTypeModal">Create a new question...</button>
+  <button type="button" class="btn btn-primary mb-3" data-toggle="modal" data-target="#questionTypeModal" onclick="setCategory()">Create a new question...</button>
    
 </div>
 
