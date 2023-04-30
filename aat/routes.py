@@ -338,7 +338,7 @@ def template_edit_short_question_new(template_id, course_id):
         update_template_total_marks(template)
         db.session.commit()
         return redirect(url_for("template", template_id=template_id, course_id=course_id))
-    st_questions = StQuestion.query.order_by(StQuestion.id.asc()).paginate(page=1, per_page=5)
+    st_questions = StQuestion.query.order_by(StQuestion.id.asc()).paginate(page=1, per_page=8)
     return render_template("question_st_new.html", template=template, form=form, st_questions=st_questions, course=course)
 
 @app.route("/template/edit/question/mc/new/<int:template_id>/<int:course_id>", methods=['GET', 'POST'])
@@ -356,7 +356,7 @@ def template_edit_multiple_choice_question_new(template_id, course_id):
         update_template_total_marks(template)
         db.session.commit()
         return redirect(url_for("template", template_id=template_id, course_id=course_id))
-    mc_questions = McQuestion.query.order_by(McQuestion.id.asc()).paginate(page=1, per_page=5)
+    mc_questions = McQuestion.query.order_by(McQuestion.id.asc()).paginate(page=1, per_page=8)
     return render_template("question_mc_new.html", template=template, form=form, mc_questions=mc_questions, course=course, mc_id_char=MC_ID_CHAR)
 
 @app.route("/template/edit/question/st/select/<int:question_id>/<int:template_id>/<int:course_id>", methods=['POST'])

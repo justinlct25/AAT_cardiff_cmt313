@@ -6,7 +6,8 @@
     <a href="{{url_for('template_select', template_id=template.id, course_id=course.id )}}">< Template Selection for New Assessment of {{course.number}} - {{ course.name }}</a>
 </div>
 <div class="template-container">
-    <div class="secondary-title">Assessment Template: {{ template.name }}</div>
+    <h1>Assessment Template Overview </h1>
+    <div>Assessment: {{ template.name }}</div>
     <div>Creator: {{ template.creator.user.firstname }} {{template.creator.user.lastname}} </div>
     <div>Created: {{ template.created_at }}</div>
     <div>Description: {{ template.description }} </div>
@@ -24,63 +25,71 @@
     </div>
 </div>
 <div class="questions-container">
-    <div class="secondary-title">
-        Questions:
-    </div>
-    <div class="btn btn-info">
-        <a href="{{url_for('template_edit_multiple_choice_question_new', template_id=template.id, course_id=course.id)}}">Add MC Question</a>
-    </div>
-     <div class="btn btn-info">
-        <a href="{{url_for('template_edit_short_question_new', template_id=template.id, course_id=course.id)}}">Add Short Question</a>
+    <br>
+    <div class="d-flex flex-row">
+        <h3>Multiple Choice Questions:</h3>
+        <div class="ml-3 btn btn-info">
+            <a href="{{url_for('template_edit_multiple_choice_question_new', template_id=template.id, course_id=course.id)}}">Add MC Question</a>
+        </div>
     </div>
     {% if template.mc_questions == [] %}
         <div>No Multiple Choice Question yet</div>
     {% else %}
         {% for question in template.mc_questions %}
-            <div class="d-flex flex-row">
-                <div>Multiple Choice Q{{ loop.index }}</div>
-                <form method="POST" action="{{ url_for('template_edit_multiple_choice_question_delete', question_id=question.id, template_id=template.id, course_id=course.id) }}">
-                    <button class="btn-info" type="submit">Delete</button>
-                </form>
+            <div class="card card-body">
+                <div class="d-flex flex-row">
+                    <div><b>Multiple Choice Q{{ loop.index }}</b></div>
+                    <form method="POST" action="{{ url_for('template_edit_multiple_choice_question_delete', question_id=question.id, template_id=template.id, course_id=course.id) }}">
+                        <button class="ml-3 btn-info" type="submit">Delete</button>
+                    </form>
+                </div>
+                <div>{{ question.question }} ({{question.marks}} marks)</div>
+                <div>Correct Choice: {{ mc_id_char[question.correct_choice_id] }}</div>
+                <ol type="A">
+                    <li>
+                        <div>{{ question.choice_1 }}</div>
+                        <div>Feedback: {{ question.choice_feedback_1 }}</div>
+                    </li>
+                    <li>
+                        <div>{{ question.choice_2 }}</div>
+                        <div>Feedback: {{ question.choice_feedback_2 }}</div>
+                    </li>
+                    <li>
+                        <div>{{ question.choice_3 }}</div>
+                        <div>Feedback: {{ question.choice_feedback_3 }}</div>
+                    </li>
+                    <li>
+                        <div>{{ question.choice_4 }}</div>
+                        <div>Feedback: {{ question.choice_feedback_4 }}</div>
+                    </li>
+                </ol>
             </div>
-            <div>{{ question.question }} ({{question.marks}} marks)</div>
-            <div>Correct Choice: {{ mc_id_char[question.correct_choice_id] }}</div>
-            <ol type="A">
-                <li>
-                    <div>{{ question.choice_1 }}</div>
-                    <div>Feedback: {{ question.choice_feedback_1 }}</div>
-                </li>
-                <li>
-                    <div>{{ question.choice_2 }}</div>
-                    <div>Feedback: {{ question.choice_feedback_2 }}</div>
-                </li>
-                <li>
-                    <div>{{ question.choice_3 }}</div>
-                    <div>Feedback: {{ question.choice_feedback_3 }}</div>
-                </li>
-                <li>
-                    <div>{{ question.choice_4 }}</div>
-                    <div>Feedback: {{ question.choice_feedback_4 }}</div>
-                </li>
-            </ol>
         {% endfor %}
     {% endif %}
     <div class="short-questions">
+        <div class="d-flex flex-row">
+            <h3>Short Questions:</h3>
+            <div class="ml-3 btn btn-info">
+                <a href="{{url_for('template_edit_short_question_new', template_id=template.id, course_id=course.id)}}">Add Short Question</a>
+            </div>
+        </div>
         {% if template.st_questions == [] %}
             <div>No Short Question yet</div>
         {% else %}
             {% for question in template.st_questions %}
-                <div class="d-flex flex-row">
-                <div>Short Q{{ loop.index }}</div>
-                    <form method="POST" action="{{ url_for('template_edit_short_question_delete', question_id=question.id, template_id=template.id, course_id=course.id) }}">
-                        <button class="btn-info" type="submit">Delete</button>
-                    </form>
-                </div>
-                <div class="question-container">
-                    <div>{{ question.question }} ({{question.marks}} marks)</div>
-                    <div>Correct Answer: {{ question.correct_ans }} </div>
-                    <div>Feedback(Correct): {{ question.feedback_correct }}</div>
-                    <div>Feedback(Wrong): {{ question.feedback_wrong }} </div>
+                <div class="card card-body">
+                    <div class="d-flex flex-row">
+                    <div>Short Q{{ loop.index }}</div>
+                        <form method="POST" action="{{ url_for('template_edit_short_question_delete', question_id=question.id, template_id=template.id, course_id=course.id) }}">
+                            <button class="ml-3 btn-info" type="submit">Delete</button>
+                        </form>
+                    </div>
+                    <div class="question-container">
+                        <div>{{ question.question }} ({{question.marks}} marks)</div>
+                        <div>Correct Answer: {{ question.correct_ans }} </div>
+                        <div>Feedback(Correct): {{ question.feedback_correct }}</div>
+                        <div>Feedback(Wrong): {{ question.feedback_wrong }} </div>
+                    </div>
                 </div>
             {% endfor %}
         {% endif %}
