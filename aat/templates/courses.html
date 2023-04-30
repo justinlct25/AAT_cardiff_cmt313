@@ -32,8 +32,8 @@
     {% if user.teacher %}
         <div class="inner-container">
             <br>
-            <h2>Add Course</h2>
-            <form class="tab" method="POST" action="">
+            <h3>Add New Course</h3>
+            <form class="ml-3 tab" method="POST" action="">
                 {{form.csrf_token}}
                 <p>
                     <div>{{ form.number.label }}</div>
