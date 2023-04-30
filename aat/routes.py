@@ -8,7 +8,7 @@ from io import TextIOWrapper, StringIO
 from sqlalchemy import func
 from urllib.parse import unquote
 
-import random, csv
+import random, csv, io
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -269,7 +269,34 @@ def upload_csv():
             return redirect(request.url)
     return render_template('upload_csv.html')
 
+# Testing export file part
 
+@app.route('/export_questions/<tag>', methods=['GET'])
+def export_questions(tag):
+    # Get mc questions and st questions related to the selected tag
+    mc_questions = McQuestion.query.filter(McQuestion.tags.any(Tag.tag == tag)).all()
+    st_questions = StQuestion.query.filter(StQuestion.tags.any(Tag.tag == tag)).all()
+
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow(['Question Type', 'Question', 'Multiple Choice', 'Feedback', 'Difficulty', 'Tags', 'Marks', 'Choice 1', 'Choice 1 Feedback', 'Choice 2', 'Choice 2 Feedback', 'Choice 3', 'Choice 3 Feedback', 'Choice 4', 'Choice 4 Feedback', 'Correct Answer', 'Correct Feedback', 'Incorrect Feedback'])
+    
+    for mc_question in mc_questions:
+        row = ['Multiple Choice', mc_question.question, mc_question.multiple, mc_question.feedback, mc_question.difficulty.name if mc_question.difficulty else "", ",".join([tag.tag for tag in mc_question.tags]), mc_question.marks]
+        for choice in mc_question.choices:
+            row.append(choice.choice_text)
+            row.append(choice.feedback)
+        row.extend([mc_question.choice_1, mc_question.choice_feedback_1, mc_question.choice_2, mc_question.choice_feedback_2, mc_question.choice_3, mc_question.choice_feedback_3, mc_question.choice_4, mc_question.choice_feedback_4, "", ""])
+        writer.writerow(row)
+
+    for st_question in st_questions:
+        row = ['Short Text', st_question.question, "", "", st_question.difficulty.name if st_question.difficulty else "", ",".join([tag.tag for tag in st_question.tags]), st_question.marks, "", "", "", "", "", "", "", st_question.correct_ans, st_question.feedback_correct, st_question.feedback_wrong]
+        writer.writerow(row)
+
+    # Return CSV file
+    response = Response(output.getvalue(), content_type='text/csv')
+    response.headers.set("Content-Disposition", "attachment", filename="questions.csv")
+    return response
 
 
 

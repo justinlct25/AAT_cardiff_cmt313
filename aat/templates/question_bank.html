@@ -349,7 +349,8 @@ No tag filters applied
               Export category 
             </div>
             <div class="col-sm-8">
-              <select class="form-select form-select-sm" aria-label=".form-select-sm example">
+              <select class="form-select form-select-sm" aria-label=".form-select-sm example"
+              id="category">
                 <option selected>Default</option>
                 {% for category in categories %}
                 <option>{{ category.tag }}</option>
@@ -381,7 +382,8 @@ No tag filters applied
 
           <div class="row">
             <div class="d-flex justify-content-center align-items-center">
-              <button class="btn btn-primary">Export Questions to File</button>
+              <button class="btn btn-primary" onclick="window.location.href='/export_questions/'+document.getElementById('category').value;">Export Questions to File</button>
+
             </div>
           </div>
     </div>
