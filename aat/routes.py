@@ -191,6 +191,18 @@ def delete_mc_questions():
     return redirect(url_for('questions'))
 
 
+@app.route('/add_category', methods=['POST', 'GET'])
+def add_category():
+    if request.method == 'POST':
+        category_name = request.form['category_name']
+        category = Tag(tag=category_name)
+        db.session.add(category)
+        db.session.commit()
+        flash('Category added successfully!', category='success')
+        return redirect(url_for('questions'))
+    return render_template('add_category.html')
+
+
 @app.route('/upload_csv', methods=['GET', 'POST'])
 def upload_csv():
     if request.method == 'POST':
