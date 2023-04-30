@@ -568,25 +568,34 @@
 </script>
 
 <script>
+  var selectedCategory = 'Default'; // default category value
+  
+  function setCategory() {
+    selectedCategory = document.querySelector('select[name="category"]').value;
+    document.querySelector('#questionTypeModal').setAttribute('data-category', selectedCategory);
+  }
+
   function redirectToQuestionBankAdd() {
     // Get the selected question type
     var selectedQuestionType = document.querySelector('input[name="question_type"]:checked').value;
-  
+
+    // Get the selected category
+    var selectedCategory = document.querySelector('#questionTypeModal').getAttribute('data-category');
+
     // Redirect to the appropriate URL based on the selected question type
     switch (selectedQuestionType) {
       case 'multiple_choice':
-        window.location.href = '/question-bank/add/multiple-choice';
+        window.location.href = '/question-bank/add/multiple-choice?category=' + encodeURIComponent(selectedCategory);
         break;
       case 'short_answer':
-        window.location.href = '/question-bank/add/short-answer';
+        window.location.href = '/question-bank/add/short-answer?category=' + encodeURIComponent(selectedCategory);
         break;
       // Add cases for other question types here
       default:
         break;
     }
   }
-  </script>
-
+</script>
 
 <!-- For Question page tab switch end -->
 
@@ -620,7 +629,61 @@
   </script>
 
 
+<!-- For multiple SAQ edit -->
+<script>
+  function editSelectedStQuestions() {
+    var selectedIDs = [];
+    var checkboxes = document.getElementsByTagName('input');
+    for (var i = 0; i < checkboxes.length; i++) {
+      if (checkboxes[i].type === 'checkbox' && checkboxes[i].checked) {
+        selectedIDs.push(checkboxes[i].id.split('_')[2]);
+      }
+    }
+    if (selectedIDs.length > 0) {
+      window.location.href = '/edit-st-questions?ids=' + selectedIDs.join(',');
+    }
+  }
+  
+  function deleteSelectedStQuestions() {
+    var selectedIDs = [];
+    var checkboxes = document.getElementsByTagName('input');
+    for (var i = 0; i < checkboxes.length; i++) {
+      if (checkboxes[i].type === 'checkbox' && checkboxes[i].checked) {
+        selectedIDs.push(checkboxes[i].id.split('_')[2]);
+      }
+    }
+    if (selectedIDs.length > 0) {
+      window.location.href = '/delete-st-questions?ids=' + selectedIDs.join(',');
+    }
+  }
+  </script>
 
+<!-- For select all feature -->
+  <script>
+    var checkboxes = document.querySelectorAll("input[type='checkbox']")
+    
+    function checkAll(selectAll) {
+      if(selectAll.checked == true) {
+        checkboxes.forEach(function(checkbox){ checkbox.checked = true; });
+      } 
+    
+      else {
+        checkboxes.forEach(function(checkbox) {
+          checkbox.checked = false;
+        });
+      }
+    }
+  </script>
+<!-- / -->
+
+<!-- Category value passing -->
+<script>
+  function openQuestionModal() {
+    var category = document.querySelector('select[name="category"]').value;
+    var modalUrl = "#questionTypeModal?category=" + category;
+    document.querySelector('button[data-target="#questionTypeModal"]').setAttribute('data-target', modalUrl);
+  }
+  </script>
 
 <!-- Template Main JS File -->
 <script src="{{ url_for('static', filename='assets/js/main.js') }}"></script>

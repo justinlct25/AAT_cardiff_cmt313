@@ -27,7 +27,7 @@
     <h1>Question bank</h1>
 Select a category:
 
-<select class="form-select" aria-label="Default select example">
+<select class="form-select" aria-label="Default select example" name="category">
   <option selected>Default</option>
   {% for category in categories %}
   <option>{{ category.tag }}</option>
@@ -60,7 +60,7 @@ No tag filters applied
 
 <div class="col-auto">
 
-  <button type="button" class="btn btn-primary mb-3" data-toggle="modal" data-target="#questionTypeModal">Create a new question...</button>
+  <button type="button" class="btn btn-primary mb-3" data-toggle="modal" data-target="#questionTypeModal" onclick="setCategory()">Create a new question...</button>
    
 </div>
 
@@ -89,8 +89,11 @@ No tag filters applied
       <tr>
         <th><input type="checkbox" id="select-all"></th>
         <th>ID</th>
+        <th>Category</th>
         <th>Question</th>
+        <th>Difficulty</th>
         <th>Answer</th>
+        <th>Marks</th>
         <th>Action</th>
       </tr>
     </thead>
@@ -99,8 +102,10 @@ No tag filters applied
         <tr>
           <td><input type="checkbox" id="mc_question_{{ question.id }}"></td> <!-- Bootstrap checkbox -->
           <td>{{ question.id }}</td>
-          <td>{{ question.question }}</td>
+          <td>{{ question.tags.tag }}</td>          <td>{{ question.question }}</td>
+          <td>{{ question.difficulty.level }}</td>
           <td>{{ question.choice_1 }}, {{ question.choice_2 }}, {{ question.choice_3 }}, {{ question.choice_4 }}</td>
+          <td>{{ question.marks }}</td>
           <td>
             <div class="btn-group" role="group">
               <a href="{{ url_for('edit_mc_question', question_id=question.id) }}" class="btn btn-primary btn-sm mr-2">Edit</a>
@@ -163,15 +168,26 @@ No tag filters applied
   </div>
 
   <br>
-
+<!-- saq edit buttons -->
   <h2 id="stquestion">Short Answer Question</h2>
+
+  <div class="d-flex justify-content-between mb-3">
+    <div>
+      <button type="button" class="btn btn-primary mr-2" onclick="editSelectedStQuestions()">Edit Selected</button>
+      <button type="button" class="btn btn-danger" onclick="deleteSelectedStQuestions()">Delete Selected</button>
+    </div>
+    
+  </div>
     <table class="table table-hover">
       <thead>
         <tr>
-          <th></th> <!-- New column for buttons -->
+          <th><input type="checkbox" id="select-all"></th>
           <th>ID</th>
+          <th>Category</th>
           <th>Question</th>
+          <th>Difficulty</th>
           <th>Answer</th>
+          <th>Marks</th>
           <th>Action</th>
         </tr>
       </thead>
@@ -180,8 +196,11 @@ No tag filters applied
           <tr>
             <th><input type="checkbox" id="select-all"></th>
             <td>{{ question.id }}</td>
+            <td>{{ question.tags.tag }}</td>
             <td>{{ question.question }}</td>
+            <td>{{ question.difficulty.level }}</td>
             <td>{{ question.correct_ans }}</td>
+            <td>{{ question.marks }}</td>
             <td>
               <div class="btn-group" role="group">
 
@@ -349,7 +368,8 @@ No tag filters applied
               Export category 
             </div>
             <div class="col-sm-8">
-              <select class="form-select form-select-sm" aria-label=".form-select-sm example">
+              <select class="form-select form-select-sm" aria-label=".form-select-sm example"
+              id="category">
                 <option selected>Default</option>
                 {% for category in categories %}
                 <option>{{ category.tag }}</option>
@@ -381,7 +401,8 @@ No tag filters applied
 
           <div class="row">
             <div class="d-flex justify-content-center align-items-center">
-              <button class="btn btn-primary">Export Questions to File</button>
+              <button class="btn btn-primary" onclick="window.location.href='/export_questions/'+document.getElementById('category').value;">Export Questions to File</button>
+
             </div>
           </div>
     </div>

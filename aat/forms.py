@@ -119,7 +119,8 @@ class McQuestionForm(FlaskForm):
   choice_feedback_3 = StringField("Feedback")
   choice_feedback_4 = StringField("Feedback")
   correct_choice = SelectField("Correct Choice Id", choices=["A", "B", "C", "D"])
-  marks = IntegerField("Marks", default=1)
+  marks = IntegerField("Marks", default=1,)
+  difficulty = IntegerField("Difficulty")
 
 class StAnswerForm(FlaskForm):
   answer = StringField("Answer")
