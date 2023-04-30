@@ -47,7 +47,10 @@ def register():
 
 @app.route("/dashboard", methods=["GET"])
 def dashboard():
-    return render_template('dashboard.html')
+    if current_user.student:
+        return render_template('dashboard.html')
+    else:
+        return render_template('teacher_dashboard.html')
 
 @app.route("/profile/<int:user_id>", methods=["GET"])
 def profile(user_id):
