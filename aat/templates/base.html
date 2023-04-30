@@ -626,6 +626,54 @@
   }
   </script>
 
+
+<!-- For multiple SAQ edit -->
+<script>
+  function editSelectedStQuestions() {
+    var selectedIDs = [];
+    var checkboxes = document.getElementsByTagName('input');
+    for (var i = 0; i < checkboxes.length; i++) {
+      if (checkboxes[i].type === 'checkbox' && checkboxes[i].checked) {
+        selectedIDs.push(checkboxes[i].id.split('_')[2]);
+      }
+    }
+    if (selectedIDs.length > 0) {
+      window.location.href = '/edit-st-questions?ids=' + selectedIDs.join(',');
+    }
+  }
+  
+  function deleteSelectedStQuestions() {
+    var selectedIDs = [];
+    var checkboxes = document.getElementsByTagName('input');
+    for (var i = 0; i < checkboxes.length; i++) {
+      if (checkboxes[i].type === 'checkbox' && checkboxes[i].checked) {
+        selectedIDs.push(checkboxes[i].id.split('_')[2]);
+      }
+    }
+    if (selectedIDs.length > 0) {
+      window.location.href = '/delete-st-questions?ids=' + selectedIDs.join(',');
+    }
+  }
+  </script>
+
+<!-- For select all feature -->
+  <script>
+    var checkboxes = document.querySelectorAll("input[type='checkbox']")
+    
+    function checkAll(selectAll) {
+      if(selectAll.checked == true) {
+        checkboxes.forEach(function(checkbox){ checkbox.checked = true; });
+      } 
+    
+      else {
+        checkboxes.forEach(function(checkbox) {
+          checkbox.checked = false;
+        });
+      }
+    }
+  </script>
+<!-- / -->
+
 <!-- Category value passing -->
 <script>
   function openQuestionModal() {
