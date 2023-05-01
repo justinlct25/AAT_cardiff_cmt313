@@ -21,11 +21,12 @@
             <thead>
                 <tr>
                     <th>ID</th>
-                    {# <th>Category</th> #}
+                    <th>Category</th>
                     <th>Question</th>
                     <th>Choices</th>
                     <th>Answer</th>
                     {# <th>Difficulty</th> #}
+                    <th>Marks</th>
                     <th>Operations</th>
                 </tr>
             </thead>
@@ -33,11 +34,12 @@
                 {% for question in mc_questions %}
                     <tr>
                         <td>{{ question.id }}</td>
-                        {# <td>{{ question.tags[0].tag if question.tags else "-"}} </td> #}
+                        <td>{{ question.tags[0].tag if question.tags else "-"}} </td>
                         <td>{{ question.question }}</td>
                         <td>{{ question.choice_1 }}, {{ question.choice_2 }}, {{ question.choice_3 }}, {{ question.choice_4 }}</td>
                         <td>{{ mc_id_char[question.correct_choice_id] }}</td>
                         {# <td>{{ question.difficulty.level }}</td> #}
+                        <td>{{ question.marks }}</td>
                         <td>
                             <form method="POST" action="{{ url_for('template_edit_multiple_choice_question_select', question_id=question.id, template_id=template.id, course_id=course.id) }}">
                                 <button class="btn-info" type="submit">Select</button>
