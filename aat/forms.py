@@ -93,6 +93,7 @@ class StQuestionForm(FlaskForm):
   feedback_correct = StringField("Feedback for Correct Answer")
   feedback_wrong = StringField("Feedback for Wrong Answer")
   marks = IntegerField("Marks", default=1)
+  difficulty = IntegerField("Difficulty")
 
 # class McChoicesNumberForm(FlaskForm):
 #   num_choices = IntegerField('Number of Choices')
@@ -108,18 +109,18 @@ class StQuestionForm(FlaskForm):
 #   correct_answer = RadioField('Correct Answer', choices=[], coerce=int)
 
 class McQuestionForm(FlaskForm):
-  question = StringField("Question", validators=[DataRequired()])
+  question = StringField("Question", validators=[DataRequired(message='Please enter a question')])
   feedback = StringField("Feedback")
-  choice_1 = StringField("Choice 1")
-  choice_2 = StringField("Choice 2")
-  choice_3 = StringField("Choice 3")
-  choice_4 = StringField("Choice 4")
+  choice_1 = StringField("Choice 1", validators=[DataRequired(message='Please enter choice 1')])
+  choice_2 = StringField("Choice 2", validators=[DataRequired(message='Please enter choice 2')])
+  choice_3 = StringField("Choice 3", validators=[DataRequired(message='Please enter choice 3')])
+  choice_4 = StringField("Choice 4", validators=[DataRequired(message='Please enter choice 4')])
   choice_feedback_1 = StringField("Feedback")
   choice_feedback_2 = StringField("Feedback")
   choice_feedback_3 = StringField("Feedback")
   choice_feedback_4 = StringField("Feedback")
   correct_choice = SelectField("Correct Choice Id", choices=["A", "B", "C", "D"])
-  marks = IntegerField("Marks", default=1,)
+  marks = IntegerField("Marks", default=1)
   difficulty = IntegerField("Difficulty")
 
 class StAnswerForm(FlaskForm):

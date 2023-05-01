@@ -53,7 +53,7 @@ No tag filters applied
 <div class="form-check">
     <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
     <label class="form-check-label" for="flexCheckDefault">
-      Also show questions for catogories 
+      Show questions only in this category 
     </label>
   </div>
 
@@ -80,14 +80,12 @@ No tag filters applied
     <button type="button" class="btn btn-primary mr-2" onclick="editSelectedMCQuestions()">Edit Selected</button>
     <button type="button" class="btn btn-danger" onclick="deleteSelectedMCQuestions()">Delete Selected</button>
   </div>
-  
+
 </div>
-
-
   <table class="table table-hover">
     <thead>
       <tr>
-        <th><input type="checkbox" id="select-all"></th>
+        <th><input type='checkbox' id='select-all-mcq' onchange="checkAllMcq(this)"></th>
         <th>ID</th>
         <th>Category</th>
         <th>Question</th>
@@ -100,9 +98,14 @@ No tag filters applied
     <tbody>
       {% for question in mc_questions %}
         <tr>
-          <td><input type="checkbox" id="mc_question_{{ question.id }}"></td> <!-- Bootstrap checkbox -->
+          <td><input type="checkbox" id="mc_question_{{ question.id }}"></td>             
           <td>{{ question.id }}</td>
-          <td>{{ question.tags.tag }}</td>          <td>{{ question.question }}</td>
+          <td>
+          {% for tag in question.tags %}
+            {{ tag.tag }}        
+          {% endfor %}
+          </td>
+          <td>{{ question.question }}</td>
           <td>{{ question.difficulty.level }}</td>
           <td>{{ question.choice_1 }}, {{ question.choice_2 }}, {{ question.choice_3 }}, {{ question.choice_4 }}</td>
           <td>{{ question.marks }}</td>
@@ -170,7 +173,6 @@ No tag filters applied
   <br>
 <!-- saq edit buttons -->
   <h2 id="stquestion">Short Answer Question</h2>
-
   <div class="d-flex justify-content-between mb-3">
     <div>
       <button type="button" class="btn btn-primary mr-2" onclick="editSelectedStQuestions()">Edit Selected</button>
@@ -181,7 +183,7 @@ No tag filters applied
     <table class="table table-hover">
       <thead>
         <tr>
-          <th><input type="checkbox" id="select-all"></th>
+          <th><input type='checkbox' id='select-all-st' onchange="checkAllSaq(this)"></th>          
           <th>ID</th>
           <th>Category</th>
           <th>Question</th>
@@ -194,7 +196,7 @@ No tag filters applied
       <tbody>
         {% for question in st_questions %}
           <tr>
-            <th><input type="checkbox" id="select-all"></th>
+            <td><input type="checkbox" id="st_question_{{ question.id }}"></td>               
             <td>{{ question.id }}</td>
             <td>{{ question.tags.tag }}</td>
             <td>{{ question.question }}</td>

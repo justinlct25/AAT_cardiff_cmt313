@@ -8,6 +8,7 @@ from io import TextIOWrapper, StringIO
 from sqlalchemy import func
 from urllib.parse import unquote
 
+
 import random, csv, io
 
 
@@ -134,8 +135,10 @@ def st_questions_add():
         print(category)
         tag = Tag.query.filter_by(tag=category).first_or_404()
         print(tag)
+        difficulty = Difficulty.query.filter_by(level=form.difficulty.data).first_or_404()
         question = StQuestion(creator_id=current_user.id, question=form.question.data, correct_ans=form.correct_ans.data, feedback_correct=form.feedback_correct.data, feedback_wrong=form.feedback_wrong.data, marks=form.marks.data,
-        tags=[tag])
+        tags=[tag],
+        difficulty=difficulty)
         db.session.add(question)
         db.session.commit()
         flash('Question created successfully!', category="success")
@@ -169,18 +172,27 @@ def delete_st_question(question_id):
 
 @app.route('/edit-mc-question/<int:question_id>', methods=['GET', 'POST'])
 def edit_mc_question(question_id):
+    # Get the question from the database
     question = McQuestion.query.get_or_404(question_id)
+    print(question_id)
+    # Create an instance of the form and fill it with the current question data
     form = McQuestionForm(obj=question)
-    if form.validate_on_submit():
+    print(question_id)
+    if request.method == "POST":
+        # Update the question object with the form data
+        print(question_id)
         form.populate_obj(question)
-        question.correct_choice_id = MC_CHAR_ID[form.correct_choice.data]
+        # Save the changes to the database
         db.session.commit()
         flash('Question updated successfully!', category='success')
+        # Redirect to the questions list page
         return redirect(url_for('questions'))
     return render_template('edit_mc_question.html', form=form, question=question)
 
+
 @app.route('/edit-st-question/<int:question_id>', methods=['GET', 'POST'])
 def edit_st_question(question_id):
+    print(question_id)
     question = StQuestion.query.get_or_404(question_id)
     form = StQuestionForm(obj=question)
     if form.validate_on_submit():
@@ -218,7 +230,7 @@ def delete_mc_questions():
     flash('Questions deleted successfully!', category='success')
     return redirect(url_for('questions'))
 
-# To edit or delete several SAQs
+# To edit several SAQs
 @app.route('/edit-st-questions', methods=['GET', 'POST'])
 def edit_st_questions():
     ids = request.args.get('ids').split(',')
@@ -232,9 +244,18 @@ def edit_st_questions():
         return redirect(url_for('questions'))
     return render_template('edit_st_questions.html', form=form, questions=questions, ids=ids)
 
+# To delete several SAQs
+@app.route('/delete-st-questions', methods=['GET', 'POST'])
+def delete_st_questions():
+    ids = request.args.get('ids').split(',')
+    for question_id in ids:
+        question = StQuestion.query.get_or_404(question_id)
+        db.session.delete(question)
+        db.session.commit()
+    flash('Questions deleted successfully!', category='success')
+    return redirect(url_for('questions'))
 
-
-
+# To add a category
 @app.route('/add_category', methods=['POST', 'GET'])
 def add_category():
     if request.method == 'POST':
@@ -304,7 +325,7 @@ def export_questions(tag):
     writer.writerow(['Question Type', 'Question', 'Multiple Choice', 'Feedback', 'Difficulty', 'Tags', 'Marks', 'Choice 1', 'Choice 1 Feedback', 'Choice 2', 'Choice 2 Feedback', 'Choice 3', 'Choice 3 Feedback', 'Choice 4', 'Choice 4 Feedback', 'Correct Answer', 'Correct Feedback', 'Incorrect Feedback'])
     
     for mc_question in mc_questions:
-        row = ['Multiple Choice', mc_question.question, mc_question.multiple, mc_question.feedback, mc_question.difficulty.name if mc_question.difficulty else "", ",".join([tag.tag for tag in mc_question.tags]), mc_question.marks]
+        row = ['Multiple Choice', mc_question.question, mc_question.multiple, mc_question.feedback, mc_question.difficulty.level if mc_question.difficulty else "", ",".join([tag.tag for tag in mc_question.tags]), mc_question.marks]
         for choice in mc_question.choices:
             row.append(choice.choice_text)
             row.append(choice.feedback)
@@ -699,6 +720,7 @@ def statistic(assessment_id):
 @app.route("/assessments", methods=['GET'])
 def assessments():
    return render_template('assessments.html')
+
 
 @app.errorhandler(404)
 def page_not_found(e):
