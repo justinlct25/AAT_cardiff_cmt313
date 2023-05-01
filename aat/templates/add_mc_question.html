@@ -13,14 +13,29 @@
 
         <input type="hidden" name="category" value="{{ category }}">
 
+        {% if form.errors %}
+            <div class="alert alert-danger" role="alert">
+                {% for field, errors in form.errors.items() %}
+                    {% for error in errors %}
+                        {{ error }}<br>
+                    {% endfor %}
+                {% endfor %}
+            </div>
+        {% endif %}
+
         <p>
             <div>{{ form.question.label }}</div>
             <div>{{ form.question }}</div>
-
+            {% for error in form.question.errors %}
+                <span style="color: red;">{{ error }}</span>
+            {% endfor %}
         </p>
         <p>
             <div>{{ form.choice_1.label }} </div>
             <div>{{ form.choice_1 }}</div>
+            {% for error in form.choice_1.errors %}
+                <span style="color: red;">{{ error }}</span>
+            {% endfor %}
         </p>
         <p>
             <div>{{ form.choice_feedback_1.label }} </div>
@@ -29,6 +44,9 @@
         <p>
             <div>{{ form.choice_2.label }} </div>
             <div>{{ form.choice_2 }}</div>
+            {% for error in form.choice_2.errors %}
+                <span style="color: red;">{{ error }}</span>
+            {% endfor %}
         </p>
         <p>
             <div>{{ form.choice_feedback_2.label }} </div>
@@ -37,6 +55,9 @@
         <p>
             <div>{{ form.choice_3.label }} </div>
             <div>{{ form.choice_3 }}</div>
+            {% for error in form.choice_3.errors %}
+                <span style="color: red;">{{ error }}</span>
+            {% endfor %}
         </p>
         <p>
             <div>{{ form.choice_feedback_3.label }} </div>
@@ -45,6 +66,9 @@
         <p>
             <div>{{ form.choice_4.label }} </div>
             <div>{{ form.choice_4 }}</div>
+            {% for error in form.choice_4.errors %}
+                <span style="color: red;">{{ error }}</span>
+            {% endfor %}
         </p>
         <p>
             <div>{{ form.choice_feedback_4.label }} </div>
