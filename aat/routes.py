@@ -200,13 +200,16 @@ def edit_mc_questions():
     ids = request.args.get('ids').split(',')
     questions = McQuestion.query.filter(McQuestion.id.in_(ids)).all()
     form = McQuestionForm(obj=questions)
-    if form.validate_on_submit():
+    # form.validate_on_submit() keeps returning false :(
+    if request.method == 'POST' and form.validate_on_submit():
         for question in questions:
             form.populate_obj(question)
             question.correct_choice_id = MC_CHAR_ID[form.correct_choice.data]
             db.session.commit()
         flash('Questions updated successfully!', category='success')
         return redirect(url_for('questions'))
+    elif request.method == 'POST':
+        flash('Edit not applied. Try again.', category='danger')
     return render_template('edit_mc_questions.html', form=form, questions=questions, ids=ids)
 
 # Route to delete multiple choice questions

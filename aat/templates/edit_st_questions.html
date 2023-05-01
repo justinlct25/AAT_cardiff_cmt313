@@ -4,7 +4,26 @@
   <h1>Edit Short Questions</h1>
   <form method="post">
     {% for question in questions %}
-
+      <div class="form-group">
+        <label for="question_{{ question.id }}">{{ question.question }}</label>
+        <input type="text" name="question_{{ question.id }}" class="form-control" id="question_{{ question.id }}" value="{{ question.question }}" required>
+        <br>
+        <label for="correct_ans_{{ question.id }}">Answer</label>
+        <input type="text" name="correct_ans{{ question.id }}" class="form-control" id="correct_ans_{{ question.id }}" value="{{ question.correct_ans }}" required>
+        <br>
+        <label for="feedback_correct_{{ question.id }}">Feedback for correct answer</label>
+        <textarea name="feedback_correct_{{ question.id }}" class="form-control" id="feedback_correct_{{ question.id }}" rows="2" required>{{ question.feedback_correct }}</textarea>
+        <br>
+        <label for="feedback_wrong_{{ question.id }}">Feedback for correct answer</label>
+        <textarea name="feedback_wrong_{{ question.id }}" class="form-control" id="feedback_wrong_{{ question.id }}" rows="2" required>{{ question.feedback_wrong }}</textarea>
+        <br>
+        <label for="difficulty_{{ question.id }}">Difficulty</label>
+        <input type="text" name="difficulty_{{ question.id }}" class="form-control" id="difficulty_{{ question.id }}" value="{{ question.difficulty }}" required>
+        <br>
+        <label for="marks_{{ question.id }}">Marks</label>
+        <input type="text" name="marks_{{ question.id }}" class="form-control" id="marks_{{ question.id }}" value="{{ question.marks }}" required>
+        <br>
+    </div>
     {% endfor %}
     <button type="submit" class="btn btn-primary">Save Changes</button>
   </form>
