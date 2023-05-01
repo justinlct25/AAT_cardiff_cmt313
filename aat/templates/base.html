@@ -683,23 +683,42 @@
   }
   </script>
 
-<!-- For select all feature -->
+<!-- MCQ select all feature -->
   <script>
-    var checkboxes = document.querySelectorAll("input[type='checkbox']")
+    var checkboxesMcq = document.querySelectorAll("input[type='checkbox' id='select-all-mcq'] ")
     
-    function checkAll(selectAll) {
+    function checkAllMcq(selectAll) {
       if(selectAll.checked == true) {
-        checkboxes.forEach(function(checkbox){ checkbox.checked = true; });
+        checkboxesMcq.forEach(function(checkbox){ checkbox.checked = true; });
       } 
     
       else {
-        checkboxes.forEach(function(checkbox) {
+        checkboxesMcq.forEach(function(checkbox) {
           checkbox.checked = false;
         });
       }
     }
   </script>
-<!-- / -->
+
+
+<!-- SAQ select all feature -->
+  <script>
+    var checkboxesSaq = document.querySelectorAll("input[type='checkbox' id='select-all-st'] ")
+    
+    function checkAllSaq(selectAll) {
+      if(selectAll.checked == true) {
+        checkboxesSaq.forEach(function(checkbox){ checkbox.checked = true; });
+      } 
+    
+      else {
+        checkboxesSaq.forEach(function(checkbox) {
+          checkbox.checked = false;
+        });
+      }
+    }
+  </script>
+
+
 
 <!-- Category value passing -->
 <script>

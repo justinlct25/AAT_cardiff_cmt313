@@ -2,4 +2,10 @@
 
 {% block content %}
   <h1>Edit Short Questions</h1>
+  <form method="post">
+    {% for question in questions %}
+
+    {% endfor %}
+    <button type="submit" class="btn btn-primary">Save Changes</button>
+  </form>
 {% endblock %}
