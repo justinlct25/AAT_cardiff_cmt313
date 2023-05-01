@@ -325,7 +325,7 @@ def export_questions(tag):
     writer.writerow(['Question Type', 'Question', 'Multiple Choice', 'Feedback', 'Difficulty', 'Tags', 'Marks', 'Choice 1', 'Choice 1 Feedback', 'Choice 2', 'Choice 2 Feedback', 'Choice 3', 'Choice 3 Feedback', 'Choice 4', 'Choice 4 Feedback', 'Correct Answer', 'Correct Feedback', 'Incorrect Feedback'])
     
     for mc_question in mc_questions:
-        row = ['Multiple Choice', mc_question.question, mc_question.multiple, mc_question.feedback, mc_question.difficulty.name if mc_question.difficulty else "", ",".join([tag.tag for tag in mc_question.tags]), mc_question.marks]
+        row = ['Multiple Choice', mc_question.question, mc_question.multiple, mc_question.feedback, mc_question.difficulty.level if mc_question.difficulty else "", ",".join([tag.tag for tag in mc_question.tags]), mc_question.marks]
         for choice in mc_question.choices:
             row.append(choice.choice_text)
             row.append(choice.feedback)
