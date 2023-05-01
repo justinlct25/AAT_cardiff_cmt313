@@ -21,8 +21,10 @@
             <thead>
                 <tr>
                     <th>ID</th>
+                    <th>Category</th>
                     <th>Question</th>
                     <th>Answer</th>
+                    <th>Marks</th>
                     <th>Operations</th>
                 </tr>
             </thead>
@@ -30,8 +32,10 @@
                 {% for question in st_questions %}
                     <tr>
                         <td>{{ question.id }}</td>
+                        <td>{{ question.tags[0].tag if question.tags else "-"}} </td>
                         <td>{{ question.question }}</td>
                         <td>{{ question.correct_ans}}</td>
+                        <td>{{ question.marks }}</td>
                         <td>
                             <form method="POST" action="{{ url_for('template_edit_short_question_select', question_id=question.id, template_id=template.id, course_id=course.id) }}">
                                 <button class="btn-info" type="submit">Select</button>

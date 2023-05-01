@@ -8,6 +8,7 @@ from io import TextIOWrapper, StringIO
 from sqlalchemy import func
 from urllib.parse import unquote
 
+
 import random, csv, io
 
 
@@ -171,18 +172,27 @@ def delete_st_question(question_id):
 
 @app.route('/edit-mc-question/<int:question_id>', methods=['GET', 'POST'])
 def edit_mc_question(question_id):
+    # Get the question from the database
     question = McQuestion.query.get_or_404(question_id)
+    print(question_id)
+    # Create an instance of the form and fill it with the current question data
     form = McQuestionForm(obj=question)
-    if form.validate_on_submit():
+    print(question_id)
+    if request.method == "POST":
+        # Update the question object with the form data
+        print(question_id)
         form.populate_obj(question)
-        question.correct_choice_id = MC_CHAR_ID[form.correct_choice.data]
+        # Save the changes to the database
         db.session.commit()
         flash('Question updated successfully!', category='success')
+        # Redirect to the questions list page
         return redirect(url_for('questions'))
     return render_template('edit_mc_question.html', form=form, question=question)
 
+
 @app.route('/edit-st-question/<int:question_id>', methods=['GET', 'POST'])
 def edit_st_question(question_id):
+    print(question_id)
     question = StQuestion.query.get_or_404(question_id)
     form = StQuestionForm(obj=question)
     if form.validate_on_submit():
@@ -318,7 +328,7 @@ def export_questions(tag):
     writer.writerow(['Question Type', 'Question', 'Multiple Choice', 'Feedback', 'Difficulty', 'Tags', 'Marks', 'Choice 1', 'Choice 1 Feedback', 'Choice 2', 'Choice 2 Feedback', 'Choice 3', 'Choice 3 Feedback', 'Choice 4', 'Choice 4 Feedback', 'Correct Answer', 'Correct Feedback', 'Incorrect Feedback'])
     
     for mc_question in mc_questions:
-        row = ['Multiple Choice', mc_question.question, mc_question.multiple, mc_question.feedback, mc_question.difficulty.name if mc_question.difficulty else "", ",".join([tag.tag for tag in mc_question.tags]), mc_question.marks]
+        row = ['Multiple Choice', mc_question.question, mc_question.multiple, mc_question.feedback, mc_question.difficulty.level if mc_question.difficulty else "", ",".join([tag.tag for tag in mc_question.tags]), mc_question.marks]
         for choice in mc_question.choices:
             row.append(choice.choice_text)
             row.append(choice.feedback)
