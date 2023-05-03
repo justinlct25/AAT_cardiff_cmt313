@@ -1,6 +1,10 @@
 {% extends 'base.html' %}
 
 {% block content %}
+
+  <a href="#" class="btn btn-primary btn-sm" onclick="history.back(); return false;">Back</a>
+  <br>
+  <br>
   <h1>Edit Short Answer Question</h1>
   <form method="post" action="">
     {{ form.hidden_tag() }}
