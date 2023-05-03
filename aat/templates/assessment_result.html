@@ -3,7 +3,7 @@
 {% block content %}
 <div class="outer-container">
     <div class="btn ">
-        <a href="{{url_for('course', course_id=assessment.course.id)}}">< {{assessment.course.number}} - {{ assessment.course.name}}</a>
+        <a href="{{url_for('assessment_results', assessment_id=assessment.id)}}">< Assessment Results - {{ assessment.template.name}}</a>
     </div>
     <h1>Assessment Attempt Record</h1>
     <div>Assessment: {{assessment.template.name}}</div>

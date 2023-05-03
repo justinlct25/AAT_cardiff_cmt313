@@ -14,9 +14,11 @@
                     <tr>
                         <th>Name</th>
                         <th>Category Tag</th>
-                        <th>Difficulty</th>
+                        <th>Diff.</th>
+                        <th>Questions</th>
                         <th>Created at</th>
                         <th>Created by</th>
+                        <th>Confirmed</th>
                         <th>Operations</th>
                     </tr>
                 </thead>
@@ -25,8 +27,10 @@
                     <td>{{ template.name }}</td>
                     <td>{{ template.tags[0].tag }}</td>
                     <td>{{ template.difficulty.level }}</td>
-                    <td>{{template.created_at.date()}}</td>
+                    <td>{{ template.st_questions|length + template.mc_questions|length }} ({{template.st_questions|length}}SQ+{{template.mc_questions|length}}MC)</td>
+                    <td>{{ template.created_at.date() }}</td>
                     <td>{{ template.creator.user.firstname}} {{template.creator.user.lastname}}</td>
+                    <td>{{ template.is_confirmed }}</td>
                     <td>
                         <a href="{{url_for('assessment_new', template_id=template.id, course_id=course.id)}}">Select</a>
                         <a href="{{url_for('template', template_id=template.id, course_id=course.id)}}">View</a>

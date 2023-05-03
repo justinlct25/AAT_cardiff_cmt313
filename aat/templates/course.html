@@ -41,6 +41,13 @@
                                 <td>Upcoming</td>
                                 <td>{{assessment.start_at.date()}}</td>
                                 <td>{{assessment.end_at.date()}}</td>
+                                {# {% if assessment.start_at.date() > datetime.now().date() %} assessment havnt start yet #}
+                                <td>
+                                    <form method="POST" action="{{ url_for('assessment_delete', assessment_id=assessment.id, course_id=course.id) }}">
+                                        <button class="btn btn-link text-decoration-none text-primary" type="submit">Delete</button>
+                                    </form>
+                                </td>
+                                        {# {% endif %} #}
                             {% elif assessment.end_at.date() < datetime.now().date() %} {# assessment aleady ended#}
                                 <td>Ended</td>
                                 <td>{{assessment.start_at.date()}}</td>
@@ -55,7 +62,7 @@
                                 {% elif user.teacher %}
                                     <td>
                                         <a href="{{ url_for('assessment_view', assessment_id=assessment.id) }}">View Assessment</a>
-                                        <a cllass="ml-3" href="{{ url_for('assessment_results', assessment_id=assessment.id) }}">View Student Results</a>
+                                        <a cllass="ml-3" href="{{ url_for('assessment_results', assessment_id=assessment.id) }}">View Student {{"Attempts" if assessment.is_formative else "Results"}}</a>
                                     </td>
                                 {% endif %}
                             {% else %} {# assessment is ongoing #}
@@ -89,8 +96,8 @@
                                     {% endif %} 
                                 {% elif user.teacher %}
                                     <td>
-                                        <a href="{{ url_for('assessment_view', assessment_id=assessment.id) }}">View Assessment</a>
-                                        <a cllass="ml-3" href="{{ url_for('assessment_results', assessment_id=assessment.id) }}">View Student Results</a>
+                                        <a class="" href="{{ url_for('assessment_view', assessment_id=assessment.id) }}">View Assessment</a>
+                                        <a cllass="ml-3" href="{{ url_for('assessment_results', assessment_id=assessment.id) }}">View Student {{"Attempts" if assessment.is_formative else "Results"}}</a>
                                     </td>
                                 {% endif %}
                             {% endif %}

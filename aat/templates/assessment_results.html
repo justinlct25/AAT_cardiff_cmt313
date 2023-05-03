@@ -29,6 +29,7 @@
                     <th>Date</th>
                     <th>Marks</th>
                     <th>Status</th>
+                    <th>Feedback</th>
                     <th>Operations</th>
                 {% endif %}
             </tr>
@@ -50,15 +51,20 @@
                                     </form>
                                 </div>
                             </td>
+                            <td>{{ attempt_record.feedback }}</td>
                             <td>
                                 <div class="btn">
                                     <a href="{{url_for('assessment_result', attempt_id=attempt_record.id)}}">View</a>
+                                </div>
+                                <div class="btn">
+                                    <a href="{{url_for('assessment_result', attempt_id=attempt_record.id)}}">Feedback</a>
                                 </div>
                             </td>
                         {% else %}
                             <td>-</td>
                             <td>-</td>
                             <td>Not Submitted</td>
+                            <td>-</td>
                             <td>-</td>
                         {% endif %}
                     {% else %}

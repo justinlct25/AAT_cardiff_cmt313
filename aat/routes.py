@@ -109,12 +109,9 @@ def questions():
 @app.route("/question-bank/add/multiple-choice", methods=["GET", "POST"])
 def mc_questions_add():
     form = McQuestionForm()
-    
     if form.validate_on_submit():
         category = request.args.get('category')
-        print(category)
         tag = Tag.query.filter_by(tag=category).first_or_404()
-        print(tag)
         difficulty = Difficulty.query.filter_by(level=form.difficulty.data).first_or_404()
 
         question = McQuestion(creator_id=current_user.id, question=form.question.data, feedback=form.feedback.data, choice_1=form.choice_1.data, choice_2=form.choice_2.data, choice_3=form.choice_3.data, choice_4=form.choice_4.data, choice_feedback_1=form.choice_feedback_1.data, choice_feedback_2=form.choice_feedback_2.data, choice_feedback_3=form.choice_feedback_3.data, choice_feedback_4=form.choice_feedback_4.data, correct_choice_id=MC_CHAR_ID[form.correct_choice.data], marks=form.marks.data,
@@ -153,6 +150,7 @@ def category_add():
 # Route to delete a multiple choice question
 @app.route('/delete-mc-question/<int:question_id>')
 def delete_mc_question(question_id):
+    
     question = McQuestion.query.get_or_404(question_id)
     db.session.delete(question)
     db.session.commit()
@@ -167,8 +165,6 @@ def delete_st_question(question_id):
     db.session.commit()
     flash('Question deleted successfully!', category='success')
     return redirect(url_for('questions'))
-
-
 
 @app.route('/edit-mc-question/<int:question_id>', methods=['GET', 'POST'])
 def edit_mc_question(question_id):
@@ -363,6 +359,7 @@ def courses():
   return render_template('courses.html', courses=courses, form=form, user=user)
 
 @app.route("/course/<int:course_id>", methods=['GET'])
+@login_required
 def course(course_id):
     user = User.query.get(current_user.id)
     course = Course.query.get(course_id)
@@ -370,21 +367,26 @@ def course(course_id):
     if user.student:
         for assessment in course.assessments:
             attempts = StudentAttemptStatus.query.filter_by(student_id=user.student.id, assessment=assessment)
-            # print(attempts)
             latest_attempt = attempts.order_by(StudentAttemptStatus.id.desc()).first()
-            # if latest_attempt: # of not then no attempt yet
             assessment_attempts.append(latest_attempt) # attempt_id=0: havnt attempt yet
-    print(assessment_attempts)
     return render_template('course.html', course=course, user=user, datetime=datetime, assessment_attempts=assessment_attempts)
 
 @app.route("/template/select/<int:course_id>", methods=['GET'])
+@login_required
 def template_select(course_id):
+    if not current_user.teacher:
+        flash("Unauthorized")
+        return redirect(url_for("home"))
     course = Course.query.get(course_id)
     templates = AssessmentTemplate.query.all()
     return render_template('template_select.html', course=course, templates=templates)
 
 @app.route("/template/new/<int:course_id>", methods=['GET', 'POST'])
+@login_required
 def template_new(course_id):
+    if not current_user.teacher:
+        flash("Unauthorized")
+        return redirect(url_for("home"))
     user = User.query.get(current_user.id)
     teacher = Teacher.query.get(user.teacher.id)
     course = Course.query.get(course_id) if not course_id == 0 else None
@@ -406,12 +408,19 @@ def template_new(course_id):
     return render_template("template_new.html", course=course, form=form)
 
 @app.route("/template/view/<int:template_id>/<int:course_id>", methods=['GET', 'POST'])
+@login_required
 def template(template_id, course_id):
+    if not current_user.teacher:
+        flash("Unauthorized")
+        return redirect(url_for("home"))
+    template = AssessmentTemplate.query.get(template_id)
+    update_template_total_marks(template)
     template = AssessmentTemplate.query.get(template_id)
     course = Course.query.get(course_id) if not course_id == 0 else None # course_id==0 means this route isnt get into through adding new assessment within a course
     return render_template("template.html", course=course, template=template, mc_id_char=MC_ID_CHAR)
 
 @app.route("/template/edit/<int:template_id>/<int:course_id>", methods=['GET', 'POST'])
+@login_required
 def template_edit(template_id, course_id):
     template = AssessmentTemplate.query.get(template_id)
     course = Course.query.get(course_id)
@@ -432,6 +441,7 @@ def template_edit(template_id, course_id):
     return render_template("template_edit.html", course=course, template=template, form=form, mc_id_char=MC_ID_CHAR)
 
 @app.route("/template/edit/question/st/new/<int:template_id>/<int:course_id>", methods=['GET', 'POST'])
+@login_required
 def template_edit_short_question_new(template_id, course_id):
     user = User.query.get(current_user.id)
     course = Course.query.get(course_id)
@@ -450,6 +460,7 @@ def template_edit_short_question_new(template_id, course_id):
     return render_template("question_st_new.html", template=template, form=form, st_questions=st_questions, course=course)
 
 @app.route("/template/edit/question/mc/new/<int:template_id>/<int:course_id>", methods=['GET', 'POST'])
+@login_required
 def template_edit_multiple_choice_question_new(template_id, course_id):
     user = User.query.get(current_user.id)
     course = Course.query.get(course_id)
@@ -468,6 +479,7 @@ def template_edit_multiple_choice_question_new(template_id, course_id):
     return render_template("question_mc_new.html", template=template, form=form, mc_questions=mc_questions, course=course, mc_id_char=MC_ID_CHAR)
 
 @app.route("/template/edit/question/st/select/<int:question_id>/<int:template_id>/<int:course_id>", methods=['POST'])
+@login_required
 def template_edit_short_question_select(question_id, template_id, course_id):
     st_question = StQuestion.query.get(question_id)
     course = Course.query.get(course_id)
@@ -478,6 +490,7 @@ def template_edit_short_question_select(question_id, template_id, course_id):
     return redirect(url_for('template', template_id=template.id, course_id=course.id))
 
 @app.route("/template/edit/question/mc/select/<int:question_id>/<int:template_id>/<int:course_id>", methods=['POST'])
+@login_required
 def template_edit_multiple_choice_question_select(question_id, template_id, course_id):
     mc_question = McQuestion.query.get(question_id)
     course = Course.query.get(course_id)
@@ -488,6 +501,7 @@ def template_edit_multiple_choice_question_select(question_id, template_id, cour
     return redirect(url_for('template', template_id=template.id, course_id=course.id))
 
 @app.route("/template/edit/question/st/delete/<int:question_id>/<int:template_id>/<int:course_id>", methods=['POST'])
+@login_required
 def template_edit_short_question_delete(question_id, template_id, course_id):
     st_question = StQuestion.query.get(question_id)
     course = Course.query.get(course_id)
@@ -499,6 +513,7 @@ def template_edit_short_question_delete(question_id, template_id, course_id):
     return redirect(url_for('template', template_id=template.id, course_id=course.id))
 
 @app.route("/template/edit/question/mc/delete/<int:question_id>/<int:template_id>/<int:course_id>", methods=['POST'])
+@login_required
 def template_edit_multiple_choice_question_delete(question_id, template_id, course_id):
     mc_question = McQuestion.query.get(question_id)
     course = Course.query.get(course_id)
@@ -510,6 +525,7 @@ def template_edit_multiple_choice_question_delete(question_id, template_id, cour
     return redirect(url_for('template', template_id=template.id, course_id=course.id))
 
 @app.route("/template/confirm/<int:template_id>/<int:course_id>", methods=['POST'])
+@login_required
 def template_confirm(template_id, course_id):
     template = AssessmentTemplate.query.get(template_id)
     template.is_confirmed = True
@@ -534,6 +550,7 @@ def template_confirm(template_id, course_id):
 #     return render_template("question_mc_new_num_choices.html", template=template, template_creator=creator_name, form=mcChoicesNumberForm)
 
 @app.route("/assessment/new/<int:template_id>/<int:course_id>", methods=['GET', 'POST'])
+@login_required
 def assessment_new(template_id, course_id):
     user = User.query.get(current_user.id)
     course = Course.query.get(course_id)
@@ -549,13 +566,27 @@ def assessment_new(template_id, course_id):
         return redirect(url_for("assessment_view", assessment_id=assessment.id))
     return render_template("assessment_new.html", user = user, course=course, template=template, form=form)
 
+@app.route("/assessment/delete/<int:assessment_id>/<int:course_id>", methods=['POST'])
+@login_required
+def assessment_delete(assessment_id, course_id):
+    assessment = Assessment.query.get(assessment_id)
+    if assessment.start_at.date() > datetime.now().date():
+      db.session.delete(assessment)
+      db.session.commit()
+      flash("Assessment Deleted")
+      return redirect(url_for("course", course_id=course_id))
+    flash("Cannot delete assessment")
+    return redirect(url_for("course", course_id=course_id))
+
 @app.route("/assessment/view/<int:assessment_id>", methods=['GET'])
+@login_required
 def assessment_view(assessment_id):
     user = User.query.get(current_user.id)
     assessment = Assessment.query.get(assessment_id)
     return render_template("assessment_view.html", user=user, assessment=assessment, mc_id_char=MC_ID_CHAR)
 
 @app.route("/assessment/attempt/<int:assessment_id>/<int:attempt_id>", methods=['GET', 'POST'])
+@login_required
 def assessment_attempt(assessment_id, attempt_id=0):
     user = User.query.get(current_user.id)
     assessment = Assessment.query.get(assessment_id)
@@ -582,6 +613,7 @@ def assessment_attempt(assessment_id, attempt_id=0):
     return render_template("assessment_attempt.html", user=user, assessment=assessment, mc_forms=mc_forms, st_forms=st_forms, mc_id_char=MC_ID_CHAR, attempt_id=attempt_id, mc_answers=mc_answers, st_answers=st_answers)
 
 @app.route("/assessment/attempt/mc/<int:attempt_id>/<int:question_id>", methods=['GET', 'POST'])
+@login_required
 def assessment_attempt_mc(attempt_id, question_id):
     attempt = StudentAttemptStatus.query.get(attempt_id)
     question = McQuestion.query.get(question_id)
@@ -607,6 +639,7 @@ def assessment_attempt_mc(attempt_id, question_id):
     return redirect(url_for("assessment_attempt", assessment_id=attempt.assessment.id, attempt_id=attempt_id))
 
 @app.route("/assessment/attempt/st/<int:attempt_id>/<int:question_id>", methods=['GET', 'POST'])
+@login_required
 def assessment_attempt_st(attempt_id, question_id):
     attempt = StudentAttemptStatus.query.get(attempt_id)
     question = StQuestion.query.get(question_id)
@@ -632,6 +665,7 @@ def assessment_attempt_st(attempt_id, question_id):
     return redirect(url_for("assessment_attempt", assessment_id=attempt.assessment.id, attempt_id=attempt_id))
 
 @app.route("/assessment/submit/<int:attempt_id>", methods=['POST'])
+@login_required
 def assessment_submit(attempt_id):
     attempt = StudentAttemptStatus.query.get(attempt_id)
     attempt_total_marks = 0
@@ -648,10 +682,12 @@ def assessment_submit(attempt_id):
     else:
         return redirect(url_for('course', course_id=attempt.assessment.course.id))
         
-
 @app.route("/assessment/result/<int:attempt_id>", methods=['GET', 'POST'])
+@login_required
 def assessment_result(attempt_id):
     user = User.query.get(current_user.id)
+    attempt = StudentAttemptStatus.query.get(attempt_id)
+    update_template_total_marks(attempt.assessment.template)
     attempt = StudentAttemptStatus.query.get(attempt_id)
     form = AttemptFeedbackForm()
     if form.validate_on_submit():
@@ -669,10 +705,14 @@ def assessment_result(attempt_id):
     return render_template("assessment_result.html", user=user, attempt=attempt, assessment=attempt.assessment, mc_feedbacks=mc_feedbacks, mc_answers=mc_answers, st_answers=st_answers, mc_id_char=MC_ID_CHAR, form=form)
 
 @app.route("/assessment/results/<int:assessment_id>", methods=['GET'])
+@login_required
 def assessment_results(assessment_id):
     user = User.query.get(current_user.id)
     if not user.teacher:
+        flash("Unauthorized")
         return redirect(url_for("courses"))
+    assessment = Assessment.query.get(assessment_id)
+    update_template_total_marks(assessment.template)
     assessment = Assessment.query.get(assessment_id)
     programme = assessment.course.programme
     student_attempt_records, student_attempt_times, student_not_attempt_records = [], [], []
@@ -692,14 +732,22 @@ def assessment_results(assessment_id):
     return render_template("assessment_results.html", user=user, programme=programme, assessment=assessment, student_attempt_records=student_attempt_records, student_attempt_times=student_attempt_times, attempt_students_num=attempt_students_num)
 
 @app.route("/assessment/result/confirm/<int:attempt_id>/<int:is_confirmed>", methods=['POST'])
+@login_required
 def assessment_result_confirm(attempt_id, is_confirmed):
+    if not current_user.teacher:
+        flash("Unauthorized")
+        return redirect(url_for("courses"))
     attempt = StudentAttemptStatus.query.get(attempt_id)
     attempt.result_is_confirmed = is_confirmed
     db.session.commit()
     return redirect(url_for("assessment_results", assessment_id=attempt.assessment.id))
 
 @app.route("/assessment/results/confirm/<int:assessment_id>", methods=['POST'])
+@login_required
 def assessment_results_confirm(assessment_id):
+    if not current_user.teacher:
+        flash("Unauthorized")
+        return redirect(url_for("courses"))
     attempts = StudentAttemptStatus.query.join(StudentAttemptStatus.assessment).filter(Assessment.id == assessment_id).all()
     for attempt in attempts:
         attempt.result_is_confirmed = True
@@ -707,11 +755,14 @@ def assessment_results_confirm(assessment_id):
     return redirect(url_for("assessment_results", assessment_id=assessment_id))
 
 @app.route("/attempt/feedback/<int:attempt_id>", methods=["POST"])
+@login_required
 def attempt_feedback(attempt_id):
     attempt = StudentAttemptStatus.query.get(attempt_id)
     attempt
+    return 
 
-@app.route("/statistic/<int:assessment_id>", methods=['GET'])    
+@app.route("/statistic/<int:assessment_id>", methods=['GET'])   
+@login_required
 def statistic(assessment_id):
     data = StudentAttemptStatus.query.filter_by(assessment_id=assessment_id)
     return render_template("statistic", data=data)

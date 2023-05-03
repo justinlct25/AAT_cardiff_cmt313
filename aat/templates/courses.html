@@ -3,13 +3,15 @@
 {% block content %}
 <div class="outer-container">
     {% if user.student %}
-        <div class="secondary-title">{{user.student.programme.name}}</div>
+        <div class="secondary-title">Studying Programme: {{user.student.programme.name}}</div>
+        <div class="secondary-title">Department: {{user.student.programme.department.name}}</div>
     {% endif %}
     <div class="inner-container">
+        <br>
         {% if user.teacher %}
-            <h1>Courses Teaching:</h1>
+            <h2>Courses Teaching:</h2>
         {% elif user.student %}
-            <h1>Courses Taking:</h1>
+            <h2>Courses Taking:</h2>
         {% endif %}
         {% if courses == [] %}
             <div>no course yet</div>

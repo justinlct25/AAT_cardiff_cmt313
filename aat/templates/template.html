@@ -17,6 +17,7 @@
     <div>Tag: {{ template.tags[0].tag }} </div>
     <div>No. of Questions: {{ template.mc_questions|length + template.st_questions|length }} ({{template.mc_questions|length}}MCQ + {{template.st_questions|length}}SQ) </div>
     <div>Full Marks: {{ template.total_marks }}</div>
+    <div>Questions are Confirmed: {{ template.is_confirmed }}</div>
     <div class="btn btn-info">
         <a href="{{url_for('template_edit', template_id=template.id, course_id=course.id )}}">Edit</a>
     </div>
@@ -40,12 +41,14 @@
         {% for question in template.mc_questions %}
             <div class="card card-body">
                 <div class="d-flex flex-row">
-                    <div><b>Multiple Choice Q{{ loop.index }}</b></div>
-                    <form method="POST" action="{{ url_for('template_edit_multiple_choice_question_delete', question_id=question.id, template_id=template.id, course_id=course.id) }}">
-                        <button class="ml-3 btn-info" type="submit">Delete</button>
-                    </form>
+                    <div><b>Multiple Choice Q{{ loop.index }}</b> ({{question.marks}} marks)</div>
+                    {% if not template.is_confirmed %}
+                        <form method="POST" action="{{ url_for('template_edit_multiple_choice_question_delete', question_id=question.id, template_id=template.id, course_id=course.id) }}">
+                            <button class="ml-3 btn-info" type="submit">Delete</button>
+                        </form>
+                    {% endif %}
                 </div>
-                <div>{{ question.question }} ({{question.marks}} marks)</div>
+                <div>{{ question.question }} </div>
                 <div>Correct Choice: {{ mc_id_char[question.correct_choice_id] }}</div>
                 <ol type="A">
                     <li>
@@ -83,13 +86,15 @@
             {% for question in template.st_questions %}
                 <div class="card card-body">
                     <div class="d-flex flex-row">
-                    <div><b>Short Q{{ loop.index }}</b></div>
-                        <form method="POST" action="{{ url_for('template_edit_short_question_delete', question_id=question.id, template_id=template.id, course_id=course.id) }}">
-                            <button class="ml-3 btn-info" type="submit">Delete</button>
-                        </form>
+                    <div><b>Short Q{{ loop.index }}</b> ({{question.marks}} marks)</div>
+                        {% if not template.is_confirmed %}
+                            <form method="POST" action="{{ url_for('template_edit_short_question_delete', question_id=question.id, template_id=template.id, course_id=course.id) }}">
+                                <button class="ml-3 btn-info" type="submit">Delete</button>
+                            </form>
+                        {% endif %}
                     </div>
                     <div class="question-container">
-                        <div>{{ question.question }} ({{question.marks}} marks)</div>
+                        <div>{{ question.question }} </div>
                         <div>Correct Answer: {{ question.correct_ans }} </div>
                         <div>Feedback(Correct): {{ question.feedback_correct }}</div>
                         <div>Feedback(Wrong): {{ question.feedback_wrong }} </div>
@@ -100,7 +105,7 @@
     </div>
     {% if not template.is_confirmed %}
         <form method="POST" action="{{url_for('template_confirm', template_id=template.id, course_id=course.id)}}">
-            <button class="btn btn-info" type="submit">Confirm Template</button>
+            <button class="btn btn-info" type="submit">Confirm Questions</button>
         </form>
     {% endif %}
 </div>
